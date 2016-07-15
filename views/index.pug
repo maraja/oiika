@@ -1,13 +1,86 @@
-extend layout
-block content
-  p
-    | Vivamus hendrerit arcu sed erat molestie
-    | vehicula. Sed auctor neque eu tellus
-    | rhoncus ut eleifend nibh porttitor. Ut in.
-  p
-    | Donec congue lacinia dui, a porttitor
-    | lectus condimentum laoreet. Nunc eu
-    | ullamcorper orci. Quisque eget odio ac
-    | lectus vestibulum faucibus eget in metus.
-    | In pellentesque faucibus vestibulum. Nulla
-    | at nulla justo, eget luctus tortor.
+doctype html
+html
+	head
+		title= title
+		link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', rel='stylesheet')
+		link(href='css/main.css', rel='stylesheet')
+		
+		//- JQUERY
+		script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js')
+
+		//- SMOOTH SCROLL
+		script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery-smooth-scroll/1.7.2/jquery.smooth-scroll.min.js')
+	body
+		
+		//- NAVIGATION BAR
+		include navbar
+
+		//- MAIN CONTAINER
+		#main-container
+			.container
+				.col-xs-6
+				.col-xs-6
+					.sign-up-now-container
+						form(method='post')
+							.row
+								.col-xs-6
+									h4 First Name: 
+								.col-xs-6
+									input(type='text', name='first_name', placeholder='John')
+							.row
+								.col-xs-6
+									h4 Last Name: 
+								.col-xs-6
+									input(type='text', name='last_name', placeholder='Doe')
+							.row
+								.col-xs-6
+									h4 Email: 
+								.col-xs-6
+									input(type='text', name='email', placeholder='john.doe@example.com')
+								br
+							.row
+								input(type='submit', value='Sign Up')
+
+		//- SECOND CONTAINER
+		#second-container
+			.container
+				h2 Making Knowledge Accessible
+				.row
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						img(src='images/icons/gps.png')
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						h2 Don't Settle
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						h3 Choose from a wide variety of mentors in your area.
+				.row
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						img(src='images/icons/time.png')
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						h2 Do more with your time
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						h3 Take full control over the time & venue you receive your education.
+				.row
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						img(src='images/icons/piggy-bank.png')
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						h2 Spend less
+					.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+						h3 Get your money's worth by choosing the price you pay.
+
+		#third-container
+			.container
+
+
+//- extend layout
+//- block content
+//-   p
+//-     | Vivamus hendrerit arcu sed erat molestie
+//-     | vehicula. Sed auctor neque eu tellus
+//-     | rhoncus ut eleifend nibh porttitor. Ut in.
+//-   p
+//-     | Donec congue lacinia dui, a porttitor
+//-     | lectus condimentum laoreet. Nunc eu
+//-     | ullamcorper orci. Quisque eget odio ac
+//-     | lectus vestibulum faucibus eget in metus.
+//-     | In pellentesque faucibus vestibulum. Nulla
+//-     | at nulla justo, eget luctus tortor.

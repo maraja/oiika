@@ -1,0 +1,39 @@
+doctype html
+html
+  head
+    title= title
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', rel='stylesheet')
+    link(href='css/main.css', rel='stylesheet')
+    
+    //- JQUERY
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js')
+    
+    //- SMOOTH SCROLL
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery-smooth-scroll/1.7.2/jquery.smooth-scroll.min.js')
+  body
+
+    //- NAVIGATION BAR
+    include navbar
+
+    //- SECOND CONTAINER
+    #signup-form
+      .container
+        form(method='post')
+          .row
+            .col-xs-6
+              h4 First Name: 
+            .col-xs-6
+              input(type='text', name='first_name', placeholder='John')
+          .row
+            .col-xs-6
+              h4 Last Name: 
+            .col-xs-6
+              input(type='text', name='last_name', placeholder='Doe')
+          .row
+            .col-xs-6
+              h4 Email: 
+            .col-xs-6
+              input(type='text', name='email', placeholder='john.doe@example.com')
+            br
+          .row
+            input(type='submit', value='Sign Up')
