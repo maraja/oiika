@@ -1,0 +1,35 @@
+header
+    .container-fluid
+        .row
+          nav.navbar
+            .navbar-header
+              button.navbar-toggle(type='button', data-toggle='collapse', data-target='.js-navbar-collapse')
+                span.sr-only Toggle navigation
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+              a.navbar-brand(href='#') Logo
+            .collapse.navbar-collapse.js-navbar-collapse
+              ul.nav.navbar-nav
+                li
+                  input(type='text', id='top_search', placeholder='Where shall we search?')
+              ul.nav.navbar-nav.navbar-right
+                li
+                    a(href='#') 
+                        span.boxed Become a Tutor
+                li.dropdown
+                    a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false') 
+                        | Reza&nbsp;
+                        span.caret
+                    ul.dropdown-menu(role='menu')
+                        li
+                            a(href='#') Your Sessions
+                        li
+                            a(href='#') Your Contacts
+                        li
+                            a(href='#') Account Settings
+                        li
+                            a(href='#') Help
+                        li
+                            a(href='#') Log Out
+
