@@ -8,19 +8,21 @@ header
                 span.icon-bar
                 span.icon-bar
                 span.icon-bar
-              a.navbar-brand(href='#') Logo
+              a.navbar-brand(href='#')
+                img.logo(src='images/logo_coloured_2.png')
             .collapse.navbar-collapse.js-navbar-collapse
-              ul.nav.navbar-nav
-                li
-                  input(type='text', id='top_search', placeholder='Where shall we search?')
+              if path != "/"
+                ul.nav.navbar-nav  
+                  li
+                    i.icon.icon_search
+                    input(type='text', id='top_search', placeholder='Where shall we search?')
               ul.nav.navbar-nav.navbar-right
                 li
-                    a(href='#') 
-                        span.boxed Become a Tutor
+                    a.btn.btn-primary(href='#') Become a Tutor
                 li.dropdown
                     a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false') 
-                        | Reza&nbsp;
-                        span.caret
+                        | Reza
+                        img.profile_img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
                     ul.dropdown-menu(role='menu')
                         li
                             a(href='#') Your Sessions

@@ -1,11 +1,12 @@
 doctype html
 html
   head
-    include ./head.pug
+    include common/head
   body
-    include ./header.pug
+    if path != '/'
+        include common/header
 
     block content
     
-    include ./footer.pug
-    include ./scripts.pug
+    include common/footer
+    include common/scripts
