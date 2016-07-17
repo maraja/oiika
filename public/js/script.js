@@ -1,3 +1,5 @@
 $(document).ready(function() {
-	alert(hi);
+	$('.filter select').select2({
+		minimumResultsForSearch: -1
+	});
 });
