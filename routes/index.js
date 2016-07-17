@@ -1,5 +1,8 @@
 var express = require('express');
 var router = express.Router();
+var mongoDb = require('../db/helpers/mongodb');
+
+var db = mongoDb.dbConnection();
 
 
 /* GET home page. */
@@ -15,8 +18,11 @@ router.get('/signup', function (req, res, next) {
 	res.render('signup', {title: 'Signup'});
 });
 
-router.get('/search', function (req, res, next) {
-	res.render('search', {title: 'Search'});
+router.get('/search', [mongoDb.getAllTutors] , function (req, res, next) {
+	res.render('search', {
+		title: 'Search', 
+		tutors: req.tutors
+	});
 });
 
 module.exports = router;

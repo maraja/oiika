@@ -6,7 +6,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var config = require('./config');
@@ -18,24 +17,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 
-
-// MONGOOSE MONGODB CONNECTION TEST
-var tutorModel = require('./db/models/Tutors')();
-var db = config.db[config.environment];
-var db_connection_string = db.dialect + "://" + 
-	db.username + ":" + 
-	db.password + "@" +
-	db.host + ":" + 
-	db.port + "/" + 
-	db.database;
-
-var mongo_db = mongoose.connect(db_connection_string);
-
-tutorModel.find({}, function(err, docs) {
-	if(err) console.log(err);
-	console.log(docs);
-});
-// END MONGO TEST
 
 //pass requested page URL as a local var to be used by views
 app.use(function(req, res, next){
