@@ -28,41 +28,42 @@ block content
                                     option(value='30_60') $30/hr - $60/hr
                                     option(value='60_') $60/hr and above
                 .row.results
-                    each val, index in tutors
-                        .col-xs-12.col-md-12.tutor
-                            .row
-                                .col-xs-2
-                                    a(href'#')
-                                        img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
-                                .col-xs-10.tutor_details
-                                    p.name #{val.first_name + " " + val.last_name}
-                                    p.city
-                                        i.icon.icon_pin_alt
-                                        | Mississauga
-                                    .row
-                                        .col-xs-4
-                                            span.hourly_rate $19.00 / hr
-                                        .col-xs-4
-                                            span.hours_worked 
-                                                | 45 hrs 
-                                                i.icon.icon_clock_alt
-                                        .col-xs-4
-                                            span.rating
-                                                | 4.5/5 
-                                                i.icon.icon_star_alt
-                            .row.action_buttons
-                                .col-xs-4
-                                    a(href='#') 
-                                        i.icon.icon_calendar
-                                        |  Book Session
-                                .col-xs-4
-                                    a(href='#') 
-                                        i.icon.icon_comment_alt
-                                        |  Message
-                                .col-xs-4
-                                    a(href='#') 
-                                        i.icon.icon_heart_alt
-                                        |  Save
+                    if tutors != null
+                        each tutor, index in tutors
+                            .col-xs-12.col-md-12.tutor
+                                .row
+                                    .col-xs-2
+                                        a(href'#')
+                                            img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
+                                    .col-xs-10.tutor_details
+                                        p.name #{tutor.first_name + " " + tutor.last_name}
+                                        p.city
+                                            i.icon.icon_pin_alt
+                                            | Mississauga
+                                        .row
+                                            .col-xs-4
+                                                span.hourly_rate $19.00 / hr
+                                            .col-xs-4
+                                                span.hours_worked 
+                                                    | 45 hrs 
+                                                    i.icon.icon_clock_alt
+                                            .col-xs-4
+                                                span.rating
+                                                    | 4.5/5 
+                                                    i.icon.icon_star_alt
+                                .row.action_buttons
+                                    .col-xs-4
+                                        a(href='#') 
+                                            i.icon.icon_calendar
+                                            |  Book Session
+                                    .col-xs-4
+                                        a(href='#') 
+                                            i.icon.icon_comment_alt
+                                            |  Message
+                                    .col-xs-4
+                                        a(href='#') 
+                                            i.icon.icon_heart_alt
+                                            |  Save
                     //- - for (var x = 1; x < 16; x++)
                         .col-xs-12.col-md-12.tutor
                             .row
