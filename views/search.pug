@@ -2,7 +2,7 @@ extend layout
 block content
     .container-fluid
         .row
-            .col-sm-12.col-md-6.results_wrapper
+            .col-sm-12.col-md-5.results_wrapper
                 .row.filter
                     .col-xs-12.col-md-2
                         p Filter
@@ -29,7 +29,7 @@ block content
                                     option(value='60_') $60/hr and above
                 .row.results
                     - for (var x = 1; x < 16; x++)
-                        .col-xs-12.col-md-6.tutor
+                        .col-xs-12.col-md-12.tutor
                             .row
                                 .col-xs-2
                                     a(href'#')
@@ -64,5 +64,5 @@ block content
                                         i.icon.icon_heart_alt
                                         |  Save
                         
-            .col-md-6.hidden-sm.map_view
+            .col-md-7.hidden-sm.map_view
                 #map

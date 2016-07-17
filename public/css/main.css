@@ -96,10 +96,6 @@ nav .container .pull-right:first-child {
 
 #main-container {
 	background: 
-	    linear-gradient(
-	      rgba(0, 0, 0, 0.4), 
-	      rgba(0, 0, 0, 0.4)
-	    ),
 	    url("../images/cover-photo.jpg");
 	height:85vh;
 	/*display:flex;
