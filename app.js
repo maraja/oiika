@@ -1,23 +1,21 @@
-var express = require('express'),
-	jsdom = require('jsdom').jsdom,
-	document = jsdom('<html></html>', {}),
-	window = document.defaultView,
-	$ = require('jquery')(window),
-	stylus = require('stylus'),
-	nib = require('nib');
-
+var express = require('express');
+var stylus = require('stylus');
+var nib = require('nib');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var config = require('./config');
 
 var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
 
 
@@ -39,11 +37,21 @@ tutorModel.find({}, function(err, docs) {
 });
 // END MONGO TEST
 
+//pass requested page URL as a local var to be used by views
+app.use(function(req, res, next){
+  res.locals.path = req.path;
+  next();
+});
 
+// compile stylus css file
+function compile(str, path) {
+	return stylus(str).set('filename', path).use(nib());
+}
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.use(stylus.middleware({
+	src: __dirname + '/public',
+	compile: compile
+}));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -53,8 +61,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/', routes);
 app.use('/users', users);
+
+
+
+// ERROR HANDLERS
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -62,14 +75,6 @@ app.use(function(req, res, next) {
 	err.status = 404;
 	next(err);
 });
-
-function compile(str, path) {
-	return stylus(str).set('filename', path).use(nib());
-}
-
-app.use('/scripts', express.static(__dirname + '/node_modules'));
-
-// error handlers
 
 // development error handler
 // will print stacktrace
@@ -92,6 +97,5 @@ app.use(function(err, req, res, next) {
 		error: {}
 	});
 });
-
 
 module.exports = app;
