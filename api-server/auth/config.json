@@ -1,0 +1,4 @@
+{
+    "accessTokenExpiresIn":  43200,
+    "refreshTokenExpiresIn": 604800
+}
