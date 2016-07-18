@@ -1,4 +1,4 @@
-# oiika-website
+# oiika
 website stuff
 
 # To install node v6 and npm on ubuntu
