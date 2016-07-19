@@ -5,3 +5,20 @@ function initMap() {
 		zoom: 8
 	});
 }
+
+$(document).ready(function() {
+	function init_autocomplete() {
+
+		//var country = $('#c').val();
+
+		var options = {
+			types: ['(cities)'],
+			componentRestrictions: {country: 'CA'}
+		};
+
+		var input = document.getElementById('search_location');
+		var autocomplete = new google.maps.places.Autocomplete(input, options);
+	}
+
+	google.maps.event.addDomListener(window, 'load', init_autocomplete);
+});

@@ -242,6 +242,22 @@ input#top_search:focus {
     margin-top: -4px;
     font-size: 16px;
 }
+.pac-item {
+    padding: 6px 18px;
+    font-size: 15px;
+    color: #555;
+}
+.pac-icon {
+  display: none;
+}
+.pac-item:hover, .pac-item:active, .pac-item-selected {
+  background: #ff9f45;
+  color: #FFF;
+  border-top: 1px solid #ff9f45;
+}
+.pac-item-query {
+  color: inherit;
+}
 section#subjects {
   padding: 30px 0;
 }

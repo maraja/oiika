@@ -4,6 +4,8 @@ script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery-smooth-scroll/1.7.2/jq
 script(src='js/select2.min.js')
 script(src='js/script.js')
 
+script(src='js/map.js')
 if path == '/search'
-    script(src='js/map.js')
     script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyD9mg6BXYWtJ55STBikGytsqBYOurD9Zvc&callback=initMap', async, defer)
+else 
+    script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyD9mg6BXYWtJ55STBikGytsqBYOurD9Zvc&libraries=places')
