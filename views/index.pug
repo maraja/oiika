@@ -1,59 +1,78 @@
 extend layout
 block content
-	//- NAVIGATION BAR
-	include common/navbar
-
-	//- MAIN CONTAINER
-	#main-container
+	//- COVER
+	section#homepage_cover
 		.container
-			.col-xs-6
-			.col-xs-6
-				.sign-up-now-container
-					form(method='post')
-						.row
-							.col-xs-6
-								h4 First Name: 
-							.col-xs-6
-								input(type='text', name='first_name', placeholder='John')
-						.row
-							.col-xs-6
-								h4 Last Name: 
-							.col-xs-6
-								input(type='text', name='last_name', placeholder='Doe')
-						.row
-							.col-xs-6
-								h4 Email: 
-							.col-xs-6
-								input(type='text', name='email', placeholder='john.doe@example.com')
-							br
-						.row
-							input(type='submit', value='Sign Up')
-
-	//- SECOND CONTAINER
-	#second-container
-		.container
-			h2 Making Knowledge Accessible
 			.row
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+				.col-xs-12.text-center
+					h2 Get the help you need to succeed
+					br
+					h1 Find a tutor in your area
+		#search_wrapper
+			input(type='text', id='search_query', placeholder='I need help with... (subject)')
+			input(type='text', id='search_location', placeholder='in/around... (city)')
+			a(id='search_submit', class='btn btn-warning') Search
+	
+	section#subjects.text-center
+		.container
+			.row
+				.col-xs-12
+					h1 Find a tutor that's right for you
+					br
+			.row.boxed_wrapper
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/biology.png')
+					h4 Biology
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/chemistry.png')
+					h4 Chemistry
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/physics.png')
+					h4 Physics
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/math.png')
+					h4 Math
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/computer_science.png')
+					h4 Computer Science
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/business.png')
+					h4 Business
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/english.png')
+					h4 English/ESL
+				.col-xs-12.col-sm-6.col-md-3.boxed
+					img(src='images/icons/sports.png')
+					h4 Sports/Coaching
+			.row
+				.col-xs-12
+					br
+					br
+					a.btn.btn-primary.btn-lg See All Subjects
+	
+	.container
+		.row
+			hr
+	
+	section#overview.text-center
+		.container
+			.row
+				.col-xs-12
+					h1 Making knowledge accessible
+					br
+			.row
+				.col-xs-12.col-md-4
 					img(src='images/icons/gps.png')
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
-					h2 Don't Settle
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
-					h3 Choose from a wide variety of mentors in your area.
-			.row
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+					h3 Don't Settle
+					br
+					h4 Choose from a wide variety of mentors in your area.
+				.col-xs-12.col-md-4
 					img(src='images/icons/time.png')
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
-					h2 Do more with your time
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
-					h3 Take full control over the time & venue you receive your education.
-			.row
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
+					h3 Do more with your time
+					br
+					h4 Take full control over the time & venue you receive your education.
+				.col-xs-12.col-md-4
 					img(src='images/icons/piggy-bank.png')
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
-					h2 Spend less
-				.col-xs-12.col-sm-offset-2.col-sm-8.col-md-offset-3.col-md-6
-					h3 Get your money's worth by choosing the price you pay.
-
-	#third-container
-		.container
+					h3 Spend less
+					br
+					h4 Get your money's worth by choosing the price you pay.

@@ -25,14 +25,14 @@ app.use(function(req, res, next){
 });
 
 // compile stylus css file
-function compile(str, path) {
-	return stylus(str).set('filename', path).use(nib());
-}
+// function compile(str, path) {
+// 	return stylus(str).set('filename', path).use(nib());
+// }
 
-app.use(stylus.middleware({
-	src: __dirname + '/public',
-	compile: compile
-}));
+// app.use(stylus.middleware({
+// 	src: __dirname + '/public',
+// 	compile: compile
+// }));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

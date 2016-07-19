@@ -34,22 +34,22 @@ block content
                                 .row
                                     .col-xs-2
                                         a(href'#')
-                                            img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
+                                            img(src=tutor.profile_picture)
                                     .col-xs-10.tutor_details
                                         p.name #{tutor.first_name + " " + tutor.last_name}
                                         p.city
                                             i.icon.icon_pin_alt
-                                            | Mississauga
+                                            |  #{tutor.city}
                                         .row
                                             .col-xs-4
-                                                span.hourly_rate $19.00 / hr
+                                                span.hourly_rate $#{tutor.hourly_rate} / hr
                                             .col-xs-4
                                                 span.hours_worked 
-                                                    | 45 hrs 
+                                                    | #{tutor.hours_worked} hrs 
                                                     i.icon.icon_clock_alt
                                             .col-xs-4
                                                 span.rating
-                                                    | 4.5/5 
+                                                    | #{tutor.rating}/5 
                                                     i.icon.icon_star_alt
                                 .row.action_buttons
                                     .col-xs-4
