@@ -1,4 +1,5 @@
 var express = require('express');
+var session = require('express-session');
 var stylus = require('stylus');
 var nib = require('nib');
 var path = require('path');
