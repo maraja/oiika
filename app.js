@@ -1,15 +1,40 @@
 var express = require('express');
+var methodOverride = require('method-override');
 var session = require('express-session');
-var stylus = require('stylus');
-var nib = require('nib');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var config = require('./config');
+var oauth = require('./config/oauth');
+var passport = require('passport');
+var FacebookStrategy = require('passport-facebook').Strategy;
+
+//routes
 var routes = require('./routes/index');
 var users = require('./routes/users');
-var config = require('./config');
+
+// serialize and deserialize
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
+// config
+passport.use(new FacebookStrategy({
+  clientID: oauth.facebook.clientID,
+  clientSecret: oauth.facebook.clientSecret,
+  callbackURL: oauth.facebook.callbackURL
+  },
+  function(accessToken, refreshToken, profile, done) {
+    process.nextTick(function () {
+      return done(null, profile);
+    });
+  }
+));
 
 var app = express();
 
@@ -17,23 +42,11 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-
-
 //pass requested page URL as a local var to be used by views
 app.use(function(req, res, next){
   res.locals.path = req.path;
   next();
 });
-
-// compile stylus css file
-// function compile(str, path) {
-// 	return stylus(str).set('filename', path).use(nib());
-// }
-
-// app.use(stylus.middleware({
-// 	src: __dirname + '/public',
-// 	compile: compile
-// }));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -43,10 +56,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(methodOverride());
+app.use(session({
+  secret: 'oiika',
+  resave: true,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', routes);
 app.use('/users', users);
-
 
 
 // ERROR HANDLERS

@@ -11,14 +11,15 @@ function dbConnection(){
 
 	// MONGOOSE MONGODB CONNECTION TEST
 	var db = config.db[config.environment];
-	var db_connection_string = db.dialect + "://" + 
-		db.username + ":" + 
+	var db_connection_string = db.dialect + "://" +
+		db.username + ":" +
 		db.password + "@" +
-		db.host + ":" + 
-		db.port + "/" + 
+		db.host + ":" +
+		db.port + "/" +
 		db.database;
 
 	return mongoose.connect(db_connection_string);
+	//return mongoose.connect(db_connection_string);
 
 	// var mongo_db = mongoose.connect(db_connection_string);
 
