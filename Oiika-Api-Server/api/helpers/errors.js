@@ -1,19 +1,16 @@
 'use strict';
 
-module.exports = APIServerRuntimeError;
-
-// TODO: error is thrown but not being caught
-
-function APIServerRuntimeError(message) {
-    this.message = (message || "");
+module.exports = {
+	sendError: sendError
 }
-APIServerRuntimeError.prototype = new Error();
-APIServerRuntimeError.prototype.name = "APIServerRuntimeError";
 
-function onErrorHandler(res, message, status) {
-    var body = {
-        "message": message
-    };
-    res.status(status);
-    res.json(body);
+function sendError(type, message, res) {
+    // type and message must be string
+    var err = new Error();
+    err.nonce = true; // error that is not handled
+    err.name = type;
+    err.message = message;
+    return res.send(JSON.stringify({
+		"Error": err
+	}))
 }

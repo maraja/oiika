@@ -18,14 +18,20 @@ consumes:
 produces:
   - application/json
 paths:
-  /tutor:
+  '/tutor':
     x-swagger-router-controller: tutor
     get:
-      description: Get all Tutors
-      operationId: getAllTutors
+      description: Get tutors by parameter
+      operationId: getTutorsByParameter
       tags:
         - Tutor
-
+      parameters:
+          -
+            name: city
+            in: query
+            description: city of tutors
+            required: false
+            type: string
       responses:
           "200":
             description: Success
@@ -35,6 +41,58 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
+    post:
+      description: create new tutor
+      operationId: createTutor
+      tags:
+        - Tutor
+      parameters:
+          - name: tutor
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name: 
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                short_description:
+                  type: string
+                full_description:
+                  type: string
+                city:
+                  type: string
+                hourly_rate:
+                  type: number
+                hours_worked:
+                  type: number
+                rating: 
+                  type: number
+                skills:
+                  type: array
+                  items:
+                    type: string
+                profile_picture:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - city
+                - hourly_rate
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions

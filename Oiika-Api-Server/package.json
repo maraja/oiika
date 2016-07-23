@@ -8,10 +8,13 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
+    "bluebird": "^3.4.1",
     "express": "^4.12.3",
     "mongodb": "^2.2.4",
     "mongoose": "^4.5.5",
-    "swagger-express-mw": "^0.1.0"
+    "q": "^1.4.1",
+    "swagger-express-mw": "^0.1.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "should": "^7.1.0",

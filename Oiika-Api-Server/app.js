@@ -18,6 +18,11 @@ console.log(mongoDb.dbConnection());
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }
 
+  app.use(function(req, res, next) {
+    res.setHeader('Content-Type', 'application/json');
+    return next();
+  });
+  
   // install middleware
   swaggerExpress.register(app);
 
