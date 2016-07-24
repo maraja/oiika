@@ -1,41 +1,24 @@
-const tutorModel = require('../models/Tutors')();
+const sessionModel = require('../models/Sessions')();
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
 const _ = require('underscore');
+const moment = require('moment');
 
 module.exports = {
-	getTutorsByParameter: getTutorsByParameter,
-	createTutor: createTutor
-};
+	createSession: createSession,
+	getTutorSessionByEmail: getTutorSessionByEmail,
+	getTuteeSessionByEmail: getTuteeSessionByEmail
+}
 
-function getTutorsByParameter(req, res){
+function getTutorSessionByEmail(req, res) {
 	var params = req.swagger.params;
-	if (params.city.value){ getTutorByCity(req, res, params.city.value) }
-	else { getAllTutors(req, res) }
-
-}
-
-function getAllTutors(req, res) {
-	tutorModel.find({}, function(err, docs) {
-		if(err) {
-			console.log(err);
-			error.sendError(err.name, err.message, res);
-		}
-		else {
-			res.send(docs);
-		}
-	});
-}
-
-function getTutorByCity(req, res, city) {
-
 	var errors = [];
 
-	if(valid.validate("city", city, errors)) {
-		tutorModel.find({city: city}, function(err, docs) {
+	if(valid.validate("email", params.email.value, errors)) {
+		sessionModel.find({tutor_id: params.email.value}, function(err, docs) {
 			if(err) {
 				console.log(err);
 				error.sendError(err.name, err.message, res);
@@ -47,24 +30,37 @@ function getTutorByCity(req, res, city) {
 	} else {
 		error.sendError("Error", errors[0], res);
 	}
-	
 }
 
-function createTutor(req, res) {
-	var tutor = req.swagger.params.tutor.value;
+function getTuteeSessionByEmail(req, res) {
+	var params = req.swagger.params;
+	var errors = [];
+
+	if(valid.validate("email", params.email.value, errors)) {
+		sessionModel.find({tutee_id: params.email.value}, function(err, docs) {
+			if(err) {
+				console.log(err);
+				error.sendError(err.name, err.message, res);
+			}
+			else {
+				return res.send(docs);
+			}
+		});
+	} else {
+		error.sendError("Error", errors[0], res);
+	}
+}
+
+function createSession(req, res) {
+	var session = req.swagger.params.session.value;
 	// field mapping with database names as values
 	var fields = {
-		first_name:'first_name', 
-		last_name: 'last_name', 
-		email: 'email',
-		short_description: 'short_description', 
-		full_description: 'full_description',
-		city: 'city', 
-		hourly_rate: 'hourly_rate',
-		hours_worked: 'hours_worked',
-		rating: 'rating',
-		skills: 'skills',
-		profile_picture: 'profile_picture'
+		tutor_email:'tutor_id', 
+		tutee_email: 'tutee_id', 
+		subject: 'subject_id',
+		datetime: 'datetime', 
+		duration: 'duration',
+		hourly_rate: 'hourly_rate'
 	};
 
 	var errors = [];
@@ -81,23 +77,20 @@ function createTutor(req, res) {
 
 			// check for required and non required fields to validate accordingly.
 			switch (content){
-				case "first_name":
-				case "last_name":
-				case "email":
-				case "city":
-				case "hourly_rate":
-					if (valid.validate(content, tutor[content], errors, true)){
-						fields_to_insert[fields[content]] = tutor[content];
+				// required fields
+				case "tutor_email":
+				case "tutee_email":
+				case "subject":
+				case "datetime":
+					if (valid.validate(content, session[content], errors, true)){
+						fields_to_insert[fields[content]] = session[content];
 					}
 					break;
-				case "short_description":
-				case "full_description":
-				case "hours_worked":
-				case "rating":
-				case "skills":
-				case "profile_picture":
-					if (valid.validate(content, tutor[content], errors, false)){
-						fields_to_insert[fields[content]] = tutor[content];
+				// not required fields
+				case "duration":
+				case "hourly_rate":
+					if (valid.validate(content, session[content], errors, false)){
+						fields_to_insert[fields[content]] = session[content];
 					}
 					break;
 				default:
@@ -113,7 +106,7 @@ function createTutor(req, res) {
 	// create a promise variable to insert into the database.
 	var insertToDb = function(){
 		return new Promise(function(resolve, reject) {
-			tutorModel.create(fields_to_insert, function(err, result) {
+			sessionModel.create(fields_to_insert, function(err, result) {
 
 				if(err) {
 					console.log(err); 
@@ -148,7 +141,8 @@ function createTutor(req, res) {
 		
 		return res.send(JSON.stringify({
 			"Success": "Successfully inserted",
-			"Result": result
+			"Result": result,
+			"formatted_date": moment.utc(result.datetime).toDate().toString()
 		}))
 
 	})

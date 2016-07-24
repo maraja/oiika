@@ -32,6 +32,12 @@ paths:
             description: city of tutors
             required: false
             type: string
+          -
+            name: email
+            in: query
+            description: tutor with email
+            required: false
+            type: string
       responses:
           "200":
             description: Success
@@ -82,6 +88,92 @@ paths:
                 - email
                 - city
                 - hourly_rate
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  '/session/tutor':
+    x-swagger-router-controller: session
+    get:
+      description: Get sessions belonging to tutor email.
+      operationId: getTutorSessionByEmail
+      tags:
+        - Session
+      parameters:
+          -
+            name: email
+            in: query
+            description: sessions for tutors
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  '/session/tutee':
+    x-swagger-router-controller: session
+    get:
+      description: Get sessions belonging to tutee email.
+      operationId: getTuteeSessionByEmail
+      tags:
+        - Session
+      parameters:
+          -
+            name: email
+            in: query
+            description: sessions for tutees
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+    post:
+      description: create new session
+      operationId: createSession
+      tags:
+        - Session
+      parameters:
+          - name: session
+            in: body
+            required: true
+            schema:
+              properties:
+                tutor_email: 
+                  type: string
+                tutee_email:
+                  type: string
+                subject:
+                  type: string
+                datetime:
+                  type: string
+                duration:
+                  type: number
+                hourly_rate:
+                  type: number
+              required:
+                - tutor_email
+                - tutee_email
+                - subject
+                - datetime
 
       responses:
         "200":

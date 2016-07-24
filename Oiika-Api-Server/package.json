@@ -10,6 +10,7 @@
   "dependencies": {
     "bluebird": "^3.4.1",
     "express": "^4.12.3",
+    "moment": "^2.14.1",
     "mongodb": "^2.2.4",
     "mongoose": "^4.5.5",
     "q": "^1.4.1",
