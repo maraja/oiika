@@ -1,15 +1,16 @@
 var express = require('express');
 var methodOverride = require('method-override');
-var session = require('express-session');
+var expressSession = require('express-session');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
 var config = require('./config');
 var oauth = require('./config/oauth');
 var passport = require('passport');
-var FacebookStrategy = require('passport-facebook').Strategy;
+var passportLocal = require('passport-local');
+//var FacebookStrategy = require('passport-facebook').Strategy;
 
 //routes
 var routes = require('./routes/index');
@@ -17,13 +18,31 @@ var users = require('./routes/users');
 
 // serialize and deserialize
 passport.serializeUser(function(user, done) {
-  done(null, user);
+  done(null, user.id);
 });
 passport.deserializeUser(function(obj, done) {
-  done(null, obj);
+  //query database or cache here!
+  done(null, {
+    id: 123,
+    name: "Reza"
+  });
 });
 
-// config
+// passport strategies
+// local
+passport.use(new passportLocal.Strategy(function (username, password, done) {
+  //do databsae call
+  if(username === password) {
+    done(null, {
+      id: 123,
+      name: "Reza"
+    });
+  } else {
+    done(null, null);
+  }
+}));
+
+// facebook
 passport.use(new FacebookStrategy({
   clientID: oauth.facebook.clientID,
   clientSecret: oauth.facebook.clientSecret,
@@ -45,25 +64,30 @@ app.set('view engine', 'pug');
 //pass requested page URL as a local var to be used by views
 app.use(function(req, res, next){
   res.locals.path = req.path;
+  res.locals.req = req;
+  // res.local.isAuthenticated = req.isAuthenticated();
+  // res.local.user = req.user;
   next();
 });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
+app.use(methodOverride());
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(methodOverride());
-app.use(session({
+app.use(expressSession({
   secret: 'oiika',
-  resave: true,
-  saveUninitialized: true
+  resave: false,
+  saveUninitialized: false
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);

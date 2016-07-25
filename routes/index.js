@@ -11,12 +11,20 @@ router.get('/', function (req, res, next) {
 	res.render('index', {title: 'Home'});
 });
 
-router.get('/login', function (req, res, next) {
-	res.render('login', {title: 'Login'});
+// router.get('/login', function (req, res, next) {
+// 	res.render('login', {title: 'Login'});
+// });
+//
+// router.get('/signup', function (req, res, next) {
+// 	res.render('signup', {title: 'Signup'});
+// });
+
+router.post('/login', passport.authenticate('local'), function (req, res, next) {
+	res.redirect('/');
 });
 
-router.get('/signup', function (req, res, next) {
-	res.render('signup', {title: 'Signup'});
+router.post('/signup', function (req, res, next) {
+	res.send({"success": true});
 });
 
 router.get('/auth/facebook', passport.authenticate('facebook'), function(req, res) {});

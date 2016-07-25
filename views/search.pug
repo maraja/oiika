@@ -10,10 +10,11 @@ block content
                         .row
                             .col-xs-4
                                 select#category
-                                    option(value='') Any category
-                                    option(value='math') Math
-                                    option(value='physics') Physics
-                                    option(value='calculus') Calculus
+                                    option(value='') Availability
+                                    option(value='today') Today
+                                    option(value='tomorrow') Tomorrow
+                                    option(value='this_week') This Week
+                                    option(value='flexible') Flexible
                             .col-xs-4
                                 select#rating
                                     option(value='') Any rating
@@ -44,24 +45,24 @@ block content
                                             .col-xs-4
                                                 span.hourly_rate $#{tutor.hourly_rate} / hr
                                             .col-xs-4
-                                                span.hours_worked 
-                                                    | #{tutor.hours_worked} hrs 
+                                                span.hours_worked
+                                                    | #{tutor.hours_worked} hrs
                                                     i.icon.icon_clock_alt
                                             .col-xs-4
                                                 span.rating
-                                                    | #{tutor.rating}/5 
+                                                    | #{tutor.rating}/5
                                                     i.icon.icon_star_alt
                                 .row.action_buttons
                                     .col-xs-4
-                                        a(href='#') 
+                                        a(href='#')
                                             i.icon.icon_calendar
                                             |  Book Session
                                     .col-xs-4
-                                        a(href='#') 
+                                        a(href='#')
                                             i.icon.icon_comment_alt
                                             |  Message
                                     .col-xs-4
-                                        a(href='#') 
+                                        a(href='#')
                                             i.icon.icon_heart_alt
                                             |  Save
                     //- - for (var x = 1; x < 16; x++)
@@ -79,26 +80,26 @@ block content
                                         .col-xs-4
                                             span.hourly_rate $19.00 / hr
                                         .col-xs-4
-                                            span.hours_worked 
-                                                | 45 hrs 
+                                            span.hours_worked
+                                                | 45 hrs
                                                 i.icon.icon_clock_alt
                                         .col-xs-4
                                             span.rating
-                                                | 4.5/5 
+                                                | 4.5/5
                                                 i.icon.icon_star_alt
                             .row.action_buttons
                                 .col-xs-4
-                                    a(href='#') 
+                                    a(href='#')
                                         i.icon.icon_calendar
                                         |  Book Session
                                 .col-xs-4
-                                    a(href='#') 
+                                    a(href='#')
                                         i.icon.icon_comment_alt
                                         |  Message
                                 .col-xs-4
-                                    a(href='#') 
+                                    a(href='#')
                                         i.icon.icon_heart_alt
                                         |  Save
-                        
+
             .col-md-7.hidden-sm.map_view
                 #map

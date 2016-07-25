@@ -8,30 +8,35 @@ header
                 span.icon-bar
                 span.icon-bar
                 span.icon-bar
-              a.navbar-brand(href='#')
+              a.navbar-brand(href='/')
                 img.logo(src='images/logo.png')
             .collapse.navbar-collapse.js-navbar-collapse
               if path != "/"
-                ul.nav.navbar-nav  
+                ul.nav.navbar-nav
                   li
                     i.icon.icon_search
-                    input(type='text', id='top_search', placeholder='I need help with ...')
+                    input(type='text', id='top_search', placeholder='I need help with ...' value='' + req.query.subject)
               ul.nav.navbar-nav.navbar-right
                 li
-                    a.btn.btn-primary(href='#') Become a Tutor
-                li.dropdown
-                    a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false') 
-                        | Reza
-                        img.profile_img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
-                    ul.dropdown-menu(role='menu')
-                        li
-                            a(href='#') Your Sessions
-                        li
-                            a(href='#') Your Contacts
-                        li
-                            a(href='#') Account Settings
-                        li
-                            a(href='#') Help
-                        li
-                            a(href='#') Log Out
-
+                  a.btn.btn-primary(href='#') Become a Tutor
+                if(!isAuthenticated)
+                  li
+                    a(href='#', data-toggle="modal", data-target="#signup_modal") Sign Up
+                  li
+                    a(href='#', data-toggle="modal", data-target="#login_modal") Log In
+                else
+                  li.dropdown
+                      a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false')
+                          | Reza
+                          img.profile_img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
+                      ul.dropdown-menu(role='menu')
+                          li
+                              a(href='#') Profile
+                          li
+                              a(href='#') Bookings
+                          li
+                              a(href='#') Settings
+                          li
+                              a(href='#') Help
+                          li
+                              a(href='#') Sign Out
