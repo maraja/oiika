@@ -1,4 +1,9 @@
-const sessionModel = require('../models/Sessions')();
+
+const sessionModel = app.models.sessionModel;
+const tutorModel = app.models.tutorModel;
+
+// var ObjectId = require('mongodb').ObjectId;
+
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
@@ -17,19 +22,36 @@ function getTutorSessionByEmail(req, res) {
 	var params = req.swagger.params;
 	var errors = [];
 
-	if(valid.validate("email", params.email.value, errors)) {
-		sessionModel.find({tutor_id: params.email.value}, function(err, docs) {
+	var getTutorId = new Promise(function(resolve, reject){
+		if(valid.validate("email", params.email.value, errors)) {
+			tutorModel.findOne({email: params.email.value}, {email: 1}, function(err, doc) {
+				if(err) {
+					reject(err);
+				} else if (!doc){
+					var err = error.makeError("INVALID_EMAIL", "Them email you've entered does not exist.");
+					reject(err);
+				} else {
+					resolve(doc._id);
+				}
+			});
+		} else {
+			error.sendError("Error", errors[0], res);
+		}
+	});
+
+	getTutorId.then(function(tutorId){
+		console.log(tutorId);
+		sessionModel.find({tutor_id: tutorId}, function(err, docs) {
 			if(err) {
-				console.log(err);
 				error.sendError(err.name, err.message, res);
 			}
 			else {
-				return res.send(docs);
+				return res.send(docs);	
 			}
 		});
-	} else {
-		error.sendError("Error", errors[0], res);
-	}
+	}).catch(function(err){
+		error.sendError(err.name, err.message, res);
+	});
 }
 
 function getTuteeSessionByEmail(req, res) {
@@ -67,13 +89,25 @@ function createSession(req, res) {
 	var fields_to_insert = {};
 
 	// create a promise array to execute through
-	var validations = [];
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject){
+		sessionModel.find({tutee_id: params.email.value}, function(err, docs) {
+			if(err) {
+				console.log(err);
+				error.sendError(err.name, err.message, res);
+			}
+			else {
+				return res.send(docs);
+			}
+		});
+	}))
 
 	// populate promise array with new promises returning resolved after validating fields and assigning
 	// them into the fields_to_insert object.
 	_.each(fields, function(element, content){
 
-		validations.push(new Promise(function(resolve, reject) {
+		promises.push(new Promise(function(resolve, reject) {
 
 			// check for required and non required fields to validate accordingly.
 			switch (content){
@@ -121,7 +155,7 @@ function createSession(req, res) {
 	};
 
 	// begin promise chain looping through promise array.
-	Promise.all(validations)
+	Promise.all(promises)
 	// check for errors before posting to database
 	.then(function(){
 		return new Promise(function(resolve, reject) {

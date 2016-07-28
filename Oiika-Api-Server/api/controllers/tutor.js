@@ -1,4 +1,5 @@
-const tutorModel = require('../models/Tutors')();
+
+const tutorModel = app.models.tutorModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
@@ -13,9 +14,38 @@ module.exports = {
 
 function getTutorsByParameter(req, res){
 	var params = req.swagger.params;
-	if (params.city.value){ getTutorByCity(req, res, params.city.value) }
+
+	if (params.city.value){ getTutorByCity(req, res, params.city.value); }
+	else if (params.email.value){ getTutorByEmail(req, res, params.email.value); }
+	else if (params.lat.value && params.lng.value){ getTutorByLocation(req, res, params.lat.value, params.lng.value); }
 	else { getAllTutors(req, res) }
 
+}
+
+function getTutorByLocation(req, res, locationLat, locationLng){
+	var errors = [];
+	// var tutors = [];
+
+	if(valid.validate("location_lat", locationLat, errors) && valid.validate("location_lng", locationLng, errors)) {
+		tutorModel.find({ 
+			$and : [
+				{ $where : (locationLat+' < (this.location_lat+this.travel_distance)') },
+				{ $where : (locationLat+' > (this.location_lat-this.travel_distance)') },
+				{ $where : (locationLng+' < (this.location_lng+this.travel_distance)') },
+				{ $where : (locationLng+' > (this.location_lng-this.travel_distance)') }
+			]
+		}, function(err, docs) {
+			if(err) {
+				console.log(err);
+				error.sendError(err.name, err.message, res);
+			}
+			else {
+				return res.send(docs);
+			}
+		});
+	} else {
+		error.sendError("Error", errors[0], res);
+	}
 }
 
 function getAllTutors(req, res) {
@@ -50,6 +80,26 @@ function getTutorByCity(req, res, city) {
 	
 }
 
+function getTutorByEmail(req, res, email){
+
+	var errors = [];
+
+	if(valid.validate("email", email, errors)) {
+		tutorModel.find({email: email}, function(err, docs) {
+			if(err) {
+				console.log(err);
+				error.sendError(err.name, err.message, res);
+			}
+			else {
+				return res.send(docs);
+			}
+		});
+	} else {
+		error.sendError("Error", errors[0], res);
+	}
+
+}
+
 function createTutor(req, res) {
 	var tutor = req.swagger.params.tutor.value;
 	// field mapping with database names as values
@@ -60,6 +110,9 @@ function createTutor(req, res) {
 		short_description: 'short_description', 
 		full_description: 'full_description',
 		city: 'city', 
+		location_lat: 'location_lat',
+		location_lng: 'location_lng',
+		travel_distance: 'travel_distance',
 		hourly_rate: 'hourly_rate',
 		hours_worked: 'hours_worked',
 		rating: 'rating',
@@ -85,6 +138,9 @@ function createTutor(req, res) {
 				case "last_name":
 				case "email":
 				case "city":
+				case "location_lat":
+				case "location_lng":
+				case "travel_distance":
 				case "hourly_rate":
 					if (valid.validate(content, tutor[content], errors, true)){
 						fields_to_insert[fields[content]] = tutor[content];
@@ -127,6 +183,7 @@ function createTutor(req, res) {
 		})
 	};
 
+
 	// begin promise chain looping through promise array.
 	Promise.all(validations)
 	// check for errors before posting to database
@@ -134,9 +191,9 @@ function createTutor(req, res) {
 		return new Promise(function(resolve, reject) {
 			if(errors.length > 0){
 				return res.send(JSON.stringify({
-					"Fail": "Failed to post with errors",
+					"Fail": "Failed to insert with errors",
 					"errors": errors
-				}))
+				}));
 				reject("Error");
 			} else { resolve(); }
 		})
@@ -145,7 +202,6 @@ function createTutor(req, res) {
 	.then(insertToDb)
 	// handle success accordingly
 	.then(function(result){
-		
 		return res.send(JSON.stringify({
 			"Success": "Successfully inserted",
 			"Result": result

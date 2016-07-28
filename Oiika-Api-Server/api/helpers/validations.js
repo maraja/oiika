@@ -1,44 +1,59 @@
 module.exports = {
-	isFirstNameValid: isFirstNameValid,
-	isLastNameValid: isLastNameValid,
-	isEmailValid: isEmailValid,
-	isCityValid: isCityValid,
-	isRateValid: isRateValid,
 	validate: validate
 }
 
+// function to route validations to appropriate validator functions.
+// call this function whenever validation is required.
 function validate(name, value, errors, isRequired){
-	switch (name){
-		case "first_name":
-			return isFirstNameValid(value, errors, isRequired);
-			break;
-		case "last_name":
-			return isLastNameValid(value, errors, isRequired);
-			break;
-		case "tutor_email":
-		case "tutee_email":
-		case "email":
-			return isEmailValid(value, errors, isRequired);
-			break;
-		case "datetime":
-			return isDatetimeValid(value, errors, isRequired);
-			break;
-		case "city":
-			return isCityValid(value, errors, isRequired);
-			break;
-		case "subject":
-			return isSubjectValid(value, errors, isRequired);
-			break;
-		case "hourly_rate":
-			return isRateValid(value, errors, isRequired);
-			break;
-		case "duration":
-			return isDurationValid(value, errors, isRequired);
-			break;
-		default:
-			return false;
-			break;
-	}
+	if(value){
+		switch (name){
+			case "first_name":
+				return isFirstNameValid(value, errors, isRequired);
+				break;
+			case "last_name":
+				return isLastNameValid(value, errors, isRequired);
+				break;
+			case "short_description":
+				return isShortDescriptionValid(value, errors, isRequired);
+				break;
+			case "full_description":
+				return isFullDescriptionValid(value, errors, isRequired);
+				break;
+			case "tutor_email":
+			case "tutee_email":
+			case "email":
+				return isEmailValid(value, errors, isRequired);
+				break;
+			case "datetime":
+				return isDatetimeValid(value, errors, isRequired);
+				break;
+			case "city":
+				return isCityValid(value, errors, isRequired);
+				break;
+			case "subject":
+				return isSubjectValid(value, errors, isRequired);
+				break;
+			case "hourly_rate":
+				return isRateValid(value, errors, isRequired);
+				break;
+			case "rating":
+				return isRatingValid(value, errors, isRequired);
+				break;
+			case "duration":
+				return isDurationValid(value, errors, isRequired);
+				break;
+			case "location_lat":
+			case "location_lng":
+				return isLocationValid(value, errors, isRequired);
+				break;
+			case "travel_distance":
+				return isTravelDistanceValid(value, errors, isRequired);
+				break;
+			default:
+				return false;
+				break;
+		}
+	} else { return false; }
 }
 
 
@@ -76,6 +91,48 @@ function isLastNameValid(name, errors, isRequired){
 		}
 	} else if(isRequired) {
 		errors.push("No Last Name Entered.");
+		return false;
+	} else { return true; }
+
+}
+
+
+// SHORT DESCRIPTION
+function isShortDescriptionValid(shortDesc, errors, isRequired){
+
+	if(shortDesc){
+		console.log("from short description validation");
+		const minLength = 1;
+		const maxLength = 140;
+
+		if (shortDesc.trim().length >= minLength && shortDesc.trim().length <= maxLength) return true;
+		else {
+			errors.push("Invalid Short Description Entered.");
+			return false;
+		}
+	} else if(isRequired) {
+		errors.push("No Short Description Entered.");
+		return false;
+	} else { return true; }
+
+}
+
+
+// SHORT DESCRIPTION
+function isFullDescriptionValid(fullDesc, errors, isRequired){
+
+	if(fullDesc){
+		console.log("from long description validation");
+		const minLength = 1;
+		const maxLength = 1000;
+
+		if (fullDesc.trim().length >= minLength && fullDesc.trim().length <= maxLength) return true;
+		else {
+			errors.push("Invalid Full Description Entered.");
+			return false;
+		}
+	} else if(isRequired) {
+		errors.push("No Full Description Entered.");
 		return false;
 	} else { return true; }
 
@@ -160,6 +217,26 @@ function isRateValid(rate, errors, isRequired){
 
 }
 
+ 
+// RATING
+function isRatingValid(rating, errors, isRequired){
+
+	if(rating){
+		const minRating = 0;
+		const maxRating = 5;
+
+		if (rating >= minRating && rating <= maxRating) return true;
+		else {
+			errors.push("Invalid Rating Entered.");
+			return false;
+		}
+	} else if(isRequired) {
+		errors.push("No Rating Entered.");
+		return false;
+	} else { return true; }
+
+}
+
 
 // SESSION DURATION
 function isDurationValid(duration, errors, isRequired){
@@ -197,4 +274,16 @@ function isSubjectValid(subject, errors, isRequired){
 		errors.push("No Subject Entered.");
 		return false;
 	} else { return true; }
+}
+
+
+// LOCATION
+function isLocationValid(location, errors, isRequired){
+	return true;
+}
+
+
+// TRAVEL
+function isTravelDistanceValid(distance, errors, isRequired){
+	return true;
 }

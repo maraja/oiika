@@ -18,6 +18,101 @@ consumes:
 produces:
   - application/json
 paths:
+
+# LOGIN
+
+  # '/login'
+  #   x-swagger-router-controller: login
+  #   post:
+  #     description: login
+  #     operationId: login existing user
+  #     tags:
+  #       - login
+  #     parameters:
+  #         - name: login
+  #           in: body
+  #           required: true
+  #           schema:
+  #             properties:
+  #               provider:
+  #                 type: string
+  #               email:
+  #                 type: string
+  #               password: 
+  #                 type: string
+  #               facebook_id:
+  #                 type: string
+  #               facebook_token:
+  #                 type: string
+  #               google_id:
+  #                 type: string
+  #               google_token:
+  #                 type: string
+  #             required:
+  #               - provider
+  #     responses:
+  #       "200":
+  #         description: Success
+  #         schema:
+  #           $ref: "#/definitions/HelloWorldResponse"
+  #       default:
+  #         description: Error
+  #         schema:
+  #           $ref: "#/definitions/ErrorResponse"
+
+# SIGNUP
+
+  # '/signup'
+  #   x-swagger-router-controller: signup
+  #   post:
+  #     description: sign up new user
+  #     operationId: signup
+  #     tags:
+  #       - login
+  #     parameters:
+  #         - name: login
+  #           in: body
+  #           required: true
+  #           schema:
+  #             properties:
+  #               provider:
+  #                 type: string
+  #               first_name:
+  #                 type: string
+  #               last_name:
+  #                 type: string
+  #               type:
+  #                 type: string
+  #               email:
+  #                 type: string
+  #               password: 
+  #                 type: string
+  #               facebook_id:
+  #                 type: string
+  #               facebook_token:
+  #                 type: string
+  #               google_id:
+  #                 type: string
+  #               google_token:
+  #                 type: string
+  #             required:
+  #               - provider
+  #               - first_name
+  #               - last_name
+  #               - email
+  #               - type
+  #     responses:
+  #       "200":
+  #         description: Success
+  #         schema:
+  #           $ref: "#/definitions/HelloWorldResponse"
+  #       default:
+  #         description: Error
+  #         schema:
+  #           $ref: "#/definitions/ErrorResponse"
+
+# TUTOR
+
   '/tutor':
     x-swagger-router-controller: tutor
     get:
@@ -38,6 +133,18 @@ paths:
             description: tutor with email
             required: false
             type: string
+          -
+            name: lat
+            in: query
+            description: latitude of location (coupled with longitude)
+            required: false
+            type: number
+          -
+            name: lng
+            in: query
+            description: longitude of location (coupled with latitude)
+            required: false
+            type: number
       responses:
           "200":
             description: Success
@@ -72,6 +179,12 @@ paths:
                   type: string
                 hourly_rate:
                   type: number
+                location_lat:
+                  type: number
+                location_lng:
+                  type: number
+                travel_distance:
+                  type: number
                 hours_worked:
                   type: number
                 rating: 
@@ -88,6 +201,9 @@ paths:
                 - email
                 - city
                 - hourly_rate
+                - location_lat
+                - location_lng
+                - travel_distance
 
       responses:
         "200":
@@ -98,6 +214,8 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+
+# TUTOR SESSION
 
   '/session/tutor':
     x-swagger-router-controller: session
@@ -122,6 +240,8 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
+
+# TUTEE SESSION
 
   '/session/tutee':
     x-swagger-router-controller: session

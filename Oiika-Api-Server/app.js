@@ -1,14 +1,23 @@
-'use strict';
 
 var SwaggerExpress = require('swagger-express-mw');
-var app = require('express')();
+
+// declare app as a global variable (no var in front to hoist it to global scope)
+// so that models and any other configuration can be used worldwide.
+app = require('express')();
+
+// hook all models into app. Instantiated only once.
+app.models = {
+  tutorModel: require('./api/models/Tutors')(),
+  sessionModel: require('./api/models/Sessions')()
+}
+
 module.exports = app; // for testing
 
 var config = {
   appRoot: __dirname // required config
 };
 
-
+// mongodb helper to connect to db
 var mongoDb = require('./mongo/helpers/mongodb');
 
 console.log("MongoDB connection: ");
