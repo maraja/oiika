@@ -353,11 +353,6 @@ paths:
                 - first_name
                 - last_name
                 - email
-                - city
-                - hourly_rate
-                - location_lat
-                - location_lng
-                - travel_distance
 
       responses:
         "200":

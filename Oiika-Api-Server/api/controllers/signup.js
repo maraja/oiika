@@ -94,6 +94,32 @@ function signupLocal(req, res){
 	};
 
 
+	var createUser = function(newAccount){
+		return new Promise(function(resolve, reject) {
+			userModel.create({
+				_account: newAccount._id,
+				first_name: fields_to_insert.first_name,
+				last_name: fields_to_insert.last_name,
+				email: fields_to_insert.email,
+				account_type: fields_to_insert.account_type,
+				user_type: fields_to_insert.user_type,
+			}, function(err, result) {
+
+				if(err) {
+					// send reject as a callback
+					error.makeMongooseError(err)
+					.then(function(error){
+						reject(error);
+					});
+				}
+				else {
+					resolve(newAccount);
+				}
+
+			});
+		});
+	};
+
 
 	// create a promise variable to insert into the database.
 	var insertToDb = function(){
@@ -139,11 +165,21 @@ function signupLocal(req, res){
 	// handle password
 	// post to database sending returned document down promise chain
 	.then(insertToDb)
+	// create user in user table and get _id to assign.
+	.then(createUser)
 	// handle success accordingly
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"Success": "Successfully inserted",
-			"Result": result
+			"Result": {
+				account_id: result._id,
+				account_type: result.account_type,
+				first_name: result.first_name,
+				last_name: result.last_name,
+				email: result.email,
+				gender: result.gender,
+				user_type: result.user_type
+			}
 		}))
 	})
 	// catch all errors and handle accordingly
@@ -236,7 +272,34 @@ function signupFacebook(req, res){
 
 			});
 		})
-	}
+	};
+
+
+	var createUser = function(newAccount){
+		return new Promise(function(resolve, reject) {
+			userModel.create({
+				_account: newAccount._id,
+				first_name: fields_to_insert.first_name,
+				last_name: fields_to_insert.last_name,
+				email: fields_to_insert.email,
+				account_type: fields_to_insert.account_type,
+				user_type: fields_to_insert.user_type,
+			}, function(err, result) {
+
+				if(err) {
+					// send reject as a callback
+					error.makeMongooseError(err)
+					.then(function(error){
+						reject(error);
+					});
+				}
+				else {
+					resolve(newAccount);
+				}
+
+			});
+		});
+	};
 
 	// create a promise variable to insert into the database.
 	var insertToDb = function(){
@@ -276,11 +339,21 @@ function signupFacebook(req, res){
 	.then(checkAccount)
 	// post to database sending returned document down promise chain
 	.then(insertToDb)
+	// create user in user table and get _id to assign.
+	.then(createUser)
 	// handle success accordingly
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"Success": "Successfully inserted",
-			"Result": result
+			"Result": {
+				account_id: result._id,
+				account_type: result.account_type,
+				first_name: result.first_name,
+				last_name: result.last_name,
+				email: result.email,
+				gender: result.gender,
+				user_type: result.user_type
+			}
 		}))
 	})
 	// catch all errors and handle accordingly
@@ -372,7 +445,34 @@ function signupGoogle(req, res){
 
 			});
 		})
-	}
+	};
+
+
+	var createUser = function(newAccount){
+		return new Promise(function(resolve, reject) {
+			userModel.create({
+				_account: newAccount._id,
+				first_name: fields_to_insert.first_name,
+				last_name: fields_to_insert.last_name,
+				email: fields_to_insert.email,
+				account_type: fields_to_insert.account_type,
+				user_type: fields_to_insert.user_type,
+			}, function(err, result) {
+
+				if(err) {
+					// send reject as a callback
+					error.makeMongooseError(err)
+					.then(function(error){
+						reject(error);
+					});
+				}
+				else {
+					resolve(newAccount);
+				}
+
+			});
+		});
+	};
 
 	// create a promise variable to insert into the database.
 	var insertToDb = function(){
@@ -412,11 +512,21 @@ function signupGoogle(req, res){
 	.then(checkAccount)
 	// post to database sending returned document down promise chain
 	.then(insertToDb)
+	// create user in user table and get _id to assign.
+	.then(createUser)
 	// handle success accordingly
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"Success": "Successfully inserted",
-			"Result": result
+			"Result": {
+				account_id: result._id,
+				account_type: result.account_type,
+				first_name: result.first_name,
+				last_name: result.last_name,
+				email: result.email,
+				gender: result.gender,
+				user_type: result.user_type
+			}
 		}))
 	})
 	// catch all errors and handle accordingly

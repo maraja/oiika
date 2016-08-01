@@ -137,15 +137,15 @@ function createTutor(req, res) {
 				case "first_name":
 				case "last_name":
 				case "email":
+					if (valid.validate(content, tutor[content], errors, true)){
+						fields_to_insert[fields[content]] = tutor[content];
+					}
+					break;
 				case "city":
 				case "location_lat":
 				case "location_lng":
 				case "travel_distance":
 				case "hourly_rate":
-					if (valid.validate(content, tutor[content], errors, true)){
-						fields_to_insert[fields[content]] = tutor[content];
-					}
-					break;
 				case "short_description":
 				case "full_description":
 				case "hours_worked":

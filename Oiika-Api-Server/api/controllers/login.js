@@ -103,7 +103,7 @@ function loginFacebook(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: login.email, facebook_id: login.facebook_id}, function(err, result) {
+			accountModel.find({facebook_id: login.facebook_id}, function(err, result) {
 
 				if(err) {
 					// send reject as a callback
@@ -161,7 +161,7 @@ function loginGoogle(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: login.email, google_id: login.google_id}, function(err, result) {
+			accountModel.find({google_id: login.google_id}, function(err, result) {
 
 				if(err) {
 					// send reject as a callback
