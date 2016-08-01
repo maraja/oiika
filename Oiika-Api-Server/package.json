@@ -8,11 +8,13 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.4.1",
     "express": "^4.12.3",
     "moment": "^2.14.1",
     "mongodb": "^2.2.4",
     "mongoose": "^4.5.5",
+    "node-gyp": "^3.4.0",
     "q": "^1.4.1",
     "swagger-express-mw": "^0.1.0",
     "underscore": "^1.8.3"

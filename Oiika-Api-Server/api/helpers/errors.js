@@ -1,15 +1,50 @@
 'use strict';
+const _ = require('underscore');
+const Promise = require('bluebird');
 
 module.exports = {
 	sendError: sendError,
-	makeError: makeError
+	makeError: makeError,
+	makeMongooseError: makeMongooseError
 }
 
 function makeError(type, message){
-	var err = new Error();
-	err.name = type;
-	err.message = message;
-	return err;
+	return new Promise(function(resolve, reject){
+		var err = new Error();
+		err.name = type;
+		err.message = message;
+		resolve(err);
+	});
+}
+
+function makeMongooseError(err){
+	return new Promise(function(resolve, reject){
+		var errors = [];
+
+		var error = new Error();
+		error.name = err.name;
+
+		var promises = [];
+
+		_.each(err.errors, function(element, content){
+
+			promises.push(new Promise(function(resolve, reject) {
+
+				errors.push({content: err.errors[content].name, "Error": err.errors[content].message});
+
+				resolve();
+
+			})
+
+		)});
+
+
+		Promise.all(promises)
+		.then(function(){
+			error.message = errors;
+			resolve(error);
+		});
+	});
 }
 
 function sendError(type, message, res) {
@@ -20,5 +55,5 @@ function sendError(type, message, res) {
     err.message = message;
     return res.send(JSON.stringify({
 		"Error": err
-	}))
+	}));
 }

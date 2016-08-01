@@ -21,100 +21,254 @@ paths:
 
 # LOGIN
 
-  # '/login'
-  #   x-swagger-router-controller: login
-  #   post:
-  #     description: login
-  #     operationId: login existing user
-  #     tags:
-  #       - login
-  #     parameters:
-  #         - name: login
-  #           in: body
-  #           required: true
-  #           schema:
-  #             properties:
-  #               provider:
-  #                 type: string
-  #               email:
-  #                 type: string
-  #               password: 
-  #                 type: string
-  #               facebook_id:
-  #                 type: string
-  #               facebook_token:
-  #                 type: string
-  #               google_id:
-  #                 type: string
-  #               google_token:
-  #                 type: string
-  #             required:
-  #               - provider
-  #     responses:
-  #       "200":
-  #         description: Success
-  #         schema:
-  #           $ref: "#/definitions/HelloWorldResponse"
-  #       default:
-  #         description: Error
-  #         schema:
-  #           $ref: "#/definitions/ErrorResponse"
+  '/login':
+    x-swagger-router-controller: login
+    post:
+      description: login local user
+      operationId: loginLocal
+      tags:
+        - login
+      parameters:
+          - name: login
+            in: body
+            required: true
+            schema:
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  '/login/facebook':
+    x-swagger-router-controller: login
+    post:
+      description: login facebook user
+      operationId: loginFacebook
+      tags:
+        - login
+      parameters:
+          - name: login
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                facebook_id:
+                  type: string
+                gender:
+                  type: string
+                profile_picture:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - facebook_id
+                - gender
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  '/login/google':
+    x-swagger-router-controller: login
+    post:
+      description: login google user
+      operationId: loginGoogle
+      tags:
+        - login
+      parameters:
+          - name: login
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                google_id:
+                  type: string
+                gender:
+                  type: string
+                profile_picture:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - google_id
+                - gender
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
 # SIGNUP
 
-  # '/signup'
-  #   x-swagger-router-controller: signup
-  #   post:
-  #     description: sign up new user
-  #     operationId: signup
-  #     tags:
-  #       - login
-  #     parameters:
-  #         - name: login
-  #           in: body
-  #           required: true
-  #           schema:
-  #             properties:
-  #               provider:
-  #                 type: string
-  #               first_name:
-  #                 type: string
-  #               last_name:
-  #                 type: string
-  #               type:
-  #                 type: string
-  #               email:
-  #                 type: string
-  #               password: 
-  #                 type: string
-  #               facebook_id:
-  #                 type: string
-  #               facebook_token:
-  #                 type: string
-  #               google_id:
-  #                 type: string
-  #               google_token:
-  #                 type: string
-  #             required:
-  #               - provider
-  #               - first_name
-  #               - last_name
-  #               - email
-  #               - type
-  #     responses:
-  #       "200":
-  #         description: Success
-  #         schema:
-  #           $ref: "#/definitions/HelloWorldResponse"
-  #       default:
-  #         description: Error
-  #         schema:
-  #           $ref: "#/definitions/ErrorResponse"
+  '/signup':
+    x-swagger-router-controller: signup
+    post:
+      description: signup local user
+      operationId: signupLocal
+      tags:
+        - signup
+      parameters:
+          - name: signup
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                gender:
+                  type: string
+                password:
+                  type: string
+                user_type:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - gender
+                - password
+                - user_type
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  '/signup/facebook':
+    x-swagger-router-controller: signup
+    post:
+      description: signup facebook user
+      operationId: signupFacebook
+      tags:
+        - signup
+      parameters:
+          - name: signup
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                facebook_id:
+                  type: string
+                gender:
+                  type: string
+                profile_picture:
+                  type: string
+                user_type:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - facebook_id
+                - gender
+                - user_type
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  '/signup/google':
+    x-swagger-router-controller: signup
+    post:
+      description: signup google user
+      operationId: signupGoogle
+      tags:
+        - signup
+      parameters:
+          - name: signup
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                google_id:
+                  type: string
+                gender:
+                  type: string
+                profile_picture:
+                  type: string
+                user_type:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - google_id
+                - gender
+                - user_type
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
 # TUTOR
 
   '/tutor':
-    x-swagger-router-controller: tutor
+    x-swagger-router-controller: user
     get:
       description: Get tutors by parameter
       operationId: getTutorsByParameter

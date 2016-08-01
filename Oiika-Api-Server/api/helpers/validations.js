@@ -1,3 +1,5 @@
+const _ = require('underscore');
+
 module.exports = {
 	validate: validate
 }
@@ -13,16 +15,34 @@ function validate(name, value, errors, isRequired){
 			case "last_name":
 				return isLastNameValid(value, errors, isRequired);
 				break;
+			case "password":
+				return isPasswordValid(value, errors, isRequired);
+				break;
+			case "gender":
+				return isGenderValid(value, errors, isRequired);
+				break;
 			case "short_description":
 				return isShortDescriptionValid(value, errors, isRequired);
 				break;
 			case "full_description":
 				return isFullDescriptionValid(value, errors, isRequired);
 				break;
+			case "user_type":
+				return isUserTypeValid(value, errors, isRequired);
+				break;
 			case "tutor_email":
 			case "tutee_email":
 			case "email":
 				return isEmailValid(value, errors, isRequired);
+				break;
+			case "facebook_id":
+				return isFacebookIdValid(value, errors, isRequired);
+				break;
+			case "google_id":
+				return isGoogleIdValid(value, errors, isRequired);
+				break;
+			case "profile_picture":
+				return isProfilePictureValid(value, errors, isRequired);
 				break;
 			case "datetime":
 				return isDatetimeValid(value, errors, isRequired);
@@ -53,7 +73,12 @@ function validate(name, value, errors, isRequired){
 				return false;
 				break;
 		}
-	} else { return false; }
+	} else if (isRequired) { 
+		errors.push("No "+name+" Entered.");
+		return false; 
+	} else {
+		return false;
+	}
 }
 
 
@@ -69,9 +94,6 @@ function isFirstNameValid(name, errors, isRequired){
 			errors.push("Invalid First Name Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No First Name Entered.");
-		return false;
 	} else { return true; }
 
 }
@@ -89,9 +111,39 @@ function isLastNameValid(name, errors, isRequired){
 			errors.push("Invalid Last Name Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Last Name Entered.");
-		return false;
+	} else { return true; }
+
+}
+
+
+// PASSWORD
+function isPasswordValid(password, errors, isRequired){
+
+	if(password){
+		const minLength = 2;
+		const maxLength = 15;
+
+		if (password.trim().length >= minLength && password.trim().length <= maxLength) return true;
+		else {
+			errors.push("Invalid Password Entered.");
+			return false;
+		}
+	} else { return true; }
+
+}
+
+
+// GENDER
+function isGenderValid(gender, errors, isRequired){
+
+	if(gender){
+		var enumGender = ['M', 'F'];
+
+		if (_.contains(enumGender, gender)) return true;
+		else {
+			errors.push("Invalid Gender Entered.");
+			return false;
+		}
 	} else { return true; }
 
 }
@@ -101,7 +153,6 @@ function isLastNameValid(name, errors, isRequired){
 function isShortDescriptionValid(shortDesc, errors, isRequired){
 
 	if(shortDesc){
-		console.log("from short description validation");
 		const minLength = 1;
 		const maxLength = 140;
 
@@ -110,9 +161,6 @@ function isShortDescriptionValid(shortDesc, errors, isRequired){
 			errors.push("Invalid Short Description Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Short Description Entered.");
-		return false;
 	} else { return true; }
 
 }
@@ -122,7 +170,6 @@ function isShortDescriptionValid(shortDesc, errors, isRequired){
 function isFullDescriptionValid(fullDesc, errors, isRequired){
 
 	if(fullDesc){
-		console.log("from long description validation");
 		const minLength = 1;
 		const maxLength = 1000;
 
@@ -131,9 +178,22 @@ function isFullDescriptionValid(fullDesc, errors, isRequired){
 			errors.push("Invalid Full Description Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Full Description Entered.");
-		return false;
+	} else { return true; }
+
+}
+
+
+// USER TYPE
+function isUserTypeValid(userType, errors, isRequired){
+
+	if(userType){
+		var enumUserType = ['tutor', 'tutee'];
+
+		if (_.contains(enumUserType, userType)) return true;
+		else {
+			errors.push("Invalid User type Entered.");
+			return false;
+		}
 	} else { return true; }
 
 }
@@ -150,9 +210,6 @@ function isEmailValid(email, errors, isRequired){
 			errors.push("Invalid Email Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Email Entered.");
-		return false;
 	} else { return true; }
 
 }
@@ -171,9 +228,6 @@ function isDatetimeValid(datetime, errors, isRequired){
 			errors.push("Invalid Date-Time Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Date-Time Entered.");
-		return false;
 	} else { return true; }
 
 }
@@ -191,9 +245,6 @@ function isCityValid(city, errors, isRequired){
 			errors.push("Invalid City Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No City Entered.");
-		return false;
 	} else { return true; }
 }
 
@@ -210,9 +261,6 @@ function isRateValid(rate, errors, isRequired){
 			errors.push("Invalid Rate Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Rate Entered.");
-		return false;
 	} else { return true; }
 
 }
@@ -230,9 +278,6 @@ function isRatingValid(rating, errors, isRequired){
 			errors.push("Invalid Rating Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Rating Entered.");
-		return false;
 	} else { return true; }
 
 }
@@ -250,9 +295,6 @@ function isDurationValid(duration, errors, isRequired){
 			errors.push("Invalid Duration Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Duration Entered.");
-		return false;
 	} else { return true; }
 
 }
@@ -270,9 +312,6 @@ function isSubjectValid(subject, errors, isRequired){
 			errors.push("Invalid Subject Entered.");
 			return false;
 		}
-	} else if(isRequired) {
-		errors.push("No Subject Entered.");
-		return false;
 	} else { return true; }
 }
 
@@ -285,5 +324,20 @@ function isLocationValid(location, errors, isRequired){
 
 // TRAVEL
 function isTravelDistanceValid(distance, errors, isRequired){
+	return true;
+}
+
+// FACEBOOK ID
+function isFacebookIdValid(id, errors, isRequired){
+	return true;
+}
+
+// GOOGLE ID
+function isGoogleIdValid(id, errors, isRequired){
+	return true;
+}
+
+// PROFILE PICTURE
+function isProfilePictureValid(pic, errors, isRequired){
 	return true;
 }
