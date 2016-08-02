@@ -1,10 +1,10 @@
 :root {
 	--light-grey: rgb(238, 238, 238);
 	--dark-grey: rgb(50, 50, 50);
-	--orange: rgb(255, 124, 0);
+	--orange: rgb(255, 124, 0); /*ff8919*/
 	--light-orange: rgb(255, 137, 25);
 	--dark-orange: rgb(209, 102, 0);
-	--blue: rgb(0, 201, 255);
+	--blue: rgb(0, 201, 255); /*00c9ff*/
 	--dark-blue: rgb(0, 141, 178);
 	--nav-size: 100px;
 }
