@@ -7,7 +7,8 @@ app = require('express')();
 
 // hook all models into app. Instantiated only once.
 app.models = {
-  userModel: require('./api/models/Users')(),
+  tutorModel: require('./api/models/Tutors')(),
+  tuteeModel: require('./api/models/Tutees')(),
   sessionModel: require('./api/models/Sessions')(),
   accountModel: require('./api/models/Accounts')()
 }

@@ -1,5 +1,6 @@
 const accountModel = app.models.accountModel;
-const userModel = app.models.userModel;
+const tutorModel = app.models.tutorModel;
+const tuteeModel = app.models.tuteeModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 const pass = require('../helpers/password');
@@ -95,14 +96,24 @@ function signupLocal(req, res){
 
 
 	var createUser = function(newAccount){
+		var userModel;
+		switch (newAccount.user_type){
+			case "tutor":
+				userModel = tutorModel;
+				break;
+			case "tutee":
+				userModel = tuteeModel;
+				break;
+			default:
+				break;
+		}
 		return new Promise(function(resolve, reject) {
 			userModel.create({
 				_account: newAccount._id,
 				first_name: fields_to_insert.first_name,
 				last_name: fields_to_insert.last_name,
 				email: fields_to_insert.email,
-				account_type: fields_to_insert.account_type,
-				user_type: fields_to_insert.user_type,
+				account_type: fields_to_insert.account_type
 			}, function(err, result) {
 
 				if(err) {
@@ -276,14 +287,24 @@ function signupFacebook(req, res){
 
 
 	var createUser = function(newAccount){
+		var userModel;
+		switch (newAccount.user_type){
+			case "tutor":
+				userModel = tutorModel;
+				break;
+			case "tutee":
+				userModel = tuteeModel;
+				break;
+			default:
+				break;
+		}
 		return new Promise(function(resolve, reject) {
 			userModel.create({
 				_account: newAccount._id,
 				first_name: fields_to_insert.first_name,
 				last_name: fields_to_insert.last_name,
 				email: fields_to_insert.email,
-				account_type: fields_to_insert.account_type,
-				user_type: fields_to_insert.user_type,
+				account_type: fields_to_insert.account_type
 			}, function(err, result) {
 
 				if(err) {
@@ -449,14 +470,24 @@ function signupGoogle(req, res){
 
 
 	var createUser = function(newAccount){
+		var userModel;
+		switch (newAccount.user_type){
+			case "tutor":
+				userModel = tutorModel;
+				break;
+			case "tutee":
+				userModel = tuteeModel;
+				break;
+			default:
+				break;
+		}
 		return new Promise(function(resolve, reject) {
 			userModel.create({
 				_account: newAccount._id,
 				first_name: fields_to_insert.first_name,
 				last_name: fields_to_insert.last_name,
 				email: fields_to_insert.email,
-				account_type: fields_to_insert.account_type,
-				user_type: fields_to_insert.user_type,
+				account_type: fields_to_insert.account_type
 			}, function(err, result) {
 
 				if(err) {
