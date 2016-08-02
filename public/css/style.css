@@ -1069,7 +1069,7 @@ table.schedule-table th {
   float: left;
 }
 .rating.rating_xl {
-    margin: 23px 10px;
+    margin: 13px 10px;
 }
 .rating > input { display: none; }
 .rating > label:before {
@@ -1091,6 +1091,7 @@ table.schedule-table th {
 .rating > label {
   color: #888;
  float: right;
+ margin: 0;
 }
 
 /***** CSS Magic to Highlight Stars on Hover *****/
