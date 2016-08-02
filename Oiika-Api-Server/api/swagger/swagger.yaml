@@ -363,6 +363,29 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  
+  '/tutor/{tutorId}':
+    x-swagger-router-controller: tutor
+    get:
+      description: get tutor profile information
+      operationId: getTutorById
+      tags:
+        - Tutor
+      parameters:
+          -
+            name: tutorId
+            in: path
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
 
 # TUTOR SESSION
 

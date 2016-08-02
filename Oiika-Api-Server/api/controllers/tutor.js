@@ -9,6 +9,7 @@ const _ = require('underscore');
 
 module.exports = {
 	getTutorsByParameter: getTutorsByParameter,
+	getTutorById: getTutorById,
 	createTutor: createTutor
 };
 
@@ -20,7 +21,38 @@ function getTutorsByParameter(req, res){
 	else if (params.lat.value && params.lng.value){ getTutorByLocation(req, res, params.lat.value, params.lng.value); }
 	else { getAllTutors(req, res) }
 
-}
+};
+
+function getTutorById(req, res) {
+	var tutorId = req.swagger.params.tutorId.value;
+
+	tutorModel.find({_id: tutorId}, function(err, docs) {
+		if(err) {
+			console.log(err);
+			switch (err.name){
+				case "CastError":
+					error.makeError(err.name, err.message)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+				default:
+					error.makeMongooseError(err)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+			}
+		} else if (docs.length==0){
+			error.makeError("INVALID_ID", "ID does not exist.")
+			.then(function(error){
+				res.send(error);
+			});
+		} else {
+			res.send(docs[0]);
+		}
+	});
+};
 
 function getTutorByLocation(req, res, locationLat, locationLng){
 	var errors = [];

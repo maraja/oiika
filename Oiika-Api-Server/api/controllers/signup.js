@@ -74,7 +74,6 @@ function signupLocal(req, res){
 			accountModel.find({email: fields_to_insert.email}, function(err, result) {
 
 				if(err) {
-					// send reject as a callback
 					error.makeMongooseError(err)
 					.then(function(error){
 						reject(error);
