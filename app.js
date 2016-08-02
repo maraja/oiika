@@ -10,11 +10,11 @@ var config = require('./config');
 var oauth = require('./config/oauth');
 var passport = require('passport');
 var passportLocal = require('passport-local');
-//var FacebookStrategy = require('passport-facebook').Strategy;
+var passportFacebook = require('passport-facebook');
+var passportGoogle = require('passport-google-oauth');
 
 //routes
 var routes = require('./routes/index');
-var users = require('./routes/users');
 
 // serialize and deserialize
 passport.serializeUser(function(user, done) {
@@ -32,23 +32,43 @@ passport.deserializeUser(function(obj, done) {
 // local
 passport.use(new passportLocal.Strategy(function (username, password, done) {
   //do databsae call
-  if(username === password) {
-    done(null, {
-      id: 123,
-      name: "Reza"
-    });
+  //var result = mongoDb.login(username, password);
+  var result = 1;
+  if(result) {
+    done(null, result);
   } else {
-    done(null, null);
+    done(null, null); //error
   }
 }));
 
 // facebook
-passport.use(new FacebookStrategy({
+passport.use(new passportFacebook.Strategy({
   clientID: oauth.facebook.clientID,
   clientSecret: oauth.facebook.clientSecret,
-  callbackURL: oauth.facebook.callbackURL
+  callbackURL: oauth.facebook.callbackURL,
+  profileFields: ['id', 'name', 'gender', 'photos', 'emails']
   },
   function(accessToken, refreshToken, profile, done) {
+    console.log(accessToken);
+    console.log(refreshToken);
+    console.log(profile);
+    //http://graph.facebook.com/603718516475999/picture?type=large
+    process.nextTick(function () {
+      return done(null, profile);
+    });
+  }
+));
+
+// google
+passport.use(new passportGoogle.OAuth2Strategy({
+  clientID: oauth.google.clientID,
+  clientSecret: oauth.google.clientSecret,
+  callbackURL: oauth.google.callbackURL
+  },
+  function(accessToken, refreshToken, profile, done) {
+    console.log(accessToken);
+    console.log(refreshToken);
+    console.log(profile);
     process.nextTick(function () {
       return done(null, profile);
     });
@@ -90,7 +110,6 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/users', users);
 
 
 // ERROR HANDLERS

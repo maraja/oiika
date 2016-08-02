@@ -1,0 +1,165 @@
+extend layout
+block content
+  //- COVER
+  section#tutor_cover
+
+  .container.border-l-r
+    .row.relative
+      .col-xs-12.faux_shade
+    .row.faux_shade_over
+      .col-xs-12.col-md-8.profile_wrapper
+          .row
+            .col-xs-12.profile_overview
+              table.table
+                tr
+                  td.profile_picture
+                    img(src='http://graph.facebook.com/603718516475999/picture?type=large')
+                  td
+                    .row
+                      .col-xs-12
+                        a(href='#').right.save
+                          i.icon.icon_heart_alt
+                        h2.name Reza Karami
+                        span.city.left
+                          i.icon.icon_pin_alt
+                          |  Mississauga
+                        span.middot.left ·
+                        span.rating_wrapper.left
+                          fieldset.rating.disabled
+                            input#star5(type='radio', name='rating', value='5', disabled)
+                            label.full(for='star5')
+                            input#star4half(type='radio', name='rating', value='4 and a half', disabled, checked)
+                            label.half(for='star4half')
+                            input#star4(type='radio', name='rating', value='4', disabled)
+                            label.full(for='star4')
+                            input#star3half(type='radio', name='rating', value='3 and a half', disabled)
+                            label.half(for='star3half')
+                            input#star3(type='radio', name='rating', value='3', disabled)
+                            label.full(for='star3')
+                            input#star2half(type='radio', name='rating', value='2 and a half', disabled)
+                            label.half(for='star2half')
+                            input#star2(type='radio', name='rating', value='2', disabled)
+                            label.full(for='star2')
+                            input#star1half(type='radio', name='rating', value='1 and a half', disabled)
+                            label.half(for='star1half')
+                            input#star1(type='radio', name='rating', value='1', disabled)
+                            label.full(for='star1')
+                            input#starhalf(type='radio', name='rating', value='half', disabled)
+                            label.half(for='starhalf')
+                        span.left.reviews (
+                          a#reviews_scroll(href='#reviews_anchor') 9 reviews
+                          | )
+                    .row.m-t-30
+                      .col-xs-12
+                        table
+                          tr
+                            td Rate
+                            td
+                              span.hourly_rate $19 /hr
+                          tr
+                            td Availability
+                            td
+                              span Available
+                              span More than 30 hrs/week
+                          tr
+                            td Work History
+                            td
+                              span 358 hours worked
+                              span 34 students
+          .row
+            .col-xs-12.profile_details
+              hr.m-t-5
+              .about
+                h3 About this tutor
+                p Maecenas maximus elementum eros et vehicula. Nunc volutpat magna euismod, aliquet nulla accumsan, aliquet erat. Aliquam non libero nisi. Nullam eget libero felis. Nulla auctor ut nisl gravida interdum. Maecenas erat ante, placerat ut tempus quis, mattis vitae mi. Nullam dignissim sem odio, ac tincidunt ante lacinia eu. Etiam blandit tempor sollicitudin. Vestibulum aliquam lacus vitae nisi pretium maximus. Integer a magna non metus scelerisque aliquam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus sed malesuada ex. In venenatis elit id justo elementum condimentum. Suspendisse posuere, nulla sit amet vestibulum fermentum, urna libero porta sapien, vehicula congue magna dolor sed eros. Pellentesque feugiat ultrices volutpat. Quisque in velit fringilla nisi vehicula mollis.
+              hr
+              .skills
+                h3 Skills
+
+                .skills_wrapper
+                  a(href='#').skill JavaScript
+                  a(href='#').skill PHP
+                  a(href='#').skill Node.js
+                  a(href='#').skill MySQL
+                  a(href='#').skill MongoDB
+                  a(href='#').skill AWS
+                  a(href='#').skill Linux
+                  a(href='#').skill HTML
+                  a(href='#').skill HTML
+                  a(href='#').skill HTML
+                  a(href='#').skill JavaScript
+                  a(href='#').skill PHP
+                  a(href='#').skill Node.js
+                  a(href='#').skill MySQL
+                  a(href='#').skill MongoDB
+                  a(href='#').skill AWS
+                  a(href='#').skill Linux
+                  .clearfix
+              hr
+              .subjects
+                h3 Subjects
+
+                .subjects_wrapper
+                  a(href='#').subject Cryptography
+                  a(href='#').subject Discrete Mathematics
+                  a(href='#').subject Calculus
+                  a(href='#').subject Computer Science
+                  .clearfix
+              br
+          .row.tutor_map
+            #map
+          .row
+            .col-xs-12.tutor_reviews
+              h3.left#reviews_anchor 9 Reviews
+              span.rating_wrapper.left
+                fieldset.rating.rating_xl.disabled
+                  input#star5(type='radio', name='rating_xl', value='5', disabled)
+                  label.full(for='star5')
+                  input#star4half(type='radio', name='rating_xl', value='4 and a half', disabled, checked)
+                  label.half(for='star4half')
+                  input#star4(type='radio', name='rating_xl', value='4', disabled)
+                  label.full(for='star4')
+                  input#star3half(type='radio', name='rating_xl', value='3 and a half', disabled)
+                  label.half(for='star3half')
+                  input#star3(type='radio', name='rating_xl', value='3', disabled)
+                  label.full(for='star3')
+                  input#star2half(type='radio', name='rating_xl', value='2 and a half', disabled)
+                  label.half(for='star2half')
+                  input#star2(type='radio', name='rating_xl', value='2', disabled)
+                  label.full(for='star2')
+                  input#star1half(type='radio', name='rating_xl', value='1 and a half', disabled)
+                  label.half(for='star1half')
+                  input#star1(type='radio', name='rating_xl', value='1', disabled)
+                  label.full(for='star1')
+                  input#starhalf(type='radio', name='rating_xl', value='half', disabled)
+                  label.half(for='starhalf')
+              .clearfix
+              hr.m-t-5
+              - for (var x = 1; x < 6; x++)
+                .review_item
+                  table
+                    tbody
+                      tr
+                        td
+                          img(src='/images/anonymous.png', title='', style='')
+                          br
+                          span.name Charles
+                        td
+                          p.review_text
+                            | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                          input#review_id(type='hidden', value='2')
+                          span.datetime Posted on: 2015/12/08
+          .row
+            .col-xs-12
+              a(href='#').report_tutor
+                i.icon.icon_error-circle_alt
+                |  Report this tutor
+      .col-xs-12.col-md-4.sidebar
+        .calendar_wrapper
+          .calendar#datepicker
+          a(href='#').btn.btn-warning.btn-block.book_session Book Session
+        .booking_wrapper
+              p Confirm your booking
+              a(href='#').btn.btn-warning.btn-block.confirm_booking Confirm Booking
+              a(href='#').btn.btn-block.go_back Go Back
+        br

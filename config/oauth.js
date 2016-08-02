@@ -1,18 +1,13 @@
 var ids = {
   facebook: {
-    clientID: 'get_your_own',
-    clientSecret: 'get_your_own',
-    callbackURL: 'http://127.0.0.1:1337/auth/facebook/callback'
-  },
-  twitter: {
-    consumerKey: 'get_your_own',
-    consumerSecret: 'get_your_own',
-    callbackURL: "http://127.0.0.1:1337/auth/twitter/callback"
+    clientID: '1103604569707589',
+    clientSecret: '9dec78e94f9aaac470103867550bc678',
+    callbackURL: 'http://localhost:3000/auth/facebook/callback'
   },
   google: {
-    clientID: 'get_your_own',
-    clientSecret: 'get_your_own',
-    callbackURL: 'http://127.0.0.1:1337/auth/google/callback'
+    clientID: '996476519529-4id25ajeimdbgsmepgfq3vfvp49nsq0d.apps.googleusercontent.com',
+    clientSecret: 'VsN7cH7E2cxImsMgwCGgLpP6',
+    callbackURL: 'http://localhost:3000/auth/google/callback'
   }
 };
 

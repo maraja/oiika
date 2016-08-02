@@ -1,0 +1,92 @@
+extend layout
+block content
+  .container.border-l-r
+    .row
+      .col-xs-12.border-b
+        h3 Settings
+    .row
+      .col-xs-12.col-sm-4.col-md-3.vertical_nav
+        ul.nav.nav-tabs.tabs-left(role='tablist')
+          li
+            a(href='#profile_info', role='tab', data-toggle='tab', aria-expanded='false')
+              i.fa.fa-user
+              |   My Profile
+          li
+            a(href='#schedule', role='tab', data-toggle='tab', aria-expanded='false')
+              i.fa.fa-star
+              |   Schedule
+          li
+            a(href='#service_regions', role='tab', data-toggle='tab', aria-expanded='false')
+              i.fa.fa-map-marker
+              |   Service Regions
+
+          li
+            a(href='#password', role='tab', data-toggle='tab', aria-expanded='false')
+              i.fa.fa-lock
+              |   Password
+      .col-xs-12.col-sm-8.col-md-9.tab-content
+        #profile_picture.tab-pane.fade.in.active(role='tabpanel')
+          form#update_profile_picture(action='#', method='POST')
+            .profile_picture_actions_wrapper
+              #profile_picture_preview_wrapper
+                img(src='', alt='Reza Karami')
+                a#remove_picture(href='#', title='Remove Profile Picture')
+                  i.fa.fa-close
+              #profile_picture_progress.progress(style='display: none;')
+                .bar
+              label.profile_picture_upload.btn.btn-primary
+                input#profile_picture(type='file', name='profile_picture')
+                | 										Choose Photo
+        #profile_info.tab-pane.fade(role='tabpanel')
+          h3 My Profile
+          form#profile(action='#', method='POST')
+          .row
+            .col-xs-12.col-md-6
+              .form-group
+                label(for='first_name') First Name
+                input#first_name.form-control(type='text', name='first_name', placeholder='First Name', value='Reza')
+            .col-xs-12.col-md-6
+              .form-group
+                label(for='last_name') Last Name
+                input#last_name.form-control(type='text', name='last_name', placeholder='Last Name', value='Karami')
+          .row
+            .col-xs-12.col-md-6
+              .form-group
+                label(for='email') Email Address
+                input#email.form-control(type='email', name='email', placeholder='Email Address', value='reza_karami@outlook.com')
+            .col-xs-12.col-md-6
+              .form-group
+                label(for='phone') Phone #
+                input#phone.form-control(type='tel', name='phone', placeholder='Phone Number', value='6476873557')
+          hr
+          input#rid(type='hidden', value='P57DXN')
+          button#submit_form.btn.btn-primary.pull-right Save Changes
+        #service_regions.tab-pane.fade(role='tabpanel')
+          form#update_service_regions(action='?action=update_service_regions', method='POST')
+            .form-group
+              label(for='service_area') Service Region(s)
+              br
+              #map
+              hr
+              button#submit_form.btn.btn-primary.pull-right Update Region(s)
+        #schedule.tab-pane.fade(role='tabpanel')
+          h3 Schedule
+          #schedule_selector
+          hr
+          a.btn.btn-primary.right#save_schedule(href='#') Save Changes
+        #password.tab-pane.fade(role='tabpanel')
+          form#update_password(action='?action=update_password', method='POST', novalidate='novalidate')
+            .change_password
+              label(for='new_password') Change Password
+              .row
+                .col-xs-12.col-md-6
+                  .form-group
+                    input#new_password.form-control(type='password', name='new_password', placeholder='New Password')
+                .col-xs-12.col-md-6
+                  .form-group
+                    input#confirm_password.form-control(type='password', name='confirm_password', placeholder='Confirm Password')
+              hr
+              .row
+                .col-xs-12
+                  .form-group
+                    button#submit_form.btn.btn-primary.pull-right Update Password
