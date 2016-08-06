@@ -1,9 +1,12 @@
 const accountModel = app.models.accountModel;
 const tutorModel = app.models.tutorModel;
 const tuteeModel = app.models.tuteeModel;
+
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
+// password creater helper
 const pass = require('../helpers/password');
+const tutor = require('./tutor');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');

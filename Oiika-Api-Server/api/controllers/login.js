@@ -14,6 +14,8 @@ module.exports = {
 	loginGoogle: loginGoogle
 };
 
+
+// LOCAL LOGIN FUNCTION
 function loginLocal(req, res){
 	var login = req.swagger.params.login.value;
 
@@ -89,6 +91,8 @@ function loginLocal(req, res){
 	});
 };
 
+
+// FACEBOOK LOGIN FUNCTION
 function loginFacebook(req, res){
 	var login = req.swagger.params.login.value;
 
@@ -147,6 +151,8 @@ function loginFacebook(req, res){
 	});
 };
 
+
+// GOOGLE LOGIN FUNCTION
 function loginGoogle(req, res){
 	var login = req.swagger.params.login.value;
 

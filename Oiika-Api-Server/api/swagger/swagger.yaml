@@ -268,7 +268,7 @@ paths:
 # TUTOR
 
   '/tutor':
-    x-swagger-router-controller: user
+    x-swagger-router-controller: tutor
     get:
       description: Get tutors by parameter
       operationId: getTutorsByParameter
@@ -369,6 +369,52 @@ paths:
     get:
       description: get tutor profile information
       operationId: getTutorById
+      tags:
+        - Tutor
+      parameters:
+          -
+            name: tutorId
+            in: path
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  '/tutor/{tutorId}/reviews':
+    x-swagger-router-controller: tutor
+    get:
+      description: get tutor profile information
+      operationId: getTutorReviewsById
+      tags:
+        - Tutor
+      parameters:
+          -
+            name: tutorId
+            in: path
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  '/tutor/{tutorId}/schedule':
+    x-swagger-router-controller: tutor
+    get:
+      description: get tutor profile information
+      operationId: getTutorScheduleById
       tags:
         - Tutor
       parameters:

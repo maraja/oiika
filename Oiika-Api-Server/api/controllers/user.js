@@ -212,16 +212,4 @@ function createTutor(req, res) {
 	.catch(function(err){
 		error.sendError(err.name, err.message, res);
 	});
-
-	// var first_name = tutor.first_name;
-	// var last_name = tutor.last_name;
-	// var email = tutor.email;
-	// var short_description = tutor.short_description;
-	// var full_description = tutor.full_description;
-	// var city = tutor.city;
-	// var hourly_rate = tutor.hourly_rate;
-	// var hours_worked = tutor.hours_worked;
-	// var rating = tutor.rating;
-	// var skills = tutor.skills;
-	// var profile_picture = tutor.profile_picture;
 }

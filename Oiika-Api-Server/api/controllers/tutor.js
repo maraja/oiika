@@ -10,6 +10,8 @@ const _ = require('underscore');
 module.exports = {
 	getTutorsByParameter: getTutorsByParameter,
 	getTutorById: getTutorById,
+	getTutorReviewsById: getTutorReviewsById,
+	getTutorScheduleById: getTutorScheduleById,
 	createTutor: createTutor
 };
 
@@ -26,7 +28,7 @@ function getTutorsByParameter(req, res){
 function getTutorById(req, res) {
 	var tutorId = req.swagger.params.tutorId.value;
 
-	tutorModel.find({_id: tutorId}, function(err, docs) {
+	tutorModel.find({_id: tutorId}, function(err, resultDocument) {
 		if(err) {
 			console.log(err);
 			switch (err.name){
@@ -43,13 +45,89 @@ function getTutorById(req, res) {
 					});
 					break;
 			}
-		} else if (docs.length==0){
+		} else if (resultDocument.length==0){
 			error.makeError("INVALID_ID", "ID does not exist.")
 			.then(function(error){
 				res.send(error);
 			});
 		} else {
-			res.send(docs[0]);
+			res.send(resultDocument[0]);
+		}
+	});
+};
+
+function getTutorReviewsById(req, res){
+	var tutorId = req.swagger.params.tutorId.value;
+
+	tutorModel.find(
+		{_id: tutorId}, 
+		{
+			reviews: 1, 
+			_id: 0
+		}, 
+		function(err, resultDocument) {
+		if(err) {
+			console.log(err);
+			switch (err.name){
+				case "CastError":
+				case "MongoError":
+					error.makeError(err.name, err.message)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+				default:
+					error.makeMongooseError(err)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+			}
+		} else if (resultDocument.length==0){
+			error.makeError("INVALID_ID", "ID does not exist.")
+			.then(function(error){
+				res.send(error);
+			});
+		} else {
+			res.send(resultDocument[0]);
+		}
+	});
+};
+
+function getTutorScheduleById(req, res){
+	var tutorId = req.swagger.params.tutorId.value;
+
+	tutorModel.find(
+		{_id: tutorId}, 
+		{
+			schedule: 1, 
+			_id: 0
+		}, 
+		function(err, resultDocument) {
+		if(err) {
+			console.log(err);
+			switch (err.name){
+				case "CastError":
+				case "MongoError":
+					error.makeError(err.name, err.message)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+				default:
+					error.makeMongooseError(err)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+			}
+		} else if (resultDocument.length==0){
+			error.makeError("INVALID_ID", "ID does not exist.")
+			.then(function(error){
+				res.send(error);
+			});
+		} else {
+			res.send(resultDocument[0]);
 		}
 	});
 };
@@ -66,13 +144,13 @@ function getTutorByLocation(req, res, locationLat, locationLng){
 				{ $where : (locationLng+' < (this.location_lng+this.travel_distance)') },
 				{ $where : (locationLng+' > (this.location_lng-this.travel_distance)') }
 			]
-		}, function(err, docs) {
+		}, function(err, resultDocument) {
 			if(err) {
 				console.log(err);
 				error.sendError(err.name, err.message, res);
 			}
 			else {
-				return res.send(docs);
+				return res.send(resultDocument);
 			}
 		});
 	} else {
@@ -81,13 +159,13 @@ function getTutorByLocation(req, res, locationLat, locationLng){
 }
 
 function getAllTutors(req, res) {
-	tutorModel.find({}, function(err, docs) {
+	tutorModel.find({}, function(err, resultDocument) {
 		if(err) {
 			console.log(err);
 			error.sendError(err.name, err.message, res);
 		}
 		else {
-			res.send(docs);
+			res.send(resultDocument);
 		}
 	});
 }
@@ -97,13 +175,13 @@ function getTutorByCity(req, res, city) {
 	var errors = [];
 
 	if(valid.validate("city", city, errors)) {
-		tutorModel.find({city: city}, function(err, docs) {
+		tutorModel.find({city: city}, function(err, resultDocument) {
 			if(err) {
 				console.log(err);
 				error.sendError(err.name, err.message, res);
 			}
 			else {
-				return res.send(docs);
+				return res.send(resultDocument);
 			}
 		});
 	} else {
@@ -117,13 +195,13 @@ function getTutorByEmail(req, res, email){
 	var errors = [];
 
 	if(valid.validate("email", email, errors)) {
-		tutorModel.find({email: email}, function(err, docs) {
+		tutorModel.find({email: email}, function(err, resultDocument) {
 			if(err) {
 				console.log(err);
 				error.sendError(err.name, err.message, res);
 			}
 			else {
-				return res.send(docs);
+				return res.send(resultDocument);
 			}
 		});
 	} else {

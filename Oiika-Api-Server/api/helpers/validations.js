@@ -85,7 +85,6 @@ function validate(name, value, errors, isRequired){
 // FIRST NAME
 function isFirstNameValid(name, errors, isRequired){
 
-	if(name){
 		const minLength = 2;
 		const maxLength = 15;
 
@@ -94,7 +93,6 @@ function isFirstNameValid(name, errors, isRequired){
 			errors.push("Invalid First Name Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -102,7 +100,6 @@ function isFirstNameValid(name, errors, isRequired){
 // LAST NAME
 function isLastNameValid(name, errors, isRequired){
 
-	if(name){
 		const minLength = 2;
 		const maxLength = 15;
 
@@ -111,7 +108,6 @@ function isLastNameValid(name, errors, isRequired){
 			errors.push("Invalid Last Name Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -119,7 +115,6 @@ function isLastNameValid(name, errors, isRequired){
 // PASSWORD
 function isPasswordValid(password, errors, isRequired){
 
-	if(password){
 		const minLength = 2;
 		const maxLength = 15;
 
@@ -128,7 +123,6 @@ function isPasswordValid(password, errors, isRequired){
 			errors.push("Invalid Password Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -136,7 +130,6 @@ function isPasswordValid(password, errors, isRequired){
 // GENDER
 function isGenderValid(gender, errors, isRequired){
 
-	if(gender){
 		var enumGender = ['M', 'F'];
 
 		if (_.contains(enumGender, gender)) return true;
@@ -144,7 +137,6 @@ function isGenderValid(gender, errors, isRequired){
 			errors.push("Invalid Gender Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -152,7 +144,6 @@ function isGenderValid(gender, errors, isRequired){
 // SHORT DESCRIPTION
 function isShortDescriptionValid(shortDesc, errors, isRequired){
 
-	if(shortDesc){
 		const minLength = 1;
 		const maxLength = 140;
 
@@ -161,7 +152,6 @@ function isShortDescriptionValid(shortDesc, errors, isRequired){
 			errors.push("Invalid Short Description Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -169,7 +159,6 @@ function isShortDescriptionValid(shortDesc, errors, isRequired){
 // SHORT DESCRIPTION
 function isFullDescriptionValid(fullDesc, errors, isRequired){
 
-	if(fullDesc){
 		const minLength = 1;
 		const maxLength = 1000;
 
@@ -178,7 +167,6 @@ function isFullDescriptionValid(fullDesc, errors, isRequired){
 			errors.push("Invalid Full Description Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -186,7 +174,6 @@ function isFullDescriptionValid(fullDesc, errors, isRequired){
 // USER TYPE
 function isUserTypeValid(userType, errors, isRequired){
 
-	if(userType){
 		var enumUserType = ['tutor', 'tutee'];
 
 		if (_.contains(enumUserType, userType)) return true;
@@ -194,7 +181,6 @@ function isUserTypeValid(userType, errors, isRequired){
 			errors.push("Invalid User type Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -202,7 +188,6 @@ function isUserTypeValid(userType, errors, isRequired){
 // EMAIL
 function isEmailValid(email, errors, isRequired){
 
-	if(email){
 		var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		if(re.test(email)){
 			return true;
@@ -210,7 +195,6 @@ function isEmailValid(email, errors, isRequired){
 			errors.push("Invalid Email Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -219,7 +203,6 @@ function isEmailValid(email, errors, isRequired){
 function isDatetimeValid(datetime, errors, isRequired){
 
 	// Date format: mm-dd-yyyy hh:mm am|pm
-	if(datetime){
 
 		var re = /^(((0[13578]|1[02])[-](0[1-9]|[12]\d|3[01])[-]((19|[2-9]\d)\d{2})\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm))|((0[13456789]|1[012])[-](0[1-9]|[12]\d|30)[-]((19|[2-9]\d)\d{2})\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm))|((02)[-](0[1-9]|1\d|2[0-8])[-]((19|[2-9]\d)\d{2})\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm))|((02)[-](29)[-]((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm)))$/g;
 		if(re.test(datetime)){
@@ -228,7 +211,6 @@ function isDatetimeValid(datetime, errors, isRequired){
 			errors.push("Invalid Date-Time Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -236,7 +218,6 @@ function isDatetimeValid(datetime, errors, isRequired){
 // CITY
 function isCityValid(city, errors, isRequired){
 
-	if(city){
 		const minLength = 2;
 		const maxLength = 15;
 
@@ -245,14 +226,12 @@ function isCityValid(city, errors, isRequired){
 			errors.push("Invalid City Entered.");
 			return false;
 		}
-	} else { return true; }
 }
 
 
 // HOURLY RATE
 function isRateValid(rate, errors, isRequired){
 
-	if(rate){
 		const minRate = 10;
 		const maxRate = 100;
 
@@ -261,7 +240,6 @@ function isRateValid(rate, errors, isRequired){
 			errors.push("Invalid Rate Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -269,7 +247,6 @@ function isRateValid(rate, errors, isRequired){
 // RATING
 function isRatingValid(rating, errors, isRequired){
 
-	if(rating){
 		const minRating = 0;
 		const maxRating = 5;
 
@@ -278,7 +255,6 @@ function isRatingValid(rating, errors, isRequired){
 			errors.push("Invalid Rating Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -286,7 +262,6 @@ function isRatingValid(rating, errors, isRequired){
 // SESSION DURATION
 function isDurationValid(duration, errors, isRequired){
 
-	if(duration){
 		const minDuration = 0.5;
 		const maxDuration = 12;
 
@@ -295,7 +270,6 @@ function isDurationValid(duration, errors, isRequired){
 			errors.push("Invalid Duration Entered.");
 			return false;
 		}
-	} else { return true; }
 
 }
 
@@ -303,7 +277,6 @@ function isDurationValid(duration, errors, isRequired){
 // SUBJECT
 function isSubjectValid(subject, errors, isRequired){
 
-	if(subject){
 		const minLength = 2;
 		const maxLength = 15;
 
@@ -312,7 +285,6 @@ function isSubjectValid(subject, errors, isRequired){
 			errors.push("Invalid Subject Entered.");
 			return false;
 		}
-	} else { return true; }
 }
 
 

@@ -18,6 +18,7 @@ function makeError(type, message){
 }
 
 function makeMongooseError(err){
+	console.log(err)
 	return new Promise(function(resolve, reject){
 		var errors = [];
 
@@ -26,17 +27,21 @@ function makeMongooseError(err){
 
 		var promises = [];
 
-		_.each(err.errors, function(element, content){
+		if(err.errors){
+			_.each(err.errors, function(element, content){
 
-			promises.push(new Promise(function(resolve, reject) {
+				promises.push(new Promise(function(resolve, reject) {
 
-				errors.push({content: err.errors[content].name, "Error": err.errors[content].message});
+					errors.push({content: err.errors[content].name, "Error": err.errors[content].message});
 
-				resolve();
+					resolve();
 
-			})
+				})
 
-		)});
+			)});
+		} else {
+			errors.push(err.message);
+		}
 
 
 		Promise.all(promises)

@@ -4,6 +4,9 @@ var Promise = require('bluebird');
 var bcrypt = require('bcrypt-nodejs');
 const error = require('../helpers/errors');
 
+
+// assignPassword is a callback that takes the hashed password along with
+// a promise resolve to call at the end of the assigning.
 function createAndAssignPassword(password, saltRounds, assignPassword){
 
 	return new Promise(function(resolve, reject){
@@ -42,7 +45,6 @@ function createAndAssignPassword(password, saltRounds, assignPassword){
 		});
 
 	});
-
 }
 /*
 	bcrypt.hash(data, salt, progress, callback)
