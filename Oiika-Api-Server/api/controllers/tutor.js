@@ -3,6 +3,8 @@ const tutorModel = app.models.tutorModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
+const schedules = require('./schedules');
+
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
 const _ = require('underscore');

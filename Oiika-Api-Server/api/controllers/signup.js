@@ -7,6 +7,7 @@ const error = require('../helpers/errors');
 // password creater helper
 const pass = require('../helpers/password');
 const tutor = require('./tutor');
+const schedules = require('./schedules');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
@@ -97,6 +98,7 @@ function signupLocal(req, res){
 	};
 
 
+	// TO DO - REQUIRES WORKKKKK!!!!!
 	var createUser = function(newAccount){
 		var userModel;
 		switch (newAccount.user_type){
@@ -111,7 +113,7 @@ function signupLocal(req, res){
 		}
 		return new Promise(function(resolve, reject) {
 			userModel.create({
-				_account: newAccount._id,
+				account_id: newAccount._id,
 				first_name: fields_to_insert.first_name,
 				last_name: fields_to_insert.last_name,
 				email: fields_to_insert.email,
@@ -119,6 +121,8 @@ function signupLocal(req, res){
 			}, function(err, result) {
 
 				if(err) {
+					// delete previously created documents before throwing error
+					accountModel.remove({_id: newAccount._id});
 					// send reject as a callback
 					error.makeMongooseError(err)
 					.then(function(error){
@@ -126,7 +130,28 @@ function signupLocal(req, res){
 					});
 				}
 				else {
-					resolve(newAccount);
+					if(newAccount.user_type === "tutor"){
+						// create tutor schedule
+						schedules.createSchedule(newAccount._id, result._id)
+						// if returned successfully, resolve and continue.
+						.then(function(){
+							resolve(newAccount);
+						})
+						// catch all errors and handle accordingly
+						.catch(function(err){
+							console.log("HELLO WORLDDDDDDD");
+							// delete previously created documents before throwing error
+							accountModel.findByIdAndRemove(newAccount._id, function(err, offer){
+								if (err){ console.log("Remove error:"); console.log(err); }
+							});
+							userModel.findByIdAndRemove(result._id, function(err, offer){
+								if (err){ console.log("Remove error:"); console.log(err); }
+							});
+							error.sendError(err.name, err.message, res);
+						});
+					} else {
+						resolve(newAccount);
+					}
 				}
 
 			});

@@ -8,7 +8,7 @@ module.exports = function() {
 
   var Tutees = new mongoose.Schema({
     // first_name : { type: String, required:true, index: true, lowercase: true, trim:true, unique: true, validate: [util.validate.email, 'not valid'] },
-    _account : { type: ObjectId, index: true, required: false },
+    account_id : { type: ObjectId, index: true, required: false },
     first_name : { type: String, required: true, trim: true },
     last_name : { type: String, required: true, trim: true },
     email : { type: String, index: true, unique: true, required: true, lowercase: true, trim: true },

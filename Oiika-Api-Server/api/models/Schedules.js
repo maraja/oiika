@@ -6,7 +6,8 @@ module.exports = function() {
 
   var Schedules = new mongoose.Schema({
     // first_name : { type: String, required:true, index: true, lowercase: true, trim:true, unique: true, validate: [util.validate.email, 'not valid'] },
-    _tutor : { type: ObjectId, index: true, required: true },
+    tutor_id : { type: ObjectId, unique: true, index: true, required: true },
+    account_id : { type: ObjectId, unique: true, index: true, required: true },
     schedule: { 
       monday: {type: [Number], required: true},
       tuesday: {type: [Number], required: true},
