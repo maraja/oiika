@@ -12,7 +12,8 @@ module.exports = {
 	loginLocal: loginLocal,
 	loginFacebook: loginFacebook,
 	loginGoogle: loginGoogle,
-	loginLocalFromFacebook: loginLocalFromFacebook
+	loginLocalFromFacebook: loginLocalFromFacebook,
+	loginLocalFromGoogle: loginLocalFromGoogle
 };
 
 
@@ -222,7 +223,7 @@ function loginLocalFromFacebook(req, res, email){
 	// promise to check to see if account exists.
 	var loginToFacebookAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: login.email}, function(err, result) {
+			accountModel.find({email: email}, function(err, result) {
 
 				if(err) {
 					// send reject as a callback
@@ -250,9 +251,61 @@ function loginLocalFromFacebook(req, res, email){
 	loginToFacebookAccount()
 	.then(function(result){
 		return res.send(JSON.stringify({
-			"message": "Login Successful",
+			"message": "This account already exists - login successful via Facebook",
 			"user": {
-				account_id: _id,
+				account_id: result._id,
+				email: result.email,
+				first_name: result.first_name,
+				last_name: result.last_name,
+				account_type: result.account_type,
+				user_type: result.user_type
+			}
+		}))
+	})
+	// catch all errors and handle accordingly
+	.catch(function(err){
+		error.sendError(err.name, err.message, res);
+	});
+};
+
+
+// LOCAL LOGIN FUNCTION redirected from google signup if email exists
+function loginLocalFromGoogle(req, res, email){
+
+	// promise to check to see if account exists.
+	var loginToGoogleAccount = function(){
+		return new Promise(function(resolve, reject) {
+			accountModel.find({email: email}, function(err, result) {
+
+				if(err) {
+					// send reject as a callback
+					error.makeMongooseError(err, reject)
+					.then(function(error){
+						reject(error);
+					});
+				}
+				else if (result.length > 0){
+					resolve(result[0]);
+				}
+				else {
+					error.makeError("INVALID_ENTRY", "Account does not exist.")
+					.then(function(error){
+						reject(error);
+					});
+				}
+
+			});
+		})
+	}
+
+
+	// begin promise chain looping through promise array.
+	loginToGoogleAccount()
+	.then(function(result){
+		return res.send(JSON.stringify({
+			"message": "This account already exists - login successful via Google",
+			"user": {
+				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
 				last_name: result.last_name,

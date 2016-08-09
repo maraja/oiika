@@ -310,6 +310,7 @@ function signupFacebook(req, res){
 				else if (result.length > 0){
 					error.makeError("DUPLICATE_EMAIL", "Email already exists.")
 					.then(function(error){
+						login.loginLocalFromFacebook(req, res, fields_to_insert.email);
 						reject(error);
 					});
 				}
@@ -443,8 +444,11 @@ function signupFacebook(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
+		// sent to loginLocalFromFacebook to handle request.
+		// end this api call
 		if (err.name === "DUPLICATE_EMAIL") {
 			return;
+		// if not, continue.
 		} else { 
 			error.sendError(err.name, err.message, res); 
 		}
@@ -524,6 +528,7 @@ function signupGoogle(req, res){
 				else if (result.length > 0){
 					error.makeError("DUPLICATE_EMAIL", "Email already exists.")
 					.then(function(error){
+						login.loginLocalFromGoogle(req, res, fields_to_insert.email);
 						reject(error);
 					});
 				}
@@ -657,6 +662,13 @@ function signupGoogle(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		// sent to loginLocalFromGoogle to handle request.
+		// end this api call
+		if (err.name === "DUPLICATE_EMAIL") {
+			return;
+		// if not, continue.
+		} else { 
+			error.sendError(err.name, err.message, res); 
+		}
 	});
 };
