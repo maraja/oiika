@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 const _ = require('underscore');
 
 module.exports = {
-// 	getScheduleById: getScheduleById,
+	getTutorScheduleByTutorId: getTutorScheduleByTutorId,
 // 	updateSchedule: updateSchedule,
 	createSchedule: createSchedule
 };
@@ -18,21 +18,21 @@ function createSchedule(tutorId, accountId){
 
 	return new Promise(function(resolve, reject) {
 
-		var fields_to_insert = {
+		// create empty schedule for each tutor created
+		scheduleModel.create({
 			tutor_id: tutorId,
 			account_id: accountId,
 			schedule: {
-				monday: null,
-				tuesday: null,
-				wednesday: null,
-				thursday: null,
-				friday: null,
-				saturday: null,
-				sunday: null
+				monday: -1,
+				tuesday: -1,
+				wednesday: -1,
+				thursday: -1,
+				friday: -1,
+				saturday: -1,
+				sunday: -1
 	      	}
-		};
-
-		scheduleModel.create(fields_to_insert, function(err, result) {
+	    // throw errors as necessary
+		}, function(err, result) {
 
 			if(err) {
 				error.makeMongooseError(err)
@@ -47,7 +47,50 @@ function createSchedule(tutorId, accountId){
 		});
 
 	});
-}
+};
+
+function getTutorScheduleByTutorId(tutorId){
+	return new Promise(function(resolve, reject) {
+
+		scheduleModel.find(
+		{
+			tutor_id: tutorId
+		},
+		{
+			schedule: 1,
+			_id: 0
+		}, function(err, resultDocument) {
+
+			if(err) {
+				console.log(error);
+				switch (err.name){
+					case "CastError":
+					case "MongoError":
+						error.makeError(err.name, err.message)
+						.then(function(error){
+							reject(error);
+						});
+						break;
+					default:
+						error.makeMongooseError(err)
+						.then(function(error){
+							reject(error);
+						});
+						break;
+				}
+			} else if (resultDocument.length==0){
+				error.makeError("INVALID_ID", "ID does not exist.")
+				.then(function(error){
+					reject(error);
+				});
+			} else {
+				resolve(resultDocument[0].schedule);
+			}
+
+		});
+
+	});
+};
 
 // TODO: get schedule function
 // TODO: update schedule function

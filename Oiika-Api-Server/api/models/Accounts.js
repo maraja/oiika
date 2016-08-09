@@ -6,7 +6,7 @@ module.exports = function() {
 
   var enumAccountType = ['local', 'facebook', 'google'];
   var enumUserType = ['tutor', 'tutee'];
-  var enumGender = ['M', 'F'];
+  var enumGender = ['male', 'female'];
 
   var Accounts = new mongoose.Schema({
 

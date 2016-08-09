@@ -13,7 +13,7 @@ module.exports = {
 	getTutorsByParameter: getTutorsByParameter,
 	getTutorById: getTutorById,
 	getTutorReviewsById: getTutorReviewsById,
-	getTutorScheduleById: getTutorScheduleById,
+	getTutorScheduleByTutorId: getTutorScheduleByTutorId,
 	createTutor: createTutor
 };
 
@@ -24,7 +24,6 @@ function getTutorsByParameter(req, res){
 	else if (params.email.value){ getTutorByEmail(req, res, params.email.value); }
 	else if (params.lat.value && params.lng.value){ getTutorByLocation(req, res, params.lat.value, params.lng.value); }
 	else { getAllTutors(req, res) }
-
 };
 
 function getTutorById(req, res) {
@@ -96,41 +95,16 @@ function getTutorReviewsById(req, res){
 	});
 };
 
-function getTutorScheduleById(req, res){
+function getTutorScheduleByTutorId(req, res){
 	var tutorId = req.swagger.params.tutorId.value;
 
-	tutorModel.find(
-		{_id: tutorId}, 
-		{
-			schedule: 1, 
-			_id: 0
-		}, 
-		function(err, resultDocument) {
-		if(err) {
-			console.log(err);
-			switch (err.name){
-				case "CastError":
-				case "MongoError":
-					error.makeError(err.name, err.message)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-				default:
-					error.makeMongooseError(err)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-			}
-		} else if (resultDocument.length==0){
-			error.makeError("INVALID_ID", "ID does not exist.")
-			.then(function(error){
-				res.send(error);
-			});
-		} else {
-			res.send(resultDocument[0]);
-		}
+	schedules.getTutorScheduleByTutorId(tutorId)
+	// send resulting schedule for tutor
+	.then(function(resultDocument){
+		res.send(resultDocument);
+	// catch error and display accordingly.
+	}).catch(function(err){
+		error.sendError(err.name, err.message, res);
 	});
 };
 

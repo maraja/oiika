@@ -55,10 +55,14 @@ function signupLocal(req, res){
 				case "first_name":
 				case "last_name":
 				case "email":
-				case "gender":
 				case "password":
 				case "user_type":
 					if (valid.validate(content, signup[content], errors, true)){
+						fields_to_insert[fields[content]] = signup[content];
+					}
+					break;
+				case "gender":
+					if (valid.validate(content, signup[content], errors, false)){
 						fields_to_insert[fields[content]] = signup[content];
 					}
 					break;
@@ -98,7 +102,7 @@ function signupLocal(req, res){
 	};
 
 
-	// TO DO - REQUIRES WORKKKKK!!!!!
+	// creates relevant user. If tutor, also creates schedule in schedule collection
 	var createUser = function(newAccount){
 		var userModel;
 		switch (newAccount.user_type){
@@ -139,13 +143,18 @@ function signupLocal(req, res){
 						})
 						// catch all errors and handle accordingly
 						.catch(function(err){
-							console.log("HELLO WORLDDDDDDD");
 							// delete previously created documents before throwing error
 							accountModel.findByIdAndRemove(newAccount._id, function(err, offer){
-								if (err){ console.log("Remove error:"); console.log(err); }
+								if (err){ 
+									console.log("Remove error:"); 
+									console.error(err); 
+								}
 							});
 							userModel.findByIdAndRemove(result._id, function(err, offer){
-								if (err){ console.log("Remove error:"); console.log(err); }
+								if (err){ 
+									console.log("Remove error:"); 
+									console.error(err); 
+								}
 							});
 							error.sendError(err.name, err.message, res);
 						});
@@ -208,8 +217,8 @@ function signupLocal(req, res){
 	// handle success accordingly
 	.then(function(result){
 		return res.send(JSON.stringify({
-			"Success": "Successfully inserted",
-			"Result": {
+			"message": "Successfully inserted",
+			"result": {
 				account_id: result._id,
 				account_type: result.account_type,
 				first_name: result.first_name,
@@ -264,13 +273,12 @@ function signupFacebook(req, res){
 				case "last_name":
 				case "email":
 				case "user_type":
-				case "gender":
 				case "facebook_id":
-				case "gender":
 					if (valid.validate(content, signup[content], errors, true)){
 						fields_to_insert[fields[content]] = signup[content];
 					}
 					break;
+				case "gender":
 				case "profile_picture":
 					if (valid.validate(content, signup[content], errors, false)){
 						fields_to_insert[fields[content]] = signup[content];
@@ -335,6 +343,8 @@ function signupFacebook(req, res){
 			}, function(err, result) {
 
 				if(err) {
+					// delete previously created documents before throwing error
+					accountModel.remove({_id: newAccount._id});
 					// send reject as a callback
 					error.makeMongooseError(err)
 					.then(function(error){
@@ -342,7 +352,33 @@ function signupFacebook(req, res){
 					});
 				}
 				else {
-					resolve(newAccount);
+					if(newAccount.user_type === "tutor"){
+						// create tutor schedule
+						schedules.createSchedule(newAccount._id, result._id)
+						// if returned successfully, resolve and continue.
+						.then(function(){
+							resolve(newAccount);
+						})
+						// catch all errors and handle accordingly
+						.catch(function(err){
+							// delete previously created documents before throwing error
+							accountModel.findByIdAndRemove(newAccount._id, function(err, offer){
+								if (err){ 
+									console.log("Remove error:"); 
+									console.error(err); 
+								}
+							});
+							userModel.findByIdAndRemove(result._id, function(err, offer){
+								if (err){ 
+									console.log("Remove error:"); 
+									console.error(err); 
+								}
+							});
+							error.sendError(err.name, err.message, res);
+						});
+					} else {
+						resolve(newAccount);
+					}
 				}
 
 			});
@@ -392,8 +428,8 @@ function signupFacebook(req, res){
 	// handle success accordingly
 	.then(function(result){
 		return res.send(JSON.stringify({
-			"Success": "Successfully inserted",
-			"Result": {
+			"message": "Successfully inserted",
+			"result": {
 				account_id: result._id,
 				account_type: result.account_type,
 				first_name: result.first_name,
@@ -447,13 +483,12 @@ function signupGoogle(req, res){
 				case "last_name":
 				case "email":
 				case "user_type":
-				case "gender":
 				case "google_id":
-				case "gender":
 					if (valid.validate(content, signup[content], errors, true)){
 						fields_to_insert[fields[content]] = signup[content];
 					}
 					break;
+				case "gender":
 				case "profile_picture":
 					if (valid.validate(content, signup[content], errors, false)){
 						fields_to_insert[fields[content]] = signup[content];
@@ -518,6 +553,8 @@ function signupGoogle(req, res){
 			}, function(err, result) {
 
 				if(err) {
+					// delete previously created documents before throwing error
+					accountModel.remove({_id: newAccount._id});
 					// send reject as a callback
 					error.makeMongooseError(err)
 					.then(function(error){
@@ -525,7 +562,33 @@ function signupGoogle(req, res){
 					});
 				}
 				else {
-					resolve(newAccount);
+					if(newAccount.user_type === "tutor"){
+						// create tutor schedule
+						schedules.createSchedule(newAccount._id, result._id)
+						// if returned successfully, resolve and continue.
+						.then(function(){
+							resolve(newAccount);
+						})
+						// catch all errors and handle accordingly
+						.catch(function(err){
+							// delete previously created documents before throwing error
+							accountModel.findByIdAndRemove(newAccount._id, function(err, offer){
+								if (err){ 
+									console.log("Remove error:"); 
+									console.error(err); 
+								}
+							});
+							userModel.findByIdAndRemove(result._id, function(err, offer){
+								if (err){ 
+									console.log("Remove error:"); 
+									console.error(err); 
+								}
+							});
+							error.sendError(err.name, err.message, res);
+						});
+					} else {
+						resolve(newAccount);
+					}
 				}
 
 			});
@@ -575,8 +638,8 @@ function signupGoogle(req, res){
 	// handle success accordingly
 	.then(function(result){
 		return res.send(JSON.stringify({
-			"Success": "Successfully inserted",
-			"Result": {
+			"message": "Successfully inserted",
+			"result": {
 				account_id: result._id,
 				account_type: result.account_type,
 				first_name: result.first_name,

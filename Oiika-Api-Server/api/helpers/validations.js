@@ -130,7 +130,7 @@ function isPasswordValid(password, errors, isRequired){
 // GENDER
 function isGenderValid(gender, errors, isRequired){
 
-		var enumGender = ['M', 'F'];
+		var enumGender = ['male', 'female'];
 
 		if (_.contains(enumGender, gender)) return true;
 		else {

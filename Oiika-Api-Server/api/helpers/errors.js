@@ -58,6 +58,7 @@ function sendError(type, message, res) {
     err.nonce = false; // error that is not handled
     err.name = type;
     err.message = message;
+    console.error(err);
     return res.send(JSON.stringify({
 		"Error": err
 	}));
