@@ -11,9 +11,9 @@ const _ = require('underscore');
 
 module.exports = {
 	getTutorsByParameter: getTutorsByParameter,
-	getTutorById: getTutorById,
-	getTutorReviewsById: getTutorReviewsById,
-	getTutorScheduleByTutorId: getTutorScheduleByTutorId,
+	getTutorByAccountId: getTutorByAccountId,
+	getTutorReviewsByAccountId: getTutorReviewsByAccountId,
+	getTutorScheduleByAccountId: getTutorScheduleByAccountId,
 	createTutor: createTutor
 };
 
@@ -26,10 +26,12 @@ function getTutorsByParameter(req, res){
 	else { getAllTutors(req, res) }
 };
 
-function getTutorById(req, res) {
-	var tutorId = req.swagger.params.tutorId.value;
+function getTutorByAccountId(req, res) {
+	var tutorId = req.swagger.params.accoutnId.value;
 
-	tutorModel.find({_id: tutorId}, function(err, resultDocument) {
+	tutorModel.find({
+		account_id: accountId
+	}, function(err, resultDocument) {
 		if(err) {
 			console.log(err);
 			switch (err.name){
@@ -57,11 +59,11 @@ function getTutorById(req, res) {
 	});
 };
 
-function getTutorReviewsById(req, res){
-	var tutorId = req.swagger.params.tutorId.value;
+function getTutorReviewsByAccountId(req, res){
+	var tutorId = req.swagger.params.accountId.value;
 
 	tutorModel.find(
-		{_id: tutorId}, 
+		{account_id: accountId}, 
 		{
 			reviews: 1, 
 			_id: 0
@@ -95,10 +97,10 @@ function getTutorReviewsById(req, res){
 	});
 };
 
-function getTutorScheduleByTutorId(req, res){
-	var tutorId = req.swagger.params.tutorId.value;
+function getTutorScheduleByAccountId(req, res){
+	var accountId = req.swagger.params.accountId.value;
 
-	schedules.getTutorScheduleByTutorId(tutorId)
+	schedules.getTutorScheduleByAccountId(accountId)
 	// send resulting schedule for tutor
 	.then(function(resultDocument){
 		res.send(resultDocument);

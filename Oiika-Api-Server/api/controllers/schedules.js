@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 const _ = require('underscore');
 
 module.exports = {
-	getTutorScheduleByTutorId: getTutorScheduleByTutorId,
+	getTutorScheduleByAccountId: getTutorScheduleByAccountId,
 // 	updateSchedule: updateSchedule,
 	createSchedule: createSchedule
 };
@@ -49,12 +49,12 @@ function createSchedule(tutorId, accountId){
 	});
 };
 
-function getTutorScheduleByTutorId(tutorId){
+function getTutorScheduleByAccountId(accountId){
 	return new Promise(function(resolve, reject) {
 
 		scheduleModel.find(
 		{
-			tutor_id: tutorId
+			account_id: accountId
 		},
 		{
 			schedule: 1,
@@ -92,5 +92,4 @@ function getTutorScheduleByTutorId(tutorId){
 	});
 };
 
-// TODO: get schedule function
 // TODO: update schedule function

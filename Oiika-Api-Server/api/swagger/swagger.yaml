@@ -364,16 +364,16 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   
-  '/tutor/{tutorId}':
+  '/tutor/{accountId}':
     x-swagger-router-controller: tutor
     get:
       description: get tutor profile information
-      operationId: getTutorById
+      operationId: getTutorByAccountId
       tags:
         - Tutor
       parameters:
           -
-            name: tutorId
+            name: accountId
             in: path
             required: true
             type: string
@@ -387,16 +387,16 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-  '/tutor/{tutorId}/reviews':
+  '/tutor/{accountId}/reviews':
     x-swagger-router-controller: tutor
     get:
-      description: get tutor profile information
-      operationId: getTutorReviewsById
+      description: get tutor reviews
+      operationId: getTutorReviewsByAccountId
       tags:
         - Tutor
       parameters:
           -
-            name: tutorId
+            name: accountId
             in: path
             required: true
             type: string
@@ -410,16 +410,16 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-  '/tutor/{tutorId}/schedule':
+  '/tutor/{accountId}/schedule':
     x-swagger-router-controller: tutor
     get:
       description: get tutor profile information
-      operationId: getTutorScheduleByTutorId
+      operationId: getTutorScheduleByAccountId
       tags:
         - Tutor
       parameters:
           -
-            name: tutorId
+            name: accountId
             in: path
             required: true
             type: string
