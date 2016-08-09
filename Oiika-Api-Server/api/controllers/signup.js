@@ -8,6 +8,7 @@ const error = require('../helpers/errors');
 const pass = require('../helpers/password');
 const tutor = require('./tutor');
 const schedules = require('./schedules');
+const login = require('./login');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
@@ -442,7 +443,11 @@ function signupFacebook(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		if (err.name === "DUPLICATE_EMAIL") {
+			return;
+		} else { 
+			error.sendError(err.name, err.message, res); 
+		}
 	});
 };
 

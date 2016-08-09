@@ -11,7 +11,8 @@ const _ = require('underscore');
 module.exports = {
 	loginLocal: loginLocal,
 	loginFacebook: loginFacebook,
-	loginGoogle: loginGoogle
+	loginGoogle: loginGoogle,
+	loginLocalFromFacebook: loginLocalFromFacebook
 };
 
 
@@ -77,7 +78,7 @@ function loginLocal(req, res){
 		return res.send(JSON.stringify({
 			"message": "Login Successful",
 			"user": {
-				account_id: _id,
+				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
 				last_name: result.last_name,
@@ -138,7 +139,7 @@ function loginFacebook(req, res){
 		return res.send(JSON.stringify({
 			"message": "Login Successful",
 			"user": {
-				account_id: _id,
+				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
 				last_name: result.last_name,
@@ -199,7 +200,7 @@ function loginGoogle(req, res){
 		return res.send(JSON.stringify({
 			"message": "Login Successful",
 			"user": {
-				account_id: _id,
+				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
 				last_name: result.last_name,
@@ -215,16 +216,11 @@ function loginGoogle(req, res){
 };
 
 
-// LOCAL LOGIN FUNCTION: TODO
+// LOCAL LOGIN FUNCTION redirected from facebook signup if email exists
 function loginLocalFromFacebook(req, res, email){
 
-	var fields = {
-		email: 'email',
-		password: 'password'
-	};
-
 	// promise to check to see if account exists.
-	var checkAccount = function(){
+	var loginToFacebookAccount = function(){
 		return new Promise(function(resolve, reject) {
 			accountModel.find({email: login.email}, function(err, result) {
 
@@ -249,29 +245,9 @@ function loginLocalFromFacebook(req, res, email){
 		})
 	}
 
-	// create a promise to check if password matches
-	var checkPassword = function(result){
-		return new Promise(function(resolve, reject) {
-			pass.compare(login.password, result.password)
-			.then(function(isValid){
-				if(isValid){
-					resolve(result);
-				} else {
-					error.makeError("INVALID_PASSWORD", "Password incorrect")
-					.then(function(error){
-						reject(error);
-					});
-				}
-			}).catch(function(err){
-				reject(err);
-			})
-		})
-	};
-
 
 	// begin promise chain looping through promise array.
-	checkAccount()
-	.then(checkPassword)
+	loginToFacebookAccount()
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"message": "Login Successful",
