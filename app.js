@@ -12,12 +12,16 @@ var passport = require('passport');
 var passportLocal = require('passport-local');
 var passportFacebook = require('passport-facebook');
 var passportGoogle = require('passport-google-oauth');
+var jwt = require('jsonwebtoken');
+var api = require('./helpers/api');
+var util = require('util');
 
 //routes
 var routes = require('./routes/index');
 
 // serialize and deserialize
 passport.serializeUser(function(user, done) {
+  console.log(user);
   done(null, user.id);
 });
 passport.deserializeUser(function(obj, done) {
@@ -28,13 +32,24 @@ passport.deserializeUser(function(obj, done) {
   });
 });
 
+function tokenize(id) {
+	return jwt.sign({
+		iss: 'oiika',
+		uid: id,
+		exp: (Math.floor(Date.now() / 1000)) + (60 * 60 * 24 * 30), //expire in 30 days from now
+	}, 'oiika12345');
+}
+
 // passport strategies
 // local
 passport.use(new passportLocal.Strategy(function (username, password, done) {
-  //do databsae call
-  //var result = mongoDb.login(username, password);
-  var result = 1;
-  if(result) {
+  //do api call
+  var result = api.post('http://thehotspot.ca:10010/signup');
+  if(true) {
+    var result = {
+      "success": true,
+      "token": tokenize(id)
+    }
     done(null, result);
   } else {
     done(null, null); //error
@@ -49,13 +64,31 @@ passport.use(new passportFacebook.Strategy({
   profileFields: ['id', 'name', 'gender', 'photos', 'emails']
   },
   function(accessToken, refreshToken, profile, done) {
-    console.log(accessToken);
-    console.log(refreshToken);
-    console.log(profile);
+    if(1 == 2) {
+      var user_type = 'tutee';
+    } else {
+      var user_type = 'tutor';
+    }
+
+    var data = {
+      'facebook_id': profile.id,
+      'first_name': profile.name.givenName,
+      'last_name': profile.name.familyName,
+      'email': profile.emails[0].value,
+      'gender': profile.gender,
+      'profile_picture': 'http://graph.facebook.com/' + profile.id + '/picture?type=large',
+      'user_type': user_type
+    }
     //http://graph.facebook.com/603718516475999/picture?type=large
-    process.nextTick(function () {
-      return done(null, profile);
+    api.post('http://thehotspot.ca:10010/signup/facebook', data).then(result => {
+      return done(null, result);
+    })
+    .catch(err => {
+      return done(err, null);
     });
+    // process.nextTick(function () {
+    //   return done(null, profile);
+    // });
   }
 ));
 

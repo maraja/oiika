@@ -1,10 +1,14 @@
 var express = require('express');
 var router = express.Router();
-//var mongoDb = require('../db/helpers/mongodb');
 var passport = require('passport');
 
-//var db = mongoDb.dbConnection();
-
+function auth(req, res, next) {
+	console.log(req.isAuthenticated());
+	if(req.isAuthenticated()){
+		return next();
+	}
+	res.redirect('/login');
+}
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -40,6 +44,7 @@ router.get('/auth/google/callback', passport.authenticate('google', {
 }));
 
 router.get('/logout', function(req, res){
+	console.log('logging out....');
   req.logout();
   res.redirect('/login');
 });
@@ -58,13 +63,5 @@ router.get('/search' , function (req, res, next) {
 		tutors: req.tutors
 	});
 });
-
-
-
-// test authentication
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login');
-}
 
 module.exports = router;

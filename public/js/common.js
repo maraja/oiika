@@ -1,29 +1,61 @@
 //Initialization
 $(document).ready(function() {
   var page = window.location.pathname.substr(0, window.location.pathname.lastIndexOf('/'));
+  page = (page == '') ? window.location.pathname : page;
+  var popup;
 
-  oiika.init();
+  o.init();
 
   switch(page) {
     case "/":
-      oiika.index.init();
+      o.index.init();
       break;
     case "/search":
-      oiika.search.init();
+      o.search.init();
       break;
     case "/tutor":
-      oiika.tutor.init();
+      o.tutor.init();
       break;
     case "/tutor-settings":
-      oiika.tutor_settings.init();
+      o.tutor_settings.init();
       break;
+  }
+
+  if(window.opener) {
+    window.opener.location.reload();
+    window.close();
   }
 });
 
 //Actions
-oiika = {};
-oiika.init = function() {
+o = {};
+o.init = function() {
+  //get user token
+  if(localStorage.token) {
+    o.token = localStorage.token;
+  } else {
+    o.token = null;
+  }
+
   //initialize common components
+  $('.social_logins .facebook').click(function () {
+    var left = (screen.width/2)-(780/2);
+    var top = (screen.height/2)-(600/2);
+    popup = window.open("http://localhost:3000/auth/facebook", "SignIn", "width=780,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + left + ",top=" + top);
+    //setTimeout(CheckLoginStatus, 2000);
+    popup.focus();
+    return false;
+  });
+
+  $('.social_logins .google').click(function () {
+    var left = (screen.width/2)-(780/2);
+    var top = (screen.height/2)-(600/2);
+    popup = window.open("http://localhost:3000/auth/google", "SignIn", "width=780,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + left + ",top=" + top);
+    //setTimeout(CheckLoginStatus, 2000);
+    popup.focus();
+    return false;
+  });
+
   $('#login_modal form .submit').click(function() {
     var email = $('#login_modal form #login_email').val();
     var password = $('#login_modal form #login_password').val();
@@ -36,6 +68,11 @@ oiika.init = function() {
         	password: password
         }
     }).done(function(data) {
+      if(data.error) {
+        //throw error
+      } else {
+        localStorage.token = data.token;
+      }
 
     	location.reload();
 
@@ -45,17 +82,28 @@ oiika.init = function() {
   });
 
   $('#signup_modal form .submit').click(function() {
-    var email = $('#login_modal form #login_email').val();
-    var password = $('#login_modal form #login_password').val();
+    var first_name = $('#signup_modal form #signup_first_name').val();
+    var last_name = $('#signup_modal form #signup_last_name').val();
+    var email = $('#signup_modal form #signup_email').val();
+    var password = $('#signup_modal form #signup_password').val();
+    var user_type; // GET THE USER TYPE SOMEHOW
 
     $.ajax({
         url: "http://localhost:3000/signup",
         type: "POST",
         data: {
+          first_name: first_name,
+          last_name: last_name,
         	email: email,
-        	password: password
+        	password: password,
+          user_type: user_type
         }
     }).done(function(data) {
+      if(data.error) {
+        //throw error
+      } else {
+        localStorage.token = data.token;
+      }
 
     	location.reload();
 
@@ -65,8 +113,8 @@ oiika.init = function() {
   });
 }
 
-oiika.index = {};
-oiika.index.init = function() {
+o.index = {};
+o.index.init = function() {
   //initialize autocomplete
   google.maps.event.addDomListener(window, 'load', function() {
     var options = {
@@ -79,8 +127,8 @@ oiika.index.init = function() {
   });
 }
 
-oiika.search = {};
-oiika.search.init = function() {
+o.search = {};
+o.search.init = function() {
   $('.filter select').select2({
 		minimumResultsForSearch: -1
 	});
@@ -99,17 +147,17 @@ oiika.search.init = function() {
 	}
 }
 
-oiika.user = {};
-oiika.user.init = function() {
+o.user = {};
+o.user.init = function() {
     //initialize user profiles
 }
 
-oiika.tutor = {};
-oiika.tutor.init = function() {
+o.tutor = {};
+o.tutor.init = function() {
     //initialize tutor profiles
     $('#datepicker').datepicker({
       minDate: 0,
-      beforeShowDay: oiika.tutor.checkDates
+      beforeShowDay: o.tutor.checkDates
     });
     $(".sidebar").stick_in_parent({
       offset_top: 60
@@ -121,47 +169,15 @@ oiika.tutor.init = function() {
 
     var calendar_view = $('.sidebar .calendar_wrapper');
     var booking_view = $('.sidebar .booking_wrapper');
-    booking_view.hide();
 
     $(".book_session").click(function(){
-        next(calendar_view, booking_view);
+        o.tutor.calendar.next(calendar_view, booking_view);
         return false;
     });
     $(".go_back").click(function(){
-        prev(booking_view, calendar_view);
+        o.tutor.calendar.prev(booking_view, calendar_view);
         return false;
     });
-
-    function next($src, $tgt){
-        var $parent = $src.parent();
-        var width = $parent.outerWidth();
-
-        $src.css({position: 'absolute'});
-        $src.css({width: '92%'});
-        $tgt.hide().appendTo($parent).css({left: width, position: 'absolute'});
-
-        $src.animate({left : -width}, 250, function(){
-            $src.hide();
-            $src.css({left: null, position: null});
-        });
-        $tgt.show().animate({left: 0}, 250, function(){
-            $tgt.css({left: null, position: null});
-        });
-    }
-    function prev($src, $tgt) {
-        var $parent = $src.parent();
-        var width = $parent.outerWidth();
-
-        $src.animate({left: width}, 250, function(){
-            $src.hide();
-            $src.css({left: null, position: null});
-        });
-        $tgt.show().animate({left: 0, width: '98%'}, 250, function(){
-            $tgt.css({left: '0', position: 'relative', width: 'auto'});
-        });
-    }
-
-    $('#reviews_scroll').smoothScroll({offset: -90});
 
     $(document).scroll(function() {
       if(!$('.calendar').hasClass('contrast_fix') && $(document).scrollTop() > 300) {
@@ -175,35 +191,101 @@ oiika.tutor.init = function() {
       }
     });
 
+    $('#reviews_scroll').smoothScroll({offset: -90});
+
+    //TODO: Trigger to load tutor reviews as user scrolls down
+
     //initialize map
-    google.maps.event.addDomListener(window, 'load', init_map);
-
-  	function init_map() {
-  		map = new google.maps.Map(document.getElementById('map'), {
-  			center: {lat: 43.643305, lng: -79.378686},
-  			zoom: 10
-  		});
-
-      draw_circle = new google.maps.Circle({
-          center: {lat: 43.643305, lng: -79.378686},
-          radius: 30000,
-          strokeColor: "#2ba9cc",
-          strokeOpacity: 0.7,
-          strokeWeight: 1,
-          fillColor: "#2ba9cc",
-          fillOpacity: 0.3,
-          map: map
-      });
-  	}
+    google.maps.event.addDomListener(window, 'load', o.tutor.initMap);
 }
-oiika.tutor.checkDates = function(date) {
+
+o.tutor.checkDates = function(date) {
+  //Check for unavailable dates before rendering calendar
   var disableddates = ["05-08-2016", "12-11-2014", "12-25-2014", "12-20-2014"];
   var string = $.datepicker.formatDate('dd-mm-yy', date);
   return [disableddates.indexOf(string) == -1];
 }
 
-oiika.tutor_settings = {};
-oiika.tutor_settings.init = function() {
+o.tutor.calendar = {};
+o.tutor.calendar.next = function($src, $tgt) {
+  //transition to next booking view
+  var $parent = $src.parent();
+  var width = $parent.outerWidth();
+
+  $src.css({position: 'absolute'});
+  $src.css({width: '92%'});
+  $tgt.hide().appendTo($parent).css({left: width, position: 'absolute'});
+
+  $src.animate({left : -width}, 250, function(){
+      $src.hide();
+      $src.css({left: null, position: null});
+  });
+  $tgt.show().animate({left: 0}, 250, function(){
+      $tgt.css({left: null, position: null});
+  });
+}
+
+o.tutor.calendar.prev = function($src, $tgt) {
+  //transition back to calendar view
+  var $parent = $src.parent();
+  var width = $parent.outerWidth();
+
+  $src.animate({left: width}, 250, function(){
+      $src.hide();
+      $src.css({left: null, position: null});
+  });
+  $tgt.show().animate({left: 0, width: '98%'}, 250, function(){
+      $tgt.css({left: '0', position: 'relative', width: 'auto'});
+  });
+}
+
+o.tutor.initMap = function() {
+  //initialize the tutor profile map
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 43.643305, lng: -79.378686},
+    zoom: 10
+  });
+
+  draw_circle = new google.maps.Circle({
+      center: {lat: 43.643305, lng: -79.378686},
+      radius: 30000,
+      strokeColor: "#2ba9cc",
+      strokeOpacity: 0.7,
+      strokeWeight: 1,
+      fillColor: "#2ba9cc",
+      fillOpacity: 0.3,
+      map: map
+  });
+}
+
+o.tutor.confirmBooking = function(data) {
+  //TODO: Process the booking request and display confirmation on the page
+}
+
+o.tutor.loadReviews = function() {
+  //TODO: Load tutor reviews and display them on the page
+  var id; //GET TUTOR ID FROM URL
+
+  $.ajax({
+      url: "http://thehotspot.ca:10010/tutor/" + id + "/reviews",
+      type: "GET",
+      data: {
+        tutor_id: email,
+        token: token
+      }
+  }).done(function(data) {
+    if(data.error) {
+      o.alertError(data.error);
+    } else {
+      $('.reviews_wrapper').html(data);
+    }
+  }).fail(function(error) {
+    o.alertError(error);
+  });
+}
+
+o.tutor_settings = {};
+o.tutor_settings.init = function() {
   //initialize tutor settings page
   var map;
   var tab_opened = false;
@@ -309,17 +391,7 @@ oiika.tutor_settings.init = function() {
   }
 }
 
-oiika.reviews = {};
-oiika.reviews.init = function() {
-  //initialize tutor reviews
-}
-
-oiika.booking = {};
-oiika.booking.init = function() {
-  //initialize booking system
-}
-
-oiika.messages = {};
-oiika.messages.init = function() {
+o.messages = {};
+o.messages.init = function() {
   //initialize messages
 }

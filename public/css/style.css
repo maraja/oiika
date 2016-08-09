@@ -537,7 +537,7 @@ input[type="checkbox"]:checked:before {
     color: #777;
 }
 .form-group.boxed input {
-    padding: 30px 30px 30px 60px;
+    padding: 17px 30px 17px 60px;
     font-size: 20px;
     font-weight: 400;
     border: 0;
@@ -872,14 +872,14 @@ footer .social_icons .icon:hover, footer .social_icons .icon:active {
     font-size: 16px;
 }
 
-#login_modal .social_buttons .icon, #signup_modal .social_buttons .icon {
+#login_modal .social_logins .icon, #signup_modal .social_logins .icon {
     position: absolute;
     top: 20px;
     left: 23px;
     font-size: 20px;
 }
 
-#login_modal .social_buttons a, #signup_modal .social_buttons a {
+#login_modal .social_logins a, #signup_modal .social_logins a {
     display: block;
     width: 100%;
     padding: 22px 25px;
@@ -893,19 +893,19 @@ footer .social_icons .icon:hover, footer .social_icons .icon:active {
     transition: background .1s ease-in-out;
 }
 
-#login_modal .social_buttons a.facebook, #signup_modal .social_buttons a.facebook {
+#login_modal .social_logins a.facebook, #signup_modal .social_logins a.facebook {
     background: #3B5998;
 }
-#login_modal .social_buttons a.facebook:hover, #login_modal .social_buttons a.facebook:active,
-#signup_modal .social_buttons a.facebook:hover, #signup_modal .social_buttons a.facebook:active {
+#login_modal .social_logins a.facebook:hover, #login_modal .social_logins a.facebook:active,
+#signup_modal .social_logins a.facebook:hover, #signup_modal .social_logins a.facebook:active {
     background: #496bb3;
 }
 
-#login_modal .social_buttons a.google, #signup_modal .social_buttons a.google {
+#login_modal .social_logins a.google, #signup_modal .social_logins a.google {
     background: #db3236;
 }
-#login_modal .social_buttons a.google:hover, #login_modal .social_buttons a.google:active,
-#signup_modal .social_buttons a.google:hover, #signup_modal .social_buttons a.google:active {
+#login_modal .social_logins a.google:hover, #login_modal .social_logins a.google:active,
+#signup_modal .social_logins a.google:hover, #signup_modal .social_logins a.google:active {
     background: #f34246;
 }
 

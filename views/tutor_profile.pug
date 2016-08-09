@@ -13,7 +13,7 @@ block content
               table.table
                 tr
                   td.profile_picture
-                    img(src='http://graph.facebook.com/603718516475999/picture?type=large')
+                    img(src='/../images/reza.jpg')
                   td
                     .row
                       .col-xs-12
@@ -135,20 +135,21 @@ block content
                   label.half(for='starhalf')
               .clearfix
               hr.m-t-5
-              - for (var x = 1; x < 6; x++)
-                .review_item
-                  table
-                    tbody
-                      tr
-                        td
-                          img(src='/images/anonymous.png', title='', style='')
-                          br
-                          span.name Charles
-                        td
-                          p.review_text
-                            | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
-                          input#review_id(type='hidden', value='2')
-                          span.datetime Posted on: 2015/12/08
+              .reviews_wrapper
+                - for (var x = 1; x < 6; x++)
+                  .review_item
+                    table
+                      tbody
+                        tr
+                          td
+                            img(src='/images/anonymous.png', title='', style='')
+                            br
+                            span.name Charles
+                          td
+                            p.review_text
+                              | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                            input#review_id(type='hidden', value='2')
+                            span.datetime Posted on: 2015/12/08
           .row
             .col-xs-12
               a(href='#').report_tutor

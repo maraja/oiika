@@ -7,7 +7,7 @@ block content
     .row
       .col-xs-12.col-sm-4.col-md-3.vertical_nav
         ul.nav.nav-tabs.tabs-left(role='tablist')
-          li
+          li.active
             a(href='#profile_info', role='tab', data-toggle='tab', aria-expanded='false')
               i.fa.fa-user
               |   My Profile
@@ -25,19 +25,7 @@ block content
               i.fa.fa-lock
               |   Password
       .col-xs-12.col-sm-8.col-md-9.tab-content
-        #profile_picture.tab-pane.fade.in.active(role='tabpanel')
-          form#update_profile_picture(action='#', method='POST')
-            .profile_picture_actions_wrapper
-              #profile_picture_preview_wrapper
-                img(src='', alt='Reza Karami')
-                a#remove_picture(href='#', title='Remove Profile Picture')
-                  i.fa.fa-close
-              #profile_picture_progress.progress(style='display: none;')
-                .bar
-              label.profile_picture_upload.btn.btn-primary
-                input#profile_picture(type='file', name='profile_picture')
-                | 										Choose Photo
-        #profile_info.tab-pane.fade(role='tabpanel')
+        #profile_info.tab-pane.fade.in.active(role='tabpanel')
           h3 My Profile
           form#profile(action='#', method='POST')
           .row
