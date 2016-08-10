@@ -133,6 +133,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
+
 # SIGNUP
 
   '/signup':
@@ -265,8 +266,10 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
+
 # TUTOR
 
+  # Create tutor profile - POST - deprecated (integrated within signup.)
   '/tutor':
     x-swagger-router-controller: tutor
     get:
@@ -363,7 +366,8 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  
+
+  # Get tutor profile info - GET
   '/tutor/{accountId}':
     x-swagger-router-controller: tutor
     get:
@@ -387,6 +391,7 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # Get tutor reviews - GET
   '/tutor/{accountId}/reviews':
     x-swagger-router-controller: tutor
     get:
@@ -410,10 +415,11 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # Get tutor schedule - GET
   '/tutor/{accountId}/schedule':
     x-swagger-router-controller: tutor
     get:
-      description: get tutor profile information
+      description: get tutor schedule returned in a JSON object with days arrays
       operationId: getTutorScheduleByAccountId
       tags:
         - Tutor
@@ -432,6 +438,77 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
+
+  # Update tutor schedule - PUT
+  '/tutor/schedule':
+    x-swagger-router-controller: tutor
+    put:
+      description: update tutor schedule
+      operationId: updateTutorSchedule
+      tags:
+        - Tutor
+      parameters:
+          - name: schedule
+            in: body
+            required: true
+            schema:
+              properties:
+                accountId:
+                  type: string
+                  description: account id of tutor
+                schedule:
+                  type: object
+                  description: object of schedules
+                  required:
+                  - Monday
+                  - Tuesday
+                  - Wednesday
+                  - Thursday
+                  - Friday
+                  - Saturday
+                  - Sunday
+                  properties:
+                    Monday:
+                      type: array
+                      items:
+                        type: number
+                    Tuesday:
+                      type: array
+                      items:
+                        type: number
+                    Wednesday:
+                      type: array
+                      items:
+                        type: number
+                    Thursday:
+                      type: array
+                      items:
+                        type: number
+                    Friday:
+                      type: array
+                      items:
+                        type: number
+                    Saturday:
+                      type: array
+                      items:
+                        type: number
+                    Sunday:
+                      type: array
+                      items:
+                        type: number
+              required:
+                - accountId
+                - schedule
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
 
 # TUTOR SESSION
 
@@ -458,6 +535,7 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
+
 
 # TUTEE SESSION
 

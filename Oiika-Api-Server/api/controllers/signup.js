@@ -7,7 +7,10 @@ const error = require('../helpers/errors');
 // password creater helper
 const pass = require('../helpers/password');
 const tutor = require('./tutor');
+// used to create blank schedules and reviews upon tutor creation
 const schedules = require('./schedules');
+const reviews = require('./reviews');
+// used to redirect to facebooklogin and googlelogin upon signup
 const login = require('./login');
 
 const Promise = require('bluebird');
@@ -127,7 +130,7 @@ function signupLocal(req, res){
 
 				if(err) {
 					// delete previously created documents before throwing error
-					accountModel.remove({_id: newAccount._id});
+					removeFromModel(accountModel, newAccount._id);
 					// send reject as a callback
 					error.makeMongooseError(err)
 					.then(function(error){
@@ -137,7 +140,8 @@ function signupLocal(req, res){
 				else {
 					if(newAccount.user_type === "tutor"){
 						// create tutor schedule
-						schedules.createSchedule(newAccount._id, result._id)
+						schedules.createBlankSchedule(newAccount._id, result._id)
+						.then(reviews.createBlankReview(newAccount._id, result._id))
 						// if returned successfully, resolve and continue.
 						.then(function(){
 							resolve(newAccount);
@@ -145,18 +149,8 @@ function signupLocal(req, res){
 						// catch all errors and handle accordingly
 						.catch(function(err){
 							// delete previously created documents before throwing error
-							accountModel.findByIdAndRemove(newAccount._id, function(err, offer){
-								if (err){ 
-									console.log("Remove error:"); 
-									console.error(err); 
-								}
-							});
-							userModel.findByIdAndRemove(result._id, function(err, offer){
-								if (err){ 
-									console.log("Remove error:"); 
-									console.error(err); 
-								}
-							});
+							removeFromModel(accountModel, newAccount._id);
+							removeFromModel(userModel, result._id);
 							error.sendError(err.name, err.message, res);
 						});
 					} else {
@@ -166,6 +160,7 @@ function signupLocal(req, res){
 
 			});
 		});
+
 	};
 
 
@@ -346,7 +341,7 @@ function signupFacebook(req, res){
 
 				if(err) {
 					// delete previously created documents before throwing error
-					accountModel.remove({_id: newAccount._id});
+					removeFromModel(accountModel, newAccount._id);
 					// send reject as a callback
 					error.makeMongooseError(err)
 					.then(function(error){
@@ -356,7 +351,8 @@ function signupFacebook(req, res){
 				else {
 					if(newAccount.user_type === "tutor"){
 						// create tutor schedule
-						schedules.createSchedule(newAccount._id, result._id)
+						schedules.createBlankSchedule(newAccount._id, result._id)
+						.then(reviews.createBlankReview(newAccount._id, result._id))
 						// if returned successfully, resolve and continue.
 						.then(function(){
 							resolve(newAccount);
@@ -364,18 +360,8 @@ function signupFacebook(req, res){
 						// catch all errors and handle accordingly
 						.catch(function(err){
 							// delete previously created documents before throwing error
-							accountModel.findByIdAndRemove(newAccount._id, function(err, offer){
-								if (err){ 
-									console.log("Remove error:"); 
-									console.error(err); 
-								}
-							});
-							userModel.findByIdAndRemove(result._id, function(err, offer){
-								if (err){ 
-									console.log("Remove error:"); 
-									console.error(err); 
-								}
-							});
+							removeFromModel(accountModel, newAccount._id);
+							removeFromModel(userModel, result._id);
 							error.sendError(err.name, err.message, res);
 						});
 					} else {
@@ -564,7 +550,7 @@ function signupGoogle(req, res){
 
 				if(err) {
 					// delete previously created documents before throwing error
-					accountModel.remove({_id: newAccount._id});
+					removeFromModel(accountModel, newAccount._id);
 					// send reject as a callback
 					error.makeMongooseError(err)
 					.then(function(error){
@@ -574,7 +560,8 @@ function signupGoogle(req, res){
 				else {
 					if(newAccount.user_type === "tutor"){
 						// create tutor schedule
-						schedules.createSchedule(newAccount._id, result._id)
+						schedules.createBlankSchedule(newAccount._id, result._id)
+						.then(reviews.createBlankReview(newAccount._id, result._id))
 						// if returned successfully, resolve and continue.
 						.then(function(){
 							resolve(newAccount);
@@ -582,18 +569,8 @@ function signupGoogle(req, res){
 						// catch all errors and handle accordingly
 						.catch(function(err){
 							// delete previously created documents before throwing error
-							accountModel.findByIdAndRemove(newAccount._id, function(err, offer){
-								if (err){ 
-									console.log("Remove error:"); 
-									console.error(err); 
-								}
-							});
-							userModel.findByIdAndRemove(result._id, function(err, offer){
-								if (err){ 
-									console.log("Remove error:"); 
-									console.error(err); 
-								}
-							});
+							removeFromModel(accountModel, newAccount._id);
+							removeFromModel(userModel, result._id);
 							error.sendError(err.name, err.message, res);
 						});
 					} else {
@@ -669,6 +646,19 @@ function signupGoogle(req, res){
 		// if not, continue.
 		} else { 
 			error.sendError(err.name, err.message, res); 
+		}
+	});
+};
+
+
+
+// helper functions
+function removeFromModel(model, id){
+	// delete previously created documents before throwing error
+	model.findByIdAndRemove(id, function(err, offer){
+		if (err){ 
+			console.log("Remove error:"); 
+			console.error(err); 
 		}
 	});
 };

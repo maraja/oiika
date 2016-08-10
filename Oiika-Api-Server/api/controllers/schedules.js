@@ -9,12 +9,12 @@ const _ = require('underscore');
 
 module.exports = {
 	getTutorScheduleByAccountId: getTutorScheduleByAccountId,
-// 	updateSchedule: updateSchedule,
-	createSchedule: createSchedule
+	updateSchedule: updateSchedule,
+	createBlankSchedule: createBlankSchedule
 };
 
 // TODO: create schedule function
-function createSchedule(tutorId, accountId){
+function createBlankSchedule(accountId, tutorId){
 
 	return new Promise(function(resolve, reject) {
 
@@ -92,4 +92,6 @@ function getTutorScheduleByAccountId(accountId){
 	});
 };
 
-// TODO: update schedule function
+// TODO: update schedule by account id
+function updateSchedule(accountId){
+};

@@ -10,184 +10,15 @@ const Promise = require('bluebird');
 const _ = require('underscore');
 
 module.exports = {
+	createTutor: createTutor,
 	getTutorsByParameter: getTutorsByParameter,
 	getTutorByAccountId: getTutorByAccountId,
 	getTutorReviewsByAccountId: getTutorReviewsByAccountId,
 	getTutorScheduleByAccountId: getTutorScheduleByAccountId,
-	createTutor: createTutor
+	updateTutorSchedule: updateTutorSchedule
 };
 
-function getTutorsByParameter(req, res){
-	var params = req.swagger.params;
-
-	if (params.city.value){ getTutorByCity(req, res, params.city.value); }
-	else if (params.email.value){ getTutorByEmail(req, res, params.email.value); }
-	else if (params.lat.value && params.lng.value){ getTutorByLocation(req, res, params.lat.value, params.lng.value); }
-	else { getAllTutors(req, res) }
-};
-
-function getTutorByAccountId(req, res) {
-	var tutorId = req.swagger.params.accoutnId.value;
-
-	tutorModel.find({
-		account_id: accountId
-	}, function(err, resultDocument) {
-		if(err) {
-			console.log(err);
-			switch (err.name){
-				case "CastError":
-					error.makeError(err.name, err.message)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-				default:
-					error.makeMongooseError(err)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-			}
-		} else if (resultDocument.length==0){
-			error.makeError("INVALID_ID", "ID does not exist.")
-			.then(function(error){
-				res.send(error);
-			});
-		} else {
-			res.send(resultDocument[0]);
-		}
-	});
-};
-
-function getTutorReviewsByAccountId(req, res){
-	var tutorId = req.swagger.params.accountId.value;
-
-	tutorModel.find(
-		{account_id: accountId}, 
-		{
-			reviews: 1, 
-			_id: 0
-		}, 
-		function(err, resultDocument) {
-		if(err) {
-			console.log(err);
-			switch (err.name){
-				case "CastError":
-				case "MongoError":
-					error.makeError(err.name, err.message)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-				default:
-					error.makeMongooseError(err)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-			}
-		} else if (resultDocument.length==0){
-			error.makeError("INVALID_ID", "ID does not exist.")
-			.then(function(error){
-				res.send(error);
-			});
-		} else {
-			res.send(resultDocument[0]);
-		}
-	});
-};
-
-function getTutorScheduleByAccountId(req, res){
-	var accountId = req.swagger.params.accountId.value;
-
-	schedules.getTutorScheduleByAccountId(accountId)
-	// send resulting schedule for tutor
-	.then(function(resultDocument){
-		res.send(resultDocument);
-	// catch error and display accordingly.
-	}).catch(function(err){
-		error.sendError(err.name, err.message, res);
-	});
-};
-
-function getTutorByLocation(req, res, locationLat, locationLng){
-	var errors = [];
-	// var tutors = [];
-
-	if(valid.validate("location_lat", locationLat, errors) && valid.validate("location_lng", locationLng, errors)) {
-		tutorModel.find({ 
-			$and : [
-				{ $where : (locationLat+' < (this.location_lat+this.travel_distance)') },
-				{ $where : (locationLat+' > (this.location_lat-this.travel_distance)') },
-				{ $where : (locationLng+' < (this.location_lng+this.travel_distance)') },
-				{ $where : (locationLng+' > (this.location_lng-this.travel_distance)') }
-			]
-		}, function(err, resultDocument) {
-			if(err) {
-				console.log(err);
-				error.sendError(err.name, err.message, res);
-			}
-			else {
-				return res.send(resultDocument);
-			}
-		});
-	} else {
-		error.sendError("Error", errors[0], res);
-	}
-}
-
-function getAllTutors(req, res) {
-	tutorModel.find({}, function(err, resultDocument) {
-		if(err) {
-			console.log(err);
-			error.sendError(err.name, err.message, res);
-		}
-		else {
-			res.send(resultDocument);
-		}
-	});
-}
-
-function getTutorByCity(req, res, city) {
-
-	var errors = [];
-
-	if(valid.validate("city", city, errors)) {
-		tutorModel.find({city: city}, function(err, resultDocument) {
-			if(err) {
-				console.log(err);
-				error.sendError(err.name, err.message, res);
-			}
-			else {
-				return res.send(resultDocument);
-			}
-		});
-	} else {
-		error.sendError("Error", errors[0], res);
-	}
-	
-}
-
-function getTutorByEmail(req, res, email){
-
-	var errors = [];
-
-	if(valid.validate("email", email, errors)) {
-		tutorModel.find({email: email}, function(err, resultDocument) {
-			if(err) {
-				console.log(err);
-				error.sendError(err.name, err.message, res);
-			}
-			else {
-				return res.send(resultDocument);
-			}
-		});
-	} else {
-		error.sendError("Error", errors[0], res);
-	}
-
-}
-
+// POST REQUESTS
 function createTutor(req, res) {
 	var tutor = req.swagger.params.tutor.value;
 	// field mapping with database names as values
@@ -312,4 +143,183 @@ function createTutor(req, res) {
 	// var rating = tutor.rating;
 	// var skills = tutor.skills;
 	// var profile_picture = tutor.profile_picture;
-}
+};
+
+
+// GET REQUESTS
+function getTutorsByParameter(req, res){
+	var params = req.swagger.params;
+
+	if (params.city.value){ getTutorByCity(req, res, params.city.value); }
+	else if (params.email.value){ getTutorByEmail(req, res, params.email.value); }
+	else if (params.lat.value && params.lng.value){ getTutorByLocation(req, res, params.lat.value, params.lng.value); }
+	else { getAllTutors(req, res) }
+};
+
+function getTutorByAccountId(req, res) {
+	var tutorId = req.swagger.params.accoutnId.value;
+
+	tutorModel.find({
+		account_id: accountId
+	}, function(err, resultDocument) {
+		if(err) {
+			console.log(err);
+			switch (err.name){
+				case "CastError":
+					error.makeError(err.name, err.message)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+				default:
+					error.makeMongooseError(err)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+			}
+		} else if (resultDocument.length==0){
+			error.makeError("INVALID_ID", "ID does not exist.")
+			.then(function(error){
+				res.send(error);
+			});
+		} else {
+			res.send(resultDocument[0]);
+		}
+	});
+};
+
+function getTutorReviewsByAccountId(req, res){
+	var tutorId = req.swagger.params.accountId.value;
+
+	tutorModel.find(
+		{account_id: accountId}, 
+		{
+			reviews: 1, 
+			_id: 0
+		}, 
+		function(err, resultDocument) {
+		if(err) {
+			console.log(err);
+			switch (err.name){
+				case "CastError":
+				case "MongoError":
+					error.makeError(err.name, err.message)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+				default:
+					error.makeMongooseError(err)
+					.then(function(error){
+						res.send(error);
+					});
+					break;
+			}
+		} else if (resultDocument.length==0){
+			error.makeError("INVALID_ID", "ID does not exist.")
+			.then(function(error){
+				res.send(error);
+			});
+		} else {
+			res.send(resultDocument[0]);
+		}
+	});
+};
+
+function getTutorScheduleByAccountId(req, res){
+	var accountId = req.swagger.params.accountId.value;
+
+	schedules.getTutorScheduleByAccountId(accountId)
+	// send resulting schedule for tutor
+	.then(function(resultDocument){
+		res.send(resultDocument);
+	// catch error and display accordingly.
+	}).catch(function(err){
+		error.sendError(err.name, err.message, res);
+	});
+};
+
+function getTutorByLocation(req, res, locationLat, locationLng){
+	var errors = [];
+	// var tutors = [];
+
+	if(valid.validate("location_lat", locationLat, errors) && valid.validate("location_lng", locationLng, errors)) {
+		tutorModel.find({ 
+			$and : [
+				{ $where : (locationLat+' < (this.location_lat+this.travel_distance)') },
+				{ $where : (locationLat+' > (this.location_lat-this.travel_distance)') },
+				{ $where : (locationLng+' < (this.location_lng+this.travel_distance)') },
+				{ $where : (locationLng+' > (this.location_lng-this.travel_distance)') }
+			]
+		}, function(err, resultDocument) {
+			if(err) {
+				console.log(err);
+				error.sendError(err.name, err.message, res);
+			}
+			else {
+				return res.send(resultDocument);
+			}
+		});
+	} else {
+		error.sendError("Error", errors[0], res);
+	}
+};
+
+function getAllTutors(req, res) {
+	tutorModel.find({}, function(err, resultDocument) {
+		if(err) {
+			console.log(err);
+			error.sendError(err.name, err.message, res);
+		}
+		else {
+			res.send(resultDocument);
+		}
+	});
+};
+
+function getTutorByCity(req, res, city) {
+
+	var errors = [];
+
+	if(valid.validate("city", city, errors)) {
+		tutorModel.find({city: city}, function(err, resultDocument) {
+			if(err) {
+				console.log(err);
+				error.sendError(err.name, err.message, res);
+			}
+			else {
+				return res.send(resultDocument);
+			}
+		});
+	} else {
+		error.sendError("Error", errors[0], res);
+	}	
+};
+
+function getTutorByEmail(req, res, email){
+
+	var errors = [];
+
+	if(valid.validate("email", email, errors)) {
+		tutorModel.find({email: email}, function(err, resultDocument) {
+			if(err) {
+				console.log(err);
+				error.sendError(err.name, err.message, res);
+			}
+			else {
+				return res.send(resultDocument);
+			}
+		});
+	} else {
+		error.sendError("Error", errors[0], res);
+	}
+};
+
+
+// PUT REQUESTS
+function updateTutorSchedule(req, res){
+	var params = req.swagger.params.schedule.value;
+	console.log(params);
+	res.send(params);
+};

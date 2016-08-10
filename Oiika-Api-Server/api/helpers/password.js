@@ -46,6 +46,7 @@ function createAndAssignPassword(password, saltRounds, assignPassword){
 
 	});
 }
+
 /*
 	bcrypt.hash(data, salt, progress, callback)
 	data - [REQUIRED] - the data to be encrypted.
