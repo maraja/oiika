@@ -9,13 +9,13 @@ module.exports = function() {
     tutor_id : { type: ObjectId, unique: true, index: true, required: true },
     account_id : { type: ObjectId, unique: true, index: true, required: true },
     schedule: { 
-      monday: {type: [Number], required: true},
-      tuesday: {type: [Number], required: true},
-      wednesday: {type: [Number], required: true},
-      thursday: {type: [Number], required: true},
-      friday: {type: [Number], required: true},
-      saturday: {type: [Number], required: true},
-      sunday: {type: [Number], required: true}
+      "0": {type: [String], required: true},
+      "1": {type: [String], required: true},
+      "2": {type: [String], required: true},
+      "3": {type: [String], required: true},
+      "4": {type: [String], required: true},
+      "5": {type: [String], required: true},
+      "6": {type: [String], required: true}
     }
   }, {strict:true, collection: 'schedules' });
 

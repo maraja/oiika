@@ -4,9 +4,9 @@ info:
   title: Hello World App
 # during dev, should point to your local machine
 host: localhost:10010
-# basePath prefixes all resource paths 
+# basePath prefixes all resource paths
 basePath: /
-# 
+#
 schemes:
   # tip: remove http to make production-grade
   - http
@@ -322,7 +322,7 @@ paths:
             required: true
             schema:
               properties:
-                first_name: 
+                first_name:
                   type: string
                 last_name:
                   type: string
@@ -344,7 +344,7 @@ paths:
                   type: number
                 hours_worked:
                   type: number
-                rating: 
+                rating:
                   type: number
                 skills:
                   type: array
@@ -460,45 +460,89 @@ paths:
                   type: object
                   description: object of schedules
                   required:
-                  - Monday
-                  - Tuesday
-                  - Wednesday
-                  - Thursday
-                  - Friday
-                  - Saturday
-                  - Sunday
+                  - "0"
+                  - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                  - "6"
                   properties:
-                    Monday:
+                    0:
                       type: array
                       items:
-                        type: number
-                    Tuesday:
+                        type: string
+                    1:
                       type: array
                       items:
-                        type: number
-                    Wednesday:
+                        type: string
+                    2:
                       type: array
                       items:
-                        type: number
-                    Thursday:
+                        type: string
+                    3:
                       type: array
                       items:
-                        type: number
-                    Friday:
+                        type: string
+                    4:
                       type: array
                       items:
-                        type: number
-                    Saturday:
+                        type: string
+                    5:
                       type: array
                       items:
-                        type: number
-                    Sunday:
+                        type: string
+                    6:
                       type: array
                       items:
-                        type: number
+                        type: string
               required:
                 - accountId
                 - schedule
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+
+# TUTEE
+
+  '/tutee/review':
+    x-swagger-router-controller: reviews
+    post:
+      description: Get sessions belonging to tutor email.
+      operationId: createReview
+      tags:
+        - Session
+      parameters:
+          - name: tutorId
+            in: query
+            description: account id for tutor
+            required: true
+            type: string
+          - name: review
+            in: body
+            required: true
+            schema:
+              properties:
+                tuteeId:
+                  type: string
+                text:
+                  type: string
+                rating:
+                  type: number
+                date:
+                  type: string
+              required:
+                - tuteeId
+                - text
+                - rating
+                - date
       responses:
           "200":
             description: Success
@@ -573,7 +617,7 @@ paths:
             required: true
             schema:
               properties:
-                tutor_email: 
+                tutor_email:
                   type: string
                 tutee_email:
                   type: string

@@ -4,6 +4,7 @@ const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
 const schedules = require('./schedules');
+const reviews = require('./reviews');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
@@ -157,7 +158,7 @@ function getTutorsByParameter(req, res){
 };
 
 function getTutorByAccountId(req, res) {
-	var tutorId = req.swagger.params.accoutnId.value;
+	var accountId = req.swagger.params.accountId.value;
 
 	tutorModel.find({
 		account_id: accountId
@@ -190,40 +191,15 @@ function getTutorByAccountId(req, res) {
 };
 
 function getTutorReviewsByAccountId(req, res){
-	var tutorId = req.swagger.params.accountId.value;
+	var accountId = req.swagger.params.accountId.value;
+	console.log(accountId);
 
-	tutorModel.find(
-		{account_id: accountId}, 
-		{
-			reviews: 1, 
-			_id: 0
-		}, 
-		function(err, resultDocument) {
-		if(err) {
-			console.log(err);
-			switch (err.name){
-				case "CastError":
-				case "MongoError":
-					error.makeError(err.name, err.message)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-				default:
-					error.makeMongooseError(err)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-			}
-		} else if (resultDocument.length==0){
-			error.makeError("INVALID_ID", "ID does not exist.")
-			.then(function(error){
-				res.send(error);
-			});
-		} else {
-			res.send(resultDocument[0]);
-		}
+	// begin promise chain
+	reviews.getTutorReviewsByAccountId(accountId)
+	.then(function(result){
+		return res.send(JSON.stringify(result));
+	}).catch(function(err){
+		error.sendError(err.name, err.message, res);
 	});
 };
 
@@ -319,7 +295,16 @@ function getTutorByEmail(req, res, email){
 
 // PUT REQUESTS
 function updateTutorSchedule(req, res){
-	var params = req.swagger.params.schedule.value;
-	console.log(params);
-	res.send(params);
+	var schedule = req.swagger.params.schedule.value;
+
+	// begin promise chain
+	schedules.updateSchedule(schedule)
+	.then(function(result){
+		return res.send(JSON.stringify({
+			"message": "Successfully updated",
+			"result": result
+		}))
+	}).catch(function(err){
+		error.sendError(err.name, err.message, res);
+	});
 };
