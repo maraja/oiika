@@ -453,7 +453,7 @@ paths:
             required: true
             schema:
               properties:
-                accountId:
+                tutorId:
                   type: string
                   description: account id of tutor
                 schedule:
@@ -509,16 +509,16 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-  # Update tutor schedule exceptions - PUT
+  # Update tutor schedule exceptions - POST
   '/tutor/schedule-exceptions':
     x-swagger-router-controller: schedules
-    put:
+    post:
       description: update tutor schedule exceptions
       operationId: updateScheduleExceptions
       tags:
         - Tutor
       parameters:
-          - name: schedule-exceptions
+          - name: scheduleExceptions
             in: body
             required: true
             schema:
@@ -562,29 +562,57 @@ paths:
       tags:
         - Session
       parameters:
-          - name: tutorId
-            in: query
-            description: account id for tutor
-            required: true
-            type: string
-          - name: review
+          - name: schedule
             in: body
             required: true
             schema:
               properties:
-                tuteeId:
+                tutorId:
                   type: string
-                text:
-                  type: string
-                rating:
-                  type: number
-                date:
-                  type: string
+                  description: account id of tutor
+                schedule:
+                  type: object
+                  description: object of schedules
+                  required:
+                  - "0"
+                  - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                  - "6"
+                  properties:
+                    0:
+                      type: array
+                      items:
+                        type: string
+                    1:
+                      type: array
+                      items:
+                        type: string
+                    2:
+                      type: array
+                      items:
+                        type: string
+                    3:
+                      type: array
+                      items:
+                        type: string
+                    4:
+                      type: array
+                      items:
+                        type: string
+                    5:
+                      type: array
+                      items:
+                        type: string
+                    6:
+                      type: array
+                      items:
+                        type: string
               required:
-                - tuteeId
-                - text
-                - rating
-                - date
+                - tutorId
+                - schedule
       responses:
           "200":
             description: Success
@@ -594,6 +622,78 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
+
+  # GET all tutee sessions by account ID
+  '/tutee/{accountId}/sessions':
+    x-swagger-router-controller: session
+    get:
+      description: Get sessions belonging to tutee email.
+      operationId: getTuteeSessionsByAccountId
+      tags:
+        - Session
+      parameters:
+          - name: accountId
+            in: path
+            description: account ID of tutee
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # POST a new session created by a tutee
+  '/tutee/session':
+    x-swagger-router-controller: session
+    post:
+      description: create new session
+      operationId: createSession
+      tags:
+        - Session
+      parameters:
+          - name: session
+            in: body
+            required: true
+            schema:
+              properties:
+                tuteeId:
+                  type: string
+                  description: account id of tutee
+                session:
+                  type: object
+                  description: object of schedules
+                  required:
+                  - tutorId
+                  - date
+                  - duration
+                  properties:
+                    tutorId:
+                      type: string
+                      description: account id of tutor
+                    date:
+                      type: string
+                      description: date time of session
+                    duration:
+                      type: number
+                      description: duration of session in 30 minute intervals
+              required:
+                - tuteeId
+                - session
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
 
 # TUTOR SESSION
@@ -622,70 +722,6 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-
-# TUTEE SESSION
-
-  '/session/tutee':
-    x-swagger-router-controller: session
-    get:
-      description: Get sessions belonging to tutee email.
-      operationId: getTuteeSessionByEmail
-      tags:
-        - Session
-      parameters:
-          -
-            name: email
-            in: query
-            description: sessions for tutees
-            required: true
-            type: string
-      responses:
-          "200":
-            description: Success
-            schema:
-              $ref: "#/definitions/HelloWorldResponse"
-          default:
-            description: Error
-            schema:
-              $ref: "#/definitions/ErrorResponse"
-    post:
-      description: create new session
-      operationId: createSession
-      tags:
-        - Session
-      parameters:
-          - name: session
-            in: body
-            required: true
-            schema:
-              properties:
-                tutor_email:
-                  type: string
-                tutee_email:
-                  type: string
-                subject:
-                  type: string
-                datetime:
-                  type: string
-                duration:
-                  type: number
-                hourly_rate:
-                  type: number
-              required:
-                - tutor_email
-                - tutee_email
-                - subject
-                - datetime
-
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/HelloWorldResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
 
   /swagger:
     x-swagger-pipe: swagger_raw

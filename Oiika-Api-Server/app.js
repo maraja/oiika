@@ -13,6 +13,10 @@ app.models = {
   tuteeModel: require('./api/models/Tutees')(),
   sessionModel: require('./api/models/Sessions')(),
   scheduleModel: require('./api/models/Schedules')(),
+
+  tutorSessionModel: require('./api/models/TutorSessions')(),
+  tuteeSessionModel: require('./api/models/tuteeSessions')(),
+
   reviewModel: require('./api/models/Reviews')(),
   accountModel: require('./api/models/Accounts')()
 }

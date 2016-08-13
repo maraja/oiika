@@ -101,7 +101,7 @@ function updateSchedule(schedule){
 
 		scheduleModel.findOneAndUpdate(
 		{
-			account_id: schedule.accountId
+			account_id: schedule.tutorId
 		},
 		// set the old schedule as the new schedule
 		// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
@@ -147,9 +147,9 @@ function updateSchedule(schedule){
 
 function updateScheduleExceptions(req, res){
 
-	var params = req.swagger.params;
-	var tutorId = params.tutorId.value;
-	var exceptions = params.exceptions.value;
+	var params = req.swagger.params.scheduleExceptions.value;
+	var tutorId = params.tutorId;
+	var exceptions = params.exceptions;
 
 	var fields = {
 		date: 'date',
@@ -263,5 +263,4 @@ function updateScheduleExceptions(req, res){
 	.catch(function(err){
 		error.sendError(err.name, err.message, res); 	
 	});
-
 };

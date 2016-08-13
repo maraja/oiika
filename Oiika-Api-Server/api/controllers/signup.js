@@ -10,6 +10,7 @@ const tutor = require('./tutor');
 // used to create blank schedules and reviews upon tutor creation
 const schedules = require('./schedules');
 const reviews = require('./reviews');
+const sessions = require('./sessions');
 // used to redirect to facebooklogin and googlelogin upon signup
 const login = require('./login');
 
@@ -23,6 +24,7 @@ module.exports = {
 	signupGoogle: signupGoogle
 };
 
+// TODO: remember to add blank tutor and tutee session documents in their respective collections
 
 // LOCAL SIGNUP FUNCTION
 // maps fields, checks if account exists by email, validates fields and then inserts.
@@ -139,9 +141,13 @@ function signupLocal(req, res){
 				}
 				else {
 					if(newAccount.user_type === "tutor"){
-						// create tutor schedule
+
+						// create blank tutor schedule
 						schedules.createBlankSchedule(newAccount._id, result._id)
+						// create blank tutor reviews
 						.then(reviews.createBlankReview(newAccount._id, result._id))
+						// create blank tutor sessions
+						.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
 						// if returned successfully, resolve and continue.
 						.then(function(){
 							resolve(newAccount);
@@ -153,6 +159,23 @@ function signupLocal(req, res){
 							removeFromModel(userModel, result._id);
 							error.sendError(err.name, err.message, res);
 						});
+
+					} else if (newAccount.user_type === "tutee") {
+
+						// create blank tutee sessions
+						sessions.createBlankSession(newAccount._id, result._id, 'tutee')
+						// if returned successfully, resolve and continue.
+						.then(function(){
+							resolve(newAccount);
+						})
+						// catch all errors and handle accordingly
+						.catch(function(err){
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							removeFromModel(userModel, result._id);
+							error.sendError(err.name, err.message, res);
+						});
+
 					} else {
 						resolve(newAccount);
 					}
@@ -350,9 +373,13 @@ function signupFacebook(req, res){
 				}
 				else {
 					if(newAccount.user_type === "tutor"){
-						// create tutor schedule
+
+						// create blank tutor schedule
 						schedules.createBlankSchedule(newAccount._id, result._id)
+						// create blank tutor reviews
 						.then(reviews.createBlankReview(newAccount._id, result._id))
+						// create blank tutor sessions
+						.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
 						// if returned successfully, resolve and continue.
 						.then(function(){
 							resolve(newAccount);
@@ -364,6 +391,23 @@ function signupFacebook(req, res){
 							removeFromModel(userModel, result._id);
 							error.sendError(err.name, err.message, res);
 						});
+
+					} else if (newAccount.user_type === "tutee") {
+
+						// create blank tutee sessions
+						sessions.createBlankSession(newAccount._id, result._id, 'tutee')
+						// if returned successfully, resolve and continue.
+						.then(function(){
+							resolve(newAccount);
+						})
+						// catch all errors and handle accordingly
+						.catch(function(err){
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							removeFromModel(userModel, result._id);
+							error.sendError(err.name, err.message, res);
+						});
+
 					} else {
 						resolve(newAccount);
 					}
@@ -559,9 +603,13 @@ function signupGoogle(req, res){
 				}
 				else {
 					if(newAccount.user_type === "tutor"){
-						// create tutor schedule
+
+						// create blank tutor schedule
 						schedules.createBlankSchedule(newAccount._id, result._id)
+						// create blank tutor reviews
 						.then(reviews.createBlankReview(newAccount._id, result._id))
+						// create blank tutor sessions
+						.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
 						// if returned successfully, resolve and continue.
 						.then(function(){
 							resolve(newAccount);
@@ -573,6 +621,23 @@ function signupGoogle(req, res){
 							removeFromModel(userModel, result._id);
 							error.sendError(err.name, err.message, res);
 						});
+
+					} else if (newAccount.user_type === "tutee") {
+
+						// create blank tutee sessions
+						sessions.createBlankSession(newAccount._id, result._id, 'tutee')
+						// if returned successfully, resolve and continue.
+						.then(function(){
+							resolve(newAccount);
+						})
+						// catch all errors and handle accordingly
+						.catch(function(err){
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							removeFromModel(userModel, result._id);
+							error.sendError(err.name, err.message, res);
+						});
+
 					} else {
 						resolve(newAccount);
 					}
