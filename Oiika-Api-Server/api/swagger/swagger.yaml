@@ -509,6 +509,48 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # Update tutor schedule exceptions - PUT
+  '/tutor/schedule-exceptions':
+    x-swagger-router-controller: schedules
+    put:
+      description: update tutor schedule exceptions
+      operationId: updateScheduleExceptions
+      tags:
+        - Tutor
+      parameters:
+          - name: schedule-exceptions
+            in: body
+            required: true
+            schema:
+              properties:
+                tutorId:
+                  type: string
+                  description: account id of tutor
+                exceptions:
+                  type: object
+                  description: object of schedules
+                  required:
+                  - date
+                  - duration
+                  properties:
+                    date:
+                      type: string
+                      description: beginning datetime of exception
+                    duration:
+                      type: number
+                      description: duration of exception in 30 min intervals
+              required:
+                - tutorId
+                - exceptions
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
 
 # TUTEE
 

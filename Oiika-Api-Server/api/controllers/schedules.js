@@ -149,13 +149,11 @@ function updateScheduleExceptions(req, res){
 
 	var params = req.swagger.params;
 	var tutorId = params.tutorId.value;
-	var review = params.review.value;
+	var exceptions = params.exceptions.value;
 
 	var fields = {
-		text: 'text',
-		rating: 'rating',
 		date: 'date',
-		tuteeId: 'tutee_id'
+		duration: 'duration'
 	};
 	
 	var errors = [];
@@ -175,10 +173,8 @@ function updateScheduleExceptions(req, res){
 				case "date":
 					fields_to_insert[content] = new Date();
 					break;
-				case "text":
-				case "rating":
-				case "tuteeId":
-					fields_to_insert[fields[content]] = review[content];
+				case "duration":
+					fields_to_insert[fields[content]] = exceptions[content];
 					break;
 				default:
 					break;
@@ -194,7 +190,7 @@ function updateScheduleExceptions(req, res){
 	var insertToDb = function(){
 		return new Promise(function(resolve, reject) {
 
-			reviewModel.findOneAndUpdate(
+			scheduleModel.findOneAndUpdate(
 			{
 				account_id: tutorId
 			},
@@ -202,7 +198,7 @@ function updateScheduleExceptions(req, res){
 			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
 			{
 				$push: {
-					reviews: fields_to_insert
+					schedule_exceptions: fields_to_insert
 				}
 			},
 			// this will return updated document rather than old one

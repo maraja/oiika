@@ -19,7 +19,7 @@ module.exports = function() {
     },
     schedule_exceptions: [{
       // date and time the exception begins at
-      datetime: {type: Date, required: true},
+      date: {type: Date, required: true},
       // duration in 30 minute periods the exception ends at.
       duration: {type: Number, required: true}
     }]
