@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var utils = require('mongoose-utils');
+var utils = require('../../mongo/mongoose-utils');
 
 module.exports = function() {
 
