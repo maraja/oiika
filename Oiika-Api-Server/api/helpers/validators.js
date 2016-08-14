@@ -1,5 +1,9 @@
 const _ = require('underscore');
 
+var enumGender = ['male', 'female'];
+var enumUserType = ['tutor', 'tutee'];
+var enumAccountType = ['local', 'facebook', 'google'];
+
 module.exports = {
 
   length: function (i) {
@@ -14,17 +18,38 @@ module.exports = {
   },
 
   gender: function(gender) {
-  	var enumGender = ['male', 'female'];
-
   	if (_.contains(enumGender, gender)) return gender && true;
   	else {
   		return gender && false;
   	}
   },
 
-  latlong: function(coordinate) {
+  user: function(user) {
+    if (_.contains(enumUserType, user)) return user && true;
+    else {
+      return user && false;
+    }
+  },
+
+  account: function(account) {
+    if (_.contains(enumAccountType, account)) return account && true;
+    else {
+      return account && false;
+    }
+  },
+
+  lat: function(coordinate) {
     if (
       (typeof coordinate === 'number' && coordinate <= 90 && coordinate >= -90) || 
+      (coordinate === 999) ||
+      (coordinate === -999)
+    ){ return coordinate && true; }
+    else { return coordinate && false }
+  },
+
+  lng: function(coordinate) {
+    if (
+      (typeof coordinate === 'number' && coordinate <= 180 && coordinate >= -180) || 
       (coordinate === 999) ||
       (coordinate === -999)
     ){ return coordinate && true; }

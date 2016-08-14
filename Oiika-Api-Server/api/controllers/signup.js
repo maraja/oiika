@@ -35,44 +35,25 @@ function signupLocal(req, res){
 		last_name: 'last_name', 
 		email: 'email',
 		gender: 'gender',
-		account_type: 'account_type',
 		user_type: 'user_type', 
 		password: 'password'
 	};
 
 	
-	var errors = [];
 	var fields_to_insert = {};
-	fields_to_insert.account_type = "local";
+	fields_to_insert["account_type"] = "local";
 
 	// create a promise array to execute through
-	var validations = [];
+	var map = [];
 
 	// populate promise array with new promises returning resolved after validating fields and assigning
 	// them into the fields_to_insert object.
 	_.each(fields, function(element, content){
 
-		validations.push(new Promise(function(resolve, reject) {
+		map.push(new Promise(function(resolve, reject) {
 
-			// check for required and non required fields to validate accordingly.
-			switch (content){
-				case "first_name":
-				case "last_name":
-				case "email":
-				case "password":
-				case "user_type":
-					if (valid.validate(content, signup[content], errors, true)){
-						fields_to_insert[fields[content]] = signup[content];
-					}
-					break;
-				case "gender":
-					if (valid.validate(content, signup[content], errors, false)){
-						fields_to_insert[fields[content]] = signup[content];
-					}
-					break;
-				default:
-					break;
-			}
+			// map input fields to db fields.
+			fields_to_insert[fields[content]] = signup[content];
 
 			resolve();
 
@@ -225,18 +206,7 @@ function signupLocal(req, res){
 
 
 	// begin promise chain looping through promise array.
-	Promise.all(validations)
-	// check for errors before posting to database
-	.then(function(){
-		return new Promise(function(resolve, reject) {
-			if(errors.length > 0){
-				error.makeError("VALIDATION_ERROR", errors)
-				.then(function(error){
-					reject(error);
-				});
-			} else { resolve(); }
-		})
-	})
+	Promise.all(map)
 	// check to see if account exists.
 	.then(checkAccount)
 	// create hashedpassword

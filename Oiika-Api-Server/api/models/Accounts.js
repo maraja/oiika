@@ -5,21 +5,16 @@ module.exports = function() {
 
   var ObjectId = mongoose.Schema.ObjectId;
 
-  var enumAccountType = ['local', 'facebook', 'google'];
-  var enumUserType = ['tutor', 'tutee'];
-  var enumGender = ['male', 'female'];
-
   var Accounts = new mongoose.Schema({
 
     // first_name : { type: String, required:true, index: true, lowercase: true, trim:true, unique: true, validate: [util.validate.email, 'not valid'] },
-    _user: { type: ObjectId, index: true, required: false },
-    first_name : { type: String, required: true },
-    last_name : { type: String, required: true },
-    email : { type: String, required: true, lowercase: true, index: true, unique: true, trim: true },
+    first_name : { type: String, required: true, validate: [utils.validate.length(2), 'first name must be at least 2 characters long.'] },
+    last_name : { type: String, required: true, validate: [utils.validate.length(2), 'last name must be at least 2 characters long.'] },
+    email : { type: String, required: true, lowercase: true, index: true, unique: true, trim: true, validate: [utils.validate.email, 'invalid email entered.'] },
     password : { type: String, required: false },
-    account_type : { type: String, enum: enumAccountType, required: true },
-    user_type : { type: String, enum: enumUserType, required: true },
-    gender : { type: String, enum: enumGender },
+    account_type : { type: String, required: true, validate: [utils.validate.account, 'invalid account type.'] },
+    user_type : { type: String, required: true, validate: [utils.validate.user, 'invalid user type.'] },
+    gender : { type: String, required: false, validate: [utils.validate.gender, 'invalid gender.']},
     // gender : { type: String, validate: [utils.validate.gender, 'not a valid gender']},
     facebook_id : { type: String, required: false },
     google_id : { type: String, required: false },

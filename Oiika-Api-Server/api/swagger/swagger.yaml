@@ -481,7 +481,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # Update tutor schedule - PUT
-  '/tutor/schedule':
+  '/tutor/update-schedule':
     x-swagger-router-controller: tutor
     put:
       description: update tutor schedule

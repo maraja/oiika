@@ -13,12 +13,13 @@ function makeError(type, message){
 		var err = new Error();
 		err.name = type;
 		err.message = message;
+		console.error(err);
 		resolve(err);
 	});
 }
 
 function makeMongooseError(err){
-	console.log(err)
+	console.error(err);
 	return new Promise(function(resolve, reject){
 		var errors = [];
 

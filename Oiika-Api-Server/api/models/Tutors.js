@@ -18,14 +18,14 @@ module.exports = function() {
 
     // NOT REQUIRED
     short_description: { type: String, required: false, trim: true},
-    full_description: { type: String, required: false, trime: true},
+    full_description: { type: String, required: false, trim: true},
     hourly_rate: { type: Number, required: false},
     currentLocation: {
       city: { type: String, required: false, trim: false},
       // latitude of location
-      lat: { type: Number, required: false, validate: [utils.validate.latlong, 'not a valid latitude']},
+      lat: { type: Number, required: false, validate: [utils.validate.lat, 'not a valid latitude']},
       // longitude of location
-      lng: { type: Number, required: false, validate: [utils.validate.latlong, 'not a valid longitude']},
+      lng: { type: Number, required: false, validate: [utils.validate.lng, 'not a valid longitude']},
     },
     // distance tutor is willing to travel
     // Note: Calculated based on just an integer value for lat and long. Algorithm to calculate KM distance should be created later.

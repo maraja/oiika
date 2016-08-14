@@ -252,7 +252,7 @@ function loginLocalFromFacebook(req, res, email){
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"message": "This account already exists - login successful via Facebook",
-			"user": {
+			"result": {
 				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
@@ -304,7 +304,7 @@ function loginLocalFromGoogle(req, res, email){
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"message": "This account already exists - login successful via Google",
-			"user": {
+			"result": {
 				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
