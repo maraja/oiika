@@ -267,6 +267,47 @@ paths:
             $ref: "#/definitions/ErrorResponse"
 
 
+# SEARCH
+
+  # GET search tutors based on GPS co-ordinates
+  '/search':
+    x-swagger-router-controller: search
+    get:
+      description: Get tutors by location
+      operationId: getTutorsByLocation
+      tags:
+        - Tutor
+      parameters:
+          - name: sw_lat
+            in: query
+            description: SouthWest latitude of location
+            required: true
+            type: string
+          - name: sw_lng
+            in: query
+            description: SouthWest longitude of location
+            required: true
+            type: string
+          - name: ne_lat
+            in: query
+            description: NorthEast latitude of location
+            required: true
+            type: number
+          - name: ne_lng
+            in: query
+            description: NorthEast longitude of location
+            required: true
+            type: number
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
 # TUTOR
 
   # Create tutor profile - POST - deprecated (integrated within signup.)
@@ -497,8 +538,49 @@ paths:
                       items:
                         type: string
               required:
-                - accountId
+                - tutorId
                 - schedule
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # Update tutor location - PUT
+  '/tutor/update-location':
+    x-swagger-router-controller: tutor
+    put:
+      description: update tutor location
+      operationId: updateTutorLocation
+      tags:
+        - Tutor
+      parameters:
+          - name: location
+            in: body
+            required: true
+            schema:
+              properties:
+                tutorId:
+                  type: string
+                  description: account id of tutor
+                location:
+                  type: object
+                  description: object of location
+                  required:
+                  - lat
+                  - lng
+                  properties:
+                    lat:
+                      type: number
+                    lng:
+                      type: number
+              required:
+                - tutorId
+                - location
       responses:
           "200":
             description: Success
@@ -554,6 +636,7 @@ paths:
 
 # TUTEE
 
+  # POST a new review created by a tutee
   '/tutee/review':
     x-swagger-router-controller: reviews
     post:

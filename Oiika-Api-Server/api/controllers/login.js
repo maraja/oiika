@@ -78,7 +78,7 @@ function loginLocal(req, res){
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"message": "Login Successful",
-			"user": {
+			"result": {
 				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
@@ -139,7 +139,7 @@ function loginFacebook(req, res){
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"message": "Login Successful",
-			"user": {
+			"result": {
 				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,
@@ -200,7 +200,7 @@ function loginGoogle(req, res){
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"message": "Login Successful",
-			"user": {
+			"result": {
 				account_id: result._id,
 				email: result.email,
 				first_name: result.first_name,

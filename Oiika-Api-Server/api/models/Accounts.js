@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var utils = require('mongoose-utils');
 
 module.exports = function() {
 
@@ -19,6 +20,7 @@ module.exports = function() {
     account_type : { type: String, enum: enumAccountType, required: true },
     user_type : { type: String, enum: enumUserType, required: true },
     gender : { type: String, enum: enumGender },
+    // gender : { type: String, validate: [utils.validate.gender, 'not a valid gender']},
     facebook_id : { type: String, required: false },
     google_id : { type: String, required: false },
     address: { type: String, required: false },

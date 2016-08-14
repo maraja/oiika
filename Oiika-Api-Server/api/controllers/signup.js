@@ -24,8 +24,6 @@ module.exports = {
 	signupGoogle: signupGoogle
 };
 
-// TODO: remember to add blank tutor and tutee session documents in their respective collections
-
 // LOCAL SIGNUP FUNCTION
 // maps fields, checks if account exists by email, validates fields and then inserts.
 function signupLocal(req, res){
@@ -110,80 +108,98 @@ function signupLocal(req, res){
 
 	// creates relevant user. If tutor, also creates schedule in schedule collection
 	var createUser = function(newAccount){
-		var userModel;
 		switch (newAccount.user_type){
 			case "tutor":
-				userModel = tutorModel;
+
+				return new Promise(function(resolve, reject) {
+					tutorModel.create({
+						account_id: newAccount._id,
+						first_name: fields_to_insert.first_name,
+						last_name: fields_to_insert.last_name,
+						email: fields_to_insert.email,
+						account_type: fields_to_insert.account_type,
+						currentLocation: {
+							lat: 999,
+							lng: -999
+						}
+					}, function(err, result) {
+
+						if(err) {
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							// send reject as a callback
+							error.makeMongooseError(err)
+							.then(function(error){
+								reject(error);
+							});
+						}
+						else {
+							// create blank tutor schedule
+							schedules.createBlankSchedule(newAccount._id, result._id)
+							// create blank tutor reviews
+							.then(reviews.createBlankReview(newAccount._id, result._id))
+							// create blank tutor sessions
+							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
+							// if returned successfully, resolve and continue.
+							.then(function(){
+								resolve(newAccount);
+							})
+							// catch all errors and handle accordingly
+							.catch(function(err){
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								removeFromModel(userModel, result._id);
+								error.sendError(err.name, err.message, res);
+							});
+						}
+
+					});
+				});
+
 				break;
 			case "tutee":
-				userModel = tuteeModel;
+
+				return new Promise(function(resolve, reject) {
+					tuteeModel.create({
+						account_id: newAccount._id,
+						first_name: fields_to_insert.first_name,
+						last_name: fields_to_insert.last_name,
+						email: fields_to_insert.email,
+						account_type: fields_to_insert.account_type
+					}, function(err, result) {
+
+						if(err) {
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							// send reject as a callback
+							error.makeMongooseError(err)
+							.then(function(error){
+								reject(error);
+							});
+						}
+						else {
+							// create blank tutee sessions
+							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
+							// if returned successfully, resolve and continue.
+							.then(function(){
+								resolve(newAccount);
+							})
+							// catch all errors and handle accordingly
+							.catch(function(err){
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								removeFromModel(userModel, result._id);
+								error.sendError(err.name, err.message, res);
+							});
+						}
+
+					});
+				});
+
 				break;
 			default:
 				break;
 		}
-		return new Promise(function(resolve, reject) {
-			userModel.create({
-				account_id: newAccount._id,
-				first_name: fields_to_insert.first_name,
-				last_name: fields_to_insert.last_name,
-				email: fields_to_insert.email,
-				account_type: fields_to_insert.account_type
-			}, function(err, result) {
-
-				if(err) {
-					// delete previously created documents before throwing error
-					removeFromModel(accountModel, newAccount._id);
-					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
-				}
-				else {
-					if(newAccount.user_type === "tutor"){
-
-						// create blank tutor schedule
-						schedules.createBlankSchedule(newAccount._id, result._id)
-						// create blank tutor reviews
-						.then(reviews.createBlankReview(newAccount._id, result._id))
-						// create blank tutor sessions
-						.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
-						// if returned successfully, resolve and continue.
-						.then(function(){
-							resolve(newAccount);
-						})
-						// catch all errors and handle accordingly
-						.catch(function(err){
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							removeFromModel(userModel, result._id);
-							error.sendError(err.name, err.message, res);
-						});
-
-					} else if (newAccount.user_type === "tutee") {
-
-						// create blank tutee sessions
-						sessions.createBlankSession(newAccount._id, result._id, 'tutee')
-						// if returned successfully, resolve and continue.
-						.then(function(){
-							resolve(newAccount);
-						})
-						// catch all errors and handle accordingly
-						.catch(function(err){
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							removeFromModel(userModel, result._id);
-							error.sendError(err.name, err.message, res);
-						});
-
-					} else {
-						resolve(newAccount);
-					}
-				}
-
-			});
-		});
-
 	};
 
 
@@ -341,80 +357,100 @@ function signupFacebook(req, res){
 	};
 
 
+	// creates relevant user. If tutor, also creates schedule in schedule collection
 	var createUser = function(newAccount){
-		var userModel;
 		switch (newAccount.user_type){
 			case "tutor":
-				userModel = tutorModel;
+
+				return new Promise(function(resolve, reject) {
+					tutorModel.create({
+						account_id: newAccount._id,
+						first_name: fields_to_insert.first_name,
+						last_name: fields_to_insert.last_name,
+						email: fields_to_insert.email,
+						account_type: fields_to_insert.account_type,
+						currentLocation: {
+							lat: 999,
+							lng: -999
+						}
+					}, function(err, result) {
+
+						if(err) {
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							// send reject as a callback
+							error.makeMongooseError(err)
+							.then(function(error){
+								reject(error);
+							});
+						}
+						else {
+							// create blank tutor schedule
+							schedules.createBlankSchedule(newAccount._id, result._id)
+							// create blank tutor reviews
+							.then(reviews.createBlankReview(newAccount._id, result._id))
+							// create blank tutor sessions
+							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
+							// if returned successfully, resolve and continue.
+							.then(function(){
+								resolve(newAccount);
+							})
+							// catch all errors and handle accordingly
+							.catch(function(err){
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								removeFromModel(userModel, result._id);
+								error.sendError(err.name, err.message, res);
+							});
+						}
+
+					});
+				});
+
 				break;
 			case "tutee":
-				userModel = tuteeModel;
+
+				return new Promise(function(resolve, reject) {
+					tuteeModel.create({
+						account_id: newAccount._id,
+						first_name: fields_to_insert.first_name,
+						last_name: fields_to_insert.last_name,
+						email: fields_to_insert.email,
+						account_type: fields_to_insert.account_type
+					}, function(err, result) {
+
+						if(err) {
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							// send reject as a callback
+							error.makeMongooseError(err)
+							.then(function(error){
+								reject(error);
+							});
+						}
+						else {
+							// create blank tutee sessions
+							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
+							// if returned successfully, resolve and continue.
+							.then(function(){
+								resolve(newAccount);
+							})
+							// catch all errors and handle accordingly
+							.catch(function(err){
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								removeFromModel(userModel, result._id);
+								error.sendError(err.name, err.message, res);
+							});
+						}
+
+					});
+				});
+
 				break;
 			default:
 				break;
 		}
-		return new Promise(function(resolve, reject) {
-			userModel.create({
-				_account: newAccount._id,
-				first_name: fields_to_insert.first_name,
-				last_name: fields_to_insert.last_name,
-				email: fields_to_insert.email,
-				account_type: fields_to_insert.account_type
-			}, function(err, result) {
-
-				if(err) {
-					// delete previously created documents before throwing error
-					removeFromModel(accountModel, newAccount._id);
-					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
-				}
-				else {
-					if(newAccount.user_type === "tutor"){
-
-						// create blank tutor schedule
-						schedules.createBlankSchedule(newAccount._id, result._id)
-						// create blank tutor reviews
-						.then(reviews.createBlankReview(newAccount._id, result._id))
-						// create blank tutor sessions
-						.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
-						// if returned successfully, resolve and continue.
-						.then(function(){
-							resolve(newAccount);
-						})
-						// catch all errors and handle accordingly
-						.catch(function(err){
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							removeFromModel(userModel, result._id);
-							error.sendError(err.name, err.message, res);
-						});
-
-					} else if (newAccount.user_type === "tutee") {
-
-						// create blank tutee sessions
-						sessions.createBlankSession(newAccount._id, result._id, 'tutee')
-						// if returned successfully, resolve and continue.
-						.then(function(){
-							resolve(newAccount);
-						})
-						// catch all errors and handle accordingly
-						.catch(function(err){
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							removeFromModel(userModel, result._id);
-							error.sendError(err.name, err.message, res);
-						});
-
-					} else {
-						resolve(newAccount);
-					}
-				}
-
-			});
-		});
 	};
 
 	// create a promise variable to insert into the database.
@@ -571,80 +607,100 @@ function signupGoogle(req, res){
 	};
 
 
+	// creates relevant user. If tutor, also creates schedule in schedule collection
 	var createUser = function(newAccount){
-		var userModel;
 		switch (newAccount.user_type){
 			case "tutor":
-				userModel = tutorModel;
+
+				return new Promise(function(resolve, reject) {
+					tutorModel.create({
+						account_id: newAccount._id,
+						first_name: fields_to_insert.first_name,
+						last_name: fields_to_insert.last_name,
+						email: fields_to_insert.email,
+						account_type: fields_to_insert.account_type,
+						currentLocation: {
+							lat: 999,
+							lng: -999
+						}
+					}, function(err, result) {
+
+						if(err) {
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							// send reject as a callback
+							error.makeMongooseError(err)
+							.then(function(error){
+								reject(error);
+							});
+						}
+						else {
+							// create blank tutor schedule
+							schedules.createBlankSchedule(newAccount._id, result._id)
+							// create blank tutor reviews
+							.then(reviews.createBlankReview(newAccount._id, result._id))
+							// create blank tutor sessions
+							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
+							// if returned successfully, resolve and continue.
+							.then(function(){
+								resolve(newAccount);
+							})
+							// catch all errors and handle accordingly
+							.catch(function(err){
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								removeFromModel(userModel, result._id);
+								error.sendError(err.name, err.message, res);
+							});
+						}
+
+					});
+				});
+
 				break;
 			case "tutee":
-				userModel = tuteeModel;
+
+				return new Promise(function(resolve, reject) {
+					tuteeModel.create({
+						account_id: newAccount._id,
+						first_name: fields_to_insert.first_name,
+						last_name: fields_to_insert.last_name,
+						email: fields_to_insert.email,
+						account_type: fields_to_insert.account_type
+					}, function(err, result) {
+
+						if(err) {
+							// delete previously created documents before throwing error
+							removeFromModel(accountModel, newAccount._id);
+							// send reject as a callback
+							error.makeMongooseError(err)
+							.then(function(error){
+								reject(error);
+							});
+						}
+						else {
+							// create blank tutee sessions
+							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
+							// if returned successfully, resolve and continue.
+							.then(function(){
+								resolve(newAccount);
+							})
+							// catch all errors and handle accordingly
+							.catch(function(err){
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								removeFromModel(userModel, result._id);
+								error.sendError(err.name, err.message, res);
+							});
+						}
+
+					});
+				});
+
 				break;
 			default:
 				break;
 		}
-		return new Promise(function(resolve, reject) {
-			userModel.create({
-				_account: newAccount._id,
-				first_name: fields_to_insert.first_name,
-				last_name: fields_to_insert.last_name,
-				email: fields_to_insert.email,
-				account_type: fields_to_insert.account_type
-			}, function(err, result) {
-
-				if(err) {
-					// delete previously created documents before throwing error
-					removeFromModel(accountModel, newAccount._id);
-					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
-				}
-				else {
-					if(newAccount.user_type === "tutor"){
-
-						// create blank tutor schedule
-						schedules.createBlankSchedule(newAccount._id, result._id)
-						// create blank tutor reviews
-						.then(reviews.createBlankReview(newAccount._id, result._id))
-						// create blank tutor sessions
-						.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
-						// if returned successfully, resolve and continue.
-						.then(function(){
-							resolve(newAccount);
-						})
-						// catch all errors and handle accordingly
-						.catch(function(err){
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							removeFromModel(userModel, result._id);
-							error.sendError(err.name, err.message, res);
-						});
-
-					} else if (newAccount.user_type === "tutee") {
-
-						// create blank tutee sessions
-						sessions.createBlankSession(newAccount._id, result._id, 'tutee')
-						// if returned successfully, resolve and continue.
-						.then(function(){
-							resolve(newAccount);
-						})
-						// catch all errors and handle accordingly
-						.catch(function(err){
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							removeFromModel(userModel, result._id);
-							error.sendError(err.name, err.message, res);
-						});
-
-					} else {
-						resolve(newAccount);
-					}
-				}
-
-			});
-		});
 	};
 
 	// create a promise variable to insert into the database.

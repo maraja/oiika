@@ -111,7 +111,10 @@ function updateSchedule(schedule){
 			}
 		},
 		// this will return updated document rather than old one
-		{ new : true },
+		{ 
+			new : true,
+			runValidators : true 
+		},
 		function(err, resultDocument) {
 
 			console.log(resultDocument);

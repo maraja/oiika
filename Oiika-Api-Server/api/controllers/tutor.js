@@ -16,7 +16,8 @@ module.exports = {
 	getTutorByAccountId: getTutorByAccountId,
 	getTutorReviewsByAccountId: getTutorReviewsByAccountId,
 	getTutorScheduleByAccountId: getTutorScheduleByAccountId,
-	updateTutorSchedule: updateTutorSchedule
+	updateTutorSchedule: updateTutorSchedule,
+	updateTutorLocation: updateTutorLocation
 };
 
 // POST REQUESTS
@@ -306,5 +307,59 @@ function updateTutorSchedule(req, res){
 		}))
 	}).catch(function(err){
 		error.sendError(err.name, err.message, res);
+	});
+};
+
+function updateTutorLocation(req, res){
+	var location = req.swagger.params.location.value;
+
+	tutorModel.findOneAndUpdate(
+	{
+		account_id: location.tutorId
+	},
+	// set the old schedule as the new schedule
+	// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
+	{
+		$set: {
+			currentLocation: {
+				lat : location.location.lat,
+				lng : location.location.lng
+			}
+		}
+	},
+	// this will return updated document rather than old one
+	{ 
+		new : true,
+		runValidators : true
+	},
+	function(err, resultDocument) {
+
+		console.log(resultDocument);
+		if(err) {
+			switch (err.name){
+				case "ValidationError":
+				case "CastError":
+				case "MongoError":
+					error.makeError(err.name, err.message)
+					.then(function(err){
+						error.sendError(err.name, err.message, res); 
+					});
+					break;
+				default:
+					error.makeMongooseError(err)
+					.then(function(err){
+						error.sendError(err.name, err.message, res); 
+					});
+					break;
+			}
+		} else if (!resultDocument){
+			error.makeError("INVALID_ID", "ID does not exist.")
+			.then(function(err){
+				error.sendError(err.name, err.message, res); 
+			});
+		} else {
+			return res.send(resultDocument);
+		}
+
 	});
 };
