@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var utils = require('../../mongo/mongoose-utils');
 
 module.exports = function() {
 
@@ -9,19 +10,19 @@ module.exports = function() {
     tutor_id : { type: ObjectId, unique: true, index: true, required: true },
     account_id : { type: ObjectId, unique: true, index: true, required: true },
     schedule: { 
-      "0": {type: [String], required: true},
-      "1": {type: [String], required: true},
-      "2": {type: [String], required: true},
-      "3": {type: [String], required: true},
-      "4": {type: [String], required: true},
-      "5": {type: [String], required: true},
-      "6": {type: [String], required: true}
+      "0": {type: [String], required: false, validate: [utils.validate.time, 'invalid time entered for Sunday.']},
+      "1": {type: [String], required: false, validate: [utils.validate.time, 'invalid time entered for Monday.']},
+      "2": {type: [String], required: false, validate: [utils.validate.time, 'invalid time entered for Tuesday.']},
+      "3": {type: [String], required: false, validate: [utils.validate.time, 'invalid time entered for Wednesday.']},
+      "4": {type: [String], required: false, validate: [utils.validate.time, 'invalid time entered for Thursday.']},
+      "5": {type: [String], required: false, validate: [utils.validate.time, 'invalid time entered for Friday.']},
+      "6": {type: [String], required: false, validate: [utils.validate.time, 'invalid time entered for Saturday.']}
     },
     schedule_exceptions: [{
       // date and time the exception begins at
       date: {type: Date, required: true},
       // duration in 30 minute periods the exception ends at.
-      duration: {type: Number, required: true}
+      duration: {type: Number, required: true, validate: [utils.validate.duration, 'invalid duration entered.']}
     }]
   }, {strict:true, collection: 'schedules' });
 

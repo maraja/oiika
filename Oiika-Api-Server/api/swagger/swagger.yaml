@@ -732,7 +732,7 @@ paths:
 
   # POST a new session created by a tutee
   '/tutee/session':
-    x-swagger-router-controller: session
+    x-swagger-router-controller: sessions
     post:
       description: create new session
       operationId: createSession

@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var utils = require('../../mongo/mongoose-utils');
 
 module.exports = function() {
 
@@ -15,7 +16,7 @@ module.exports = function() {
       // date and time the exception begins at
       date: {type: Date, required: true},
       // duration in 30 minute periods the exception ends at.
-      duration: {type: Number, required: true}
+      duration: {type: Number, required: true, validate: [utils.validate.duration, 'invalid duration entered']}
     }]
   }, {strict:true, collection: 'tutorSessions' });
 

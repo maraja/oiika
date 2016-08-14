@@ -38,6 +38,25 @@ module.exports = {
     }
   },
 
+  duration: function(duration) {
+    return duration && duration % 1 === 0;
+  },
+
+  date: function(date) {
+    // Date format: mm-dd-yyyy hh:mm am|pm
+    var re = /^(((0[13578]|1[02])[-](0[1-9]|[12]\d|3[01])[-]((19|[2-9]\d)\d{2})\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm))|((0[13456789]|1[012])[-](0[1-9]|[12]\d|30)[-]((19|[2-9]\d)\d{2})\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm))|((02)[-](0[1-9]|1\d|2[0-8])[-]((19|[2-9]\d)\d{2})\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm))|((02)[-](29)[-]((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))\s(0[0-9]|1[0-2]):(0[0-9]|[1-59]\d)\s(AM|am|PM|pm)))$/g;
+    return date && date.match(re) !== null;
+  },
+
+  time: function(time) {
+    console.log(time);
+    var re = /^([01]\d|2[0-3]):?([0-5]\d)$/;
+
+    // if(time.length==0) {time.push("-1");}
+    return time && true;
+    // return time && time.match(re) !== null;
+  },
+
   lat: function(coordinate) {
     if (
       (typeof coordinate === 'number' && coordinate <= 90 && coordinate >= -90) || 

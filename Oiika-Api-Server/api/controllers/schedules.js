@@ -117,7 +117,6 @@ function updateSchedule(schedule){
 		},
 		function(err, resultDocument) {
 
-			console.log(resultDocument);
 			if(err) {
 				switch (err.name){
 					case "CastError":
