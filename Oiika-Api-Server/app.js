@@ -15,7 +15,7 @@ app.models = {
   scheduleModel: require('./api/models/Schedules')(),
 
   tutorSessionModel: require('./api/models/TutorSessions')(),
-  tuteeSessionModel: require('./api/models/tuteeSessions')(),
+  tuteeSessionModel: require('./api/models/TuteeSessions')(),
 
   reviewModel: require('./api/models/Reviews')(),
   accountModel: require('./api/models/Accounts')()
