@@ -29,7 +29,7 @@ function loginLocal(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: login.email}, function(err, result) {
+			accountModel.find({email: login.email.toLowerCase()}, function(err, result) {
 
 				if(err) {
 					// send reject as a callback

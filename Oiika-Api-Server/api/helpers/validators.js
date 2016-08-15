@@ -1,8 +1,8 @@
 const _ = require('underscore');
 
-var enumGender = ['male', 'female'];
-var enumUserType = ['tutor', 'tutee'];
-var enumAccountType = ['local', 'facebook', 'google'];
+const enumGender = ['male', 'female'];
+const enumUserType = ['tutor', 'tutee'];
+const enumAccountType = ['local', 'facebook', 'google'];
 
 module.exports = {
 
@@ -14,6 +14,7 @@ module.exports = {
   
   email: function (email) {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    email = email.toLowerCase();
     return email && email.match(re) !== null;
   },
 

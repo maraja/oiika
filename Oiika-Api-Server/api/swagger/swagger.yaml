@@ -262,6 +262,136 @@ paths:
             $ref: "#/definitions/ErrorResponse"
 
 
+# AUTH
+
+  '/auth':
+    x-swagger-router-controller: auth
+    post:
+      description: auth local user
+      operationId: authLocal
+      tags:
+        - auth
+      parameters:
+          - name: auth
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                gender:
+                  type: string
+                password:
+                  type: string
+                user_type:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - password
+                - user_type
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  '/auth/facebook':
+    x-swagger-router-controller: auth
+    post:
+      description: auth facebook user
+      operationId: authFacebook
+      tags:
+        - auth
+      parameters:
+          - name: auth
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                facebook_id:
+                  type: string
+                gender:
+                  type: string
+                profile_picture:
+                  type: string
+                user_type:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - facebook_id
+                - user_type
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  '/auth/google':
+    x-swagger-router-controller: auth
+    post:
+      description: auth google user
+      operationId: authGoogle
+      tags:
+        - auth
+      parameters:
+          - name: auth
+            in: body
+            required: true
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                google_id:
+                  type: string
+                gender:
+                  type: string
+                profile_picture:
+                  type: string
+                user_type:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - email
+                - google_id
+                - user_type
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+
 # SEARCH
 
   # GET search tutors based on GPS co-ordinates
