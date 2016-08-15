@@ -84,7 +84,8 @@ function loginLocal(req, res){
 				first_name: result.first_name,
 				last_name: result.last_name,
 				account_type: result.account_type,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})
@@ -145,7 +146,8 @@ function loginFacebook(req, res){
 				first_name: result.first_name,
 				last_name: result.last_name,
 				account_type: result.account_type,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})
@@ -206,7 +208,8 @@ function loginGoogle(req, res){
 				first_name: result.first_name,
 				last_name: result.last_name,
 				account_type: result.account_type,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})
@@ -258,7 +261,8 @@ function loginLocalFromFacebook(req, res, email){
 				first_name: result.first_name,
 				last_name: result.last_name,
 				account_type: result.account_type,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})
@@ -310,7 +314,8 @@ function loginLocalFromGoogle(req, res, email){
 				first_name: result.first_name,
 				last_name: result.last_name,
 				account_type: result.account_type,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})

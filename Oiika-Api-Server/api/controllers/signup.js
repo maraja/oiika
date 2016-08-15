@@ -230,7 +230,8 @@ function signupLocal(req, res){
 				last_name: result.last_name,
 				email: result.email,
 				gender: result.gender,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})
@@ -474,7 +475,8 @@ function signupFacebook(req, res){
 				last_name: result.last_name,
 				email: result.email,
 				gender: result.gender,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})
@@ -724,7 +726,8 @@ function signupGoogle(req, res){
 				last_name: result.last_name,
 				email: result.email,
 				gender: result.gender,
-				user_type: result.user_type
+				user_type: result.user_type,
+				profile_picture: result.profile_picture
 			}
 		}))
 	})
