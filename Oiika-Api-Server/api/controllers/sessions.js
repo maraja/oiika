@@ -16,76 +16,74 @@ const moment = require('moment');
 module.exports = {
 	createSession: createSession,
 	createBlankSession: createBlankSession,
-	getTutorSessionByEmail: getTutorSessionByEmail,
-	getTuteeSessionByEmail: getTuteeSessionByEmail,
 	getTuteeSessionsByAccountId: getTuteeSessionsByAccountId
 }
 
-function getTutorSessionByEmail(req, res) {
-	var params = req.swagger.params;
-	var errors = [];
+// function getTutorSessionByEmail(req, res) {
+// 	var params = req.swagger.params;
+// 	var errors = [];
 
-	var getTutorId = new Promise(function(resolve, reject){
-		if(valid.validate("email", params.email.value, errors)) {
-			tutorModel.findOne({email: params.email.value}, {email: 1}, function(err, doc) {
-				if(err) {
-					reject(err);
-				} else if (!doc){
-					var err = error.makeError("INVALID_EMAIL", "Them email you've entered does not exist.");
-					reject(err);
-				} else {
-					resolve(doc._id);
-				}
-			});
-		} else {
-			error.sendError("Error", errors[0], res);
-		}
-	});
+// 	var getTutorId = new Promise(function(resolve, reject){
+// 		if(valid.validate("email", params.email.value, errors)) {
+// 			tutorModel.findOne({email: params.email.value}, {email: 1}, function(err, doc) {
+// 				if(err) {
+// 					reject(err);
+// 				} else if (!doc){
+// 					var err = error.makeError("INVALID_EMAIL", "Them email you've entered does not exist.");
+// 					reject(err);
+// 				} else {
+// 					resolve(doc._id);
+// 				}
+// 			});
+// 		} else {
+// 			error.sendError("Error", errors[0], res);
+// 		}
+// 	});
 
-	getTutorId.then(function(tutorId){
-		console.log(tutorId);
-		sessionModel.find({tutor_id: tutorId}, function(err, docs) {
-			if(err) {
-				error.sendError(err.name, err.message, res);
-			}
-			else {
-				return res.send(docs);	
-			}
-		});
-	}).catch(function(err){
-		error.sendError(err.name, err.message, res);
-	});
-};
+// 	getTutorId.then(function(tutorId){
+// 		console.log(tutorId);
+// 		sessionModel.find({tutor_id: tutorId}, function(err, docs) {
+// 			if(err) {
+// 				error.sendError(err.name, err.message, res);
+// 			}
+// 			else {
+// 				return res.send(docs);	
+// 			}
+// 		});
+// 	}).catch(function(err){
+// 		error.sendError(err.name, err.message, res);
+// 	});
+// };
 
-function getTuteeSessionByEmail(req, res) {
-	var params = req.swagger.params;
-	var errors = [];
+// function getTuteeSessionByEmail(req, res) {
+// 	var params = req.swagger.params;
+// 	var errors = [];
 
-	if(valid.validate("email", params.email.value, errors)) {
-		sessionModel.find({tutee_id: params.email.value}, function(err, docs) {
-			if(err) {
-				console.log(err);
-				error.sendError(err.name, err.message, res);
-			}
-			else {
-				return res.send(docs);
-			}
-		});
-	} else {
-		error.sendError("Error", errors[0], res);
-	}
-};
+// 	if(valid.validate("email", params.email.value, errors)) {
+// 		sessionModel.find({tutee_id: params.email.value}, function(err, docs) {
+// 			if(err) {
+// 				console.log(err);
+// 				error.sendError(err.name, err.message, res);
+// 			}
+// 			else {
+// 				return res.send(docs);
+// 			}
+// 		});
+// 	} else {
+// 		error.sendError("Error", errors[0], res);
+// 	}
+// };
 
 
 function getTuteeSessionsByAccountId(req, res) {
 	var params = req.swagger.params;
-	var accountId = params.accountId.value;
+	var tuteeId = params.tuteeId.value;
 
 	var getSessions = function(){
 		return new Promise(function(resolve, reject) {
 			tuteeSessionModel.findOne(
 			{
-				account_id: accountId
+				account_id: tuteeId
 			},
 			{
 				sessions: 1,
@@ -93,40 +91,22 @@ function getTuteeSessionsByAccountId(req, res) {
 			}, function(err, resultDocument) {
 
 				if(err) {
-					console.log(error);
-					switch (err.name){
-						case "CastError":
-						case "MongoError":
-							error.makeError(err.name, err.message)
-							.then(function(error){
-								reject(error);
-							});
-							break;
-						default:
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
-							break;
-					}
-				} else if (!resultDocument){
-					error.makeError("INVALID_ID", "ID does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
+				} else if (!resultDocument) {
+					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 				} else {
-					resolve(resultDocument.sessions);
+					return resolve(resultDocument.sessions);
 				}
 
 			});
 		});
 	};
 
-	getSessions
+	getSessions()
 	.then(function(sessions){
 		return res.send(JSON.stringify(sessions))
 	}).catch(function(err){
-		error.sendError(err.name, err.message, res); 
+		return error.sendError(err.name, err.message, res); 
 	});
 };
 
@@ -157,26 +137,10 @@ function createBlankSession(accountId, userId, userType){
 		}, function(err, result) {
 
 			if(err) {
-				switch (err.name){
-					case (/\*Error/):
-					case "ValidationError":
-					case "CastError":
-					case "MongoError":
-						error.makeError(err.name, err.message)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-					default:
-						error.makeMongooseError(err)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-				}
+				return error.errorHandler(err, null, null, reject, null);
 			}
 			else {
-				resolve(result);
+				return resolve(result);
 			}
 
 		});
@@ -189,6 +153,86 @@ function createBlankSession(accountId, userId, userType){
 function createSession(req, res) {
 	var session = req.swagger.params.session.value;
 
-	console.log(session);
+	var fields = {
+		tutorId: 'tutor_id',
+		date: 'date',
+		duration: 'duration'
+	};
+	
+	var fields_to_insert = {};
 
+	// create a promise array to execute through
+	var map = [];
+
+	// populate promise array with new promises returning resolved after validating fields and assigning
+	// them into the fields_to_insert object.
+	_.each(fields, function(element, content){
+
+		map.push(new Promise(function(resolve, reject) {
+
+			// map input fields to db fields.
+			switch(content){
+				case "date":
+					session[content] = new Date();
+				default:
+					fields_to_insert[fields[content]] = session[content];
+					return resolve();
+					break;
+			}
+
+		})
+
+	)});
+
+	// create a promise variable to insert into the database.
+	var insertToDb = function(){
+		return new Promise(function(resolve, reject) {
+
+			tuteeSessionModel.findOneAndUpdate(
+			{
+				account_id: session.tuteeId
+			},
+			// set the old schedule as the new schedule
+			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
+			{
+				$push: {
+					sessions: fields_to_insert
+				}
+			},
+			// this will return updated document rather than old one and run validators
+			{ 
+				new : true,
+				runValidators : true
+			},
+			function(err, resultDocument) {
+
+				if(err) {
+					return error.errorHandler(err, null, null, reject, null);
+				} else if (!resultDocument) {
+					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
+				} else {
+					return resolve(resultDocument.sessions);
+				}
+
+			});
+
+		})
+	};
+
+
+	// begin promise chain looping through promise array.
+	Promise.all(map)
+	// post to database sending returned document down promise chain
+	.then(insertToDb)
+	// handle success accordingly
+	.then(function(result){
+		return res.send(JSON.stringify({
+			"message": "Successfully inserted",
+			"result": result
+		}))
+	})
+	// catch all errors and handle accordingly
+	.catch(function(err){
+		return error.sendError(err.name, err.message, res); 	
+	});
 };

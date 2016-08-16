@@ -15,9 +15,9 @@ function createAndAssignPassword(password, saltRounds, assignPassword){
 			return new Promise(function(accept, decline){
 				bcrypt.genSalt(saltRounds, function(err, result){
 					if(err) {
-						decline(err)
+						return decline(err);
 					} else {
-						accept(result);
+						return accept(result);
 					}
 				})
 			});
@@ -27,21 +27,21 @@ function createAndAssignPassword(password, saltRounds, assignPassword){
 			return new Promise(function(accept, decline){
 				bcrypt.hash(password, salt, null, function(err, result){
 					if(err) {
-						decline(err)
+						return decline(err);
 					} else {
-						accept(result);
+						return accept(result);
 					}
 				})
 			});
 		};
 
 		// promise chain
-		createSalt()
+		return createSalt()
 		.then(hashPassword)
 		.then(function(hash){
-			assignPassword(hash, resolve);
+			return assignPassword(hash, resolve);
 		}).catch(function(err){
-			reject(err);
+			return reject(err);
 		});
 
 	});
@@ -61,9 +61,9 @@ function hash(password) {
 	return new Promise(function(resolve, reject) {
 		bcrypt.hash(password, null, null, function(err, hashedPassword) {
 			if (err) {
-				reject(err);
+				return reject(err);
 			} else {
-				resolve(hashedPassword);
+				return resolve(hashedPassword);
 			}
 		});
 	});
@@ -75,12 +75,9 @@ function compare(password, hashedPassword) {
 	return new Promise(function(resolve, reject) {
 		bcrypt.compare(password, hashedPassword, function(err, success) {
 			if (err) {
-				error.makeError("INVALID_PASSWORD", err)
-				.then(function(error){
-					reject(error);
-				});
+				return error.errorHandler(null, "INVALID_PASSWORD", err, reject, null);
 			} else {
-				resolve(success);
+				return resolve(success);
 			}
 		});
 	});

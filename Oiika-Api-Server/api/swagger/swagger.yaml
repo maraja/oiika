@@ -289,6 +289,10 @@ paths:
                   type: string
                 user_type:
                   type: string
+                location_lat:
+                  type: number
+                location_lng:
+                  type: number
               required:
                 - first_name
                 - last_name
@@ -332,6 +336,10 @@ paths:
                   type: string
                 user_type:
                   type: string
+                location_lat:
+                  type: number
+                location_lng:
+                  type: number
               required:
                 - first_name
                 - last_name
@@ -375,6 +383,10 @@ paths:
                   type: string
                 user_type:
                   type: string
+                location_lat:
+                  type: number
+                location_lng:
+                  type: number
               required:
                 - first_name
                 - last_name
@@ -733,22 +745,16 @@ paths:
                 tutorId:
                   type: string
                   description: account id of tutor
-                exceptions:
-                  type: object
-                  description: object of schedules
-                  required:
-                  - date
-                  - duration
-                  properties:
-                    date:
-                      type: string
-                      description: beginning datetime of exception
-                    duration:
-                      type: number
-                      description: duration of exception in 30 min intervals
+                date:
+                  type: string
+                  description: beginning datetime of exception
+                duration:
+                  type: number
+                  description: duration of exception in 30 min intervals
               required:
                 - tutorId
-                - exceptions
+                - date
+                - duration
       responses:
           "200":
             description: Success
@@ -770,7 +776,7 @@ paths:
       tags:
         - Session
       parameters:
-          - name: schedule
+          - name: review
             in: body
             required: true
             schema:
@@ -778,49 +784,21 @@ paths:
                 tutorId:
                   type: string
                   description: account id of tutor
-                schedule:
-                  type: object
-                  description: object of schedules
-                  required:
-                  - "0"
-                  - "1"
-                  - "2"
-                  - "3"
-                  - "4"
-                  - "5"
-                  - "6"
-                  properties:
-                    0:
-                      type: array
-                      items:
-                        type: string
-                    1:
-                      type: array
-                      items:
-                        type: string
-                    2:
-                      type: array
-                      items:
-                        type: string
-                    3:
-                      type: array
-                      items:
-                        type: string
-                    4:
-                      type: array
-                      items:
-                        type: string
-                    5:
-                      type: array
-                      items:
-                        type: string
-                    6:
-                      type: array
-                      items:
-                        type: string
+                tuteeId: 
+                  type: string
+                  description: account id of tutee
+                text:
+                  type: string
+                rating:
+                  type: number
+                date:
+                  type: string
               required:
                 - tutorId
-                - schedule
+                - tuteeId
+                - text
+                - rating
+                - date
       responses:
           "200":
             description: Success
@@ -832,15 +810,15 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # GET all tutee sessions by account ID
-  '/tutee/{accountId}/sessions':
-    x-swagger-router-controller: session
+  '/tutee/{tuteeId}/sessions':
+    x-swagger-router-controller: sessions
     get:
       description: Get sessions belonging to tutee email.
       operationId: getTuteeSessionsByAccountId
       tags:
         - Session
       parameters:
-          - name: accountId
+          - name: tuteeId
             in: path
             description: account ID of tutee
             required: true
@@ -872,26 +850,20 @@ paths:
                 tuteeId:
                   type: string
                   description: account id of tutee
-                session:
-                  type: object
-                  description: object of schedules
-                  required:
-                  - tutorId
-                  - date
-                  - duration
-                  properties:
-                    tutorId:
-                      type: string
-                      description: account id of tutor
-                    date:
-                      type: string
-                      description: date time of session
-                    duration:
-                      type: number
-                      description: duration of session in 30 minute intervals
+                tutorId:
+                  type: string
+                  description: account id of tutor
+                date:
+                  type: string
+                  description: date time of session
+                duration:
+                  type: number
+                  description: duration of session in 30 minute intervals
               required:
                 - tuteeId
-                - session
+                - tutorId
+                - date
+                - duration
 
       responses:
         "200":
@@ -902,33 +874,6 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-
-
-# TUTOR SESSION
-
-  '/session/tutor':
-    x-swagger-router-controller: session
-    get:
-      description: Get sessions belonging to tutor email.
-      operationId: getTutorSessionByEmail
-      tags:
-        - Session
-      parameters:
-          -
-            name: email
-            in: query
-            description: sessions for tutors
-            required: true
-            type: string
-      responses:
-          "200":
-            description: Success
-            schema:
-              $ref: "#/definitions/HelloWorldResponse"
-          default:
-            description: Error
-            schema:
-              $ref: "#/definitions/ErrorResponse"
 
 
   /swagger:
@@ -946,4 +891,13 @@ definitions:
       - message
     properties:
       message:
+        type: string
+  SearchErrorResponse:
+    required:
+      - message
+      - code
+    properties:
+      message:
+        type: string
+      code:
         type: string

@@ -37,13 +37,10 @@ function createBlankSchedule(accountId, tutorId){
 		}, function(err, result) {
 
 			if(err) {
-				error.makeMongooseError(err)
-				.then(function(error){
-					reject(error);
-				});
+				return error.errorHandler(err, null, null, reject, null);
 			}
 			else {
-				resolve(result);
+				return resolve(result);
 			}
 
 		});
@@ -54,7 +51,7 @@ function createBlankSchedule(accountId, tutorId){
 function getTutorScheduleByAccountId(accountId){
 	return new Promise(function(resolve, reject) {
 
-		scheduleModel.find(
+		scheduleModel.findOne(
 		{
 			account_id: accountId
 		},
@@ -64,29 +61,11 @@ function getTutorScheduleByAccountId(accountId){
 		}, function(err, resultDocument) {
 
 			if(err) {
-				console.log(error);
-				switch (err.name){
-					case "CastError":
-					case "MongoError":
-						error.makeError(err.name, err.message)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-					default:
-						error.makeMongooseError(err)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-				}
-			} else if (resultDocument.length==0){
-				error.makeError("INVALID_ID", "ID does not exist.")
-				.then(function(error){
-					reject(error);
-				});
+				return error.errorHandler(err, null, null, reject, null);
+			} else if (!resultDocument) {
+				return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 			} else {
-				resolve(resultDocument[0].schedule);
+				return resolve(resultDocument.schedule);
 			}
 
 		});
@@ -118,28 +97,11 @@ function updateSchedule(schedule){
 		function(err, resultDocument) {
 
 			if(err) {
-				switch (err.name){
-					case "CastError":
-					case "MongoError":
-						error.makeError(err.name, err.message)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-					default:
-						error.makeMongooseError(err)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-				}
-			} else if (!resultDocument){
-				error.makeError("INVALID_ID", "ID does not exist.")
-				.then(function(error){
-					reject(error);
-				});
+				return error.errorHandler(err, null, null, reject, null);
+			} else if (!resultDocument) {
+				return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 			} else {
-				resolve(resultDocument);
+				return resolve(resultDocument.schedule);
 			}
 
 		});
@@ -149,40 +111,35 @@ function updateSchedule(schedule){
 
 function updateScheduleExceptions(req, res){
 
-	var params = req.swagger.params.scheduleExceptions.value;
-	var tutorId = params.tutorId;
-	var exceptions = params.exceptions;
+	var exceptions = req.swagger.params.scheduleExceptions.value;
+	var tutorId = exceptions.tutorId;
 
 	var fields = {
 		date: 'date',
 		duration: 'duration'
 	};
 	
-	var errors = [];
 	var fields_to_insert = {};
 
 	// create a promise array to execute through
-	var validations = [];
+	var map = [];
 
 	// populate promise array with new promises returning resolved after validating fields and assigning
 	// them into the fields_to_insert object.
 	_.each(fields, function(element, content){
 
-		validations.push(new Promise(function(resolve, reject) {
+		map.push(new Promise(function(resolve, reject) {
 
 			// check for required and non required fields to validate accordingly.
 			switch (content){
 				case "date":
-					fields_to_insert[content] = new Date();
-					break;
-				case "duration":
-					fields_to_insert[fields[content]] = exceptions[content];
-					break;
+					exceptions[content] = new Date();
 				default:
+					fields_to_insert[fields[content]] = exceptions[content];
 					break;
 			}
 
-			resolve();
+			return resolve();
 
 		})
 
@@ -207,30 +164,12 @@ function updateScheduleExceptions(req, res){
 			{ new : true },
 			function(err, resultDocument) {
 
-				console.log(resultDocument);
 				if(err) {
-					switch (err.name){
-						case "CastError":
-						case "MongoError":
-							error.makeError(err.name, err.message)
-							.then(function(error){
-								reject(error);
-							});
-							break;
-						default:
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
-							break;
-					}
-				} else if (!resultDocument){
-					error.makeError("INVALID_ID", "ID does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
+				} else if (!resultDocument) {
+					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 				} else {
-					resolve(resultDocument);
+					return resolve(resultDocument.schedule_exceptions);
 				}
 
 			});
@@ -240,18 +179,7 @@ function updateScheduleExceptions(req, res){
 
 
 	// begin promise chain looping through promise array.
-	Promise.all(validations)
-	// check for errors before posting to database
-	.then(function(){
-		return new Promise(function(resolve, reject) {
-			if(errors.length > 0){
-				error.makeError("VALIDATION_ERROR", errors)
-				.then(function(error){
-					reject(error);
-				});
-			} else { resolve(); }
-		})
-	})
+	Promise.all(map)
 	// post to database sending returned document down promise chain
 	.then(insertToDb)
 	// handle success accordingly
@@ -263,6 +191,6 @@ function updateScheduleExceptions(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res); 	
+		return error.sendError(err.name, err.message, res); 	
 	});
 };

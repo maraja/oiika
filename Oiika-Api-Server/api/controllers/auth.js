@@ -15,7 +15,6 @@ const sessions = require('./sessions');
 const login = require('./login');
 
 const Promise = require('bluebird');
-// const mongoose = require('mongoose');
 const _ = require('underscore');
 
 module.exports = {
@@ -70,23 +69,19 @@ function authLocal(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: fields_to_insert.email.toLowerCase()}, function(err, result) {
+			accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
 
 				if(err) {
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
-				}
-				else if (result.length > 0){
-					error.makeError("DUPLICATE_EMAIL", "Email already exists.")
+					// send reject as a callback
+					return error.errorHandler(err, null, null, reject, null);
+				} else if (resultDocument) {
+					return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
 					.then(function(error){
 						loginRedirect(req, res, auth);
-						reject(error);
+						return reject(error);
 					});
-				}
-				else {
-					resolve();
+				} else {
+					return resolve();
 				}
 
 			});
@@ -107,8 +102,8 @@ function authLocal(req, res){
 						email: fields_to_insert.email,
 						account_type: fields_to_insert.account_type,
 						currentLocation: {
-							lat: 999,
-							lng: -999
+							lat: (auth.location_lat ? auth.location_lat : 999),
+							lng: (auth.location_lng ? auth.location_lng : -999)
 						}
 					}, function(err, result) {
 
@@ -116,10 +111,7 @@ function authLocal(req, res){
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
 							// send reject as a callback
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
+							return error.errorHandler(err, null, null, reject, null);
 						}
 						else {
 							// create blank tutor schedule
@@ -130,14 +122,14 @@ function authLocal(req, res){
 							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
 							// if returned successfully, resolve and continue.
 							.then(function(){
-								resolve(newAccount);
+								return resolve(newAccount);
 							})
 							// catch all errors and handle accordingly
 							.catch(function(err){
 								// delete previously created documents before throwing error
 								removeFromModel(accountModel, newAccount._id);
 								removeFromModel(userModel, result._id);
-								error.sendError(err.name, err.message, res);
+								return error.sendError(err.name, err.message, res);
 							});
 						}
 
@@ -160,24 +152,21 @@ function authLocal(req, res){
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
 							// send reject as a callback
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
+							return error.errorHandler(err, null, null, reject, null);
 						}
 						else {
 							// create blank tutee sessions
 							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
 							// if returned successfully, resolve and continue.
 							.then(function(){
-								resolve(newAccount);
+								return resolve(newAccount);
 							})
 							// catch all errors and handle accordingly
 							.catch(function(err){
 								// delete previously created documents before throwing error
 								removeFromModel(accountModel, newAccount._id);
 								removeFromModel(userModel, result._id);
-								error.sendError(err.name, err.message, res);
+								return error.sendError(err.name, err.message, res);
 							});
 						}
 
@@ -198,13 +187,10 @@ function authLocal(req, res){
 
 				if(err) {
 					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
 				else {
-					resolve(result);
+					return resolve(result);
 				}
 
 			});
@@ -219,7 +205,7 @@ function authLocal(req, res){
 	// create hashedpassword
 	.then(pass.createAndAssignPassword(fields_to_insert.password, saltRounds, function(hash, resolve){
 		fields_to_insert.password = hash;
-		resolve();
+		return resolve();
 	}))
 	// handle password
 	// post to database sending returned document down promise chain
@@ -250,7 +236,7 @@ function authLocal(req, res){
 			return;
 		// if not, continue.
 		} else { 
-			error.sendError(err.name, err.message, res); 
+			return error.sendError(err.name, err.message, res); 
 		}
 	});
 };
@@ -304,24 +290,19 @@ function authFacebook(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: fields_to_insert.email.toLowerCase()}, function(err, result) {
+			accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
 
 				if(err) {
 					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
-				}
-				else if (result.length > 0){
-					error.makeError("DUPLICATE_EMAIL", "Email already exists.")
+					return error.errorHandler(err, null, null, reject, null);
+				} else if (resultDocument) {
+					return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
 					.then(function(error){
 						loginRedirect(req, res, auth);
-						reject(error);
+						return reject(error);
 					});
-				}
-				else {
-					resolve();
+				} else {
+					return resolve();
 				}
 
 			});
@@ -342,8 +323,8 @@ function authFacebook(req, res){
 						email: fields_to_insert.email,
 						account_type: fields_to_insert.account_type,
 						currentLocation: {
-							lat: 999,
-							lng: -999
+							lat: (auth.location_lat ? auth.location_lat : 999),
+							lng: (auth.location_lng ? auth.location_lng : -999)
 						}
 					}, function(err, result) {
 
@@ -351,10 +332,7 @@ function authFacebook(req, res){
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
 							// send reject as a callback
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
+							return error.errorHandler(err, null, null, reject, null);
 						}
 						else {
 							// create blank tutor schedule
@@ -365,14 +343,14 @@ function authFacebook(req, res){
 							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
 							// if returned successfully, resolve and continue.
 							.then(function(){
-								resolve(newAccount);
+								return resolve(newAccount);
 							})
 							// catch all errors and handle accordingly
 							.catch(function(err){
 								// delete previously created documents before throwing error
 								removeFromModel(accountModel, newAccount._id);
 								removeFromModel(userModel, result._id);
-								error.sendError(err.name, err.message, res);
+								return error.sendError(err.name, err.message, res);
 							});
 						}
 
@@ -395,24 +373,21 @@ function authFacebook(req, res){
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
 							// send reject as a callback
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
+							return error.errorHandler(err, null, null, reject, null);
 						}
 						else {
 							// create blank tutee sessions
 							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
 							// if returned successfully, resolve and continue.
 							.then(function(){
-								resolve(newAccount);
+								return resolve(newAccount);
 							})
 							// catch all errors and handle accordingly
 							.catch(function(err){
 								// delete previously created documents before throwing error
 								removeFromModel(accountModel, newAccount._id);
 								removeFromModel(userModel, result._id);
-								error.sendError(err.name, err.message, res);
+								return error.sendError(err.name, err.message, res);
 							});
 						}
 
@@ -432,13 +407,10 @@ function authFacebook(req, res){
 
 				if(err) {
 					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
 				else {
-					resolve(result);
+					return resolve(result);
 				}
 
 			});
@@ -478,7 +450,7 @@ function authFacebook(req, res){
 			return;
 		// if not, continue.
 		} else { 
-			error.sendError(err.name, err.message, res); 
+			return error.sendError(err.name, err.message, res); 
 		}
 	});
 };
@@ -531,24 +503,19 @@ function authGoogle(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: fields_to_insert.email.toLowerCase()}, function(err, result) {
+			accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
 
 				if(err) {
 					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
-				}
-				else if (result.length > 0){
-					error.makeError("DUPLICATE_EMAIL", "Email already exists.")
+					return error.errorHandler(err, null, null, reject, null);
+				} else if (resultDocument) {
+					return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
 					.then(function(error){
 						loginRedirect(req, res, auth);
-						reject(error);
+						return reject(error);
 					});
-				}
-				else {
-					resolve();
+				} else {
+					return resolve();
 				}
 
 			});
@@ -569,8 +536,8 @@ function authGoogle(req, res){
 						email: fields_to_insert.email,
 						account_type: fields_to_insert.account_type,
 						currentLocation: {
-							lat: 999,
-							lng: -999
+							lat: (auth.location_lat ? auth.location_lat : 999),
+							lng: (auth.location_lng ? auth.location_lng : -999)
 						}
 					}, function(err, result) {
 
@@ -578,10 +545,7 @@ function authGoogle(req, res){
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
 							// send reject as a callback
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
+							return error.errorHandler(err, null, null, reject, null);
 						}
 						else {
 							// create blank tutor schedule
@@ -592,14 +556,14 @@ function authGoogle(req, res){
 							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
 							// if returned successfully, resolve and continue.
 							.then(function(){
-								resolve(newAccount);
+								return resolve(newAccount);
 							})
 							// catch all errors and handle accordingly
 							.catch(function(err){
 								// delete previously created documents before throwing error
 								removeFromModel(accountModel, newAccount._id);
 								removeFromModel(userModel, result._id);
-								error.sendError(err.name, err.message, res);
+								return error.sendError(err.name, err.message, res);
 							});
 						}
 
@@ -622,24 +586,21 @@ function authGoogle(req, res){
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
 							// send reject as a callback
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
+							return error.errorHandler(err, null, null, reject, null);
 						}
 						else {
 							// create blank tutee sessions
 							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
 							// if returned successfully, resolve and continue.
 							.then(function(){
-								resolve(newAccount);
+								return resolve(newAccount);
 							})
 							// catch all errors and handle accordingly
 							.catch(function(err){
 								// delete previously created documents before throwing error
 								removeFromModel(accountModel, newAccount._id);
 								removeFromModel(userModel, result._id);
-								error.sendError(err.name, err.message, res);
+								return error.sendError(err.name, err.message, res);
 							});
 						}
 
@@ -658,14 +619,9 @@ function authGoogle(req, res){
 			accountModel.create(fields_to_insert, function(err, result) {
 
 				if(err) {
-					// send reject as a callback
-					error.makeMongooseError(err)
-					.then(function(error){
-						reject(error);
-					});
-				}
-				else {
-					resolve(result);
+					return error.errorHandler(err, null, null, reject, null);
+				} else {
+					return resolve(result);
 				}
 
 			});
@@ -705,7 +661,7 @@ function authGoogle(req, res){
 			return;
 		// if not, continue.
 		} else { 
-			error.sendError(err.name, err.message, res); 
+			return error.sendError(err.name, err.message, res); 
 		}
 	});
 };
@@ -723,23 +679,16 @@ function loginLocal(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: login.email.toLowerCase()}, function(err, result) {
+			accountModel.findOne({email: login.email.toLowerCase()}, function(err, resulDocument) {
 
 				if(err) {
-					// send reject as a callback
-					error.makeMongooseError(err, reject)
-					.then(function(err){
-						reject(err);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
-				else if (result.length > 0){
-					resolve(result[0]);
+				else if (!resultDocument){
+					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
 				}
 				else {
-					error.makeError("INVALID_ENTRY", "Account does not exist.")
-					.then(function(err){
-						reject(err);
-					});
+					return resolve(resultDocument);
 				}
 
 			});
@@ -752,15 +701,12 @@ function loginLocal(req, res){
 			pass.compare(login.password, result.password)
 			.then(function(isValid){
 				if(isValid){
-					resolve(result);
+					return resolve(result);
 				} else {
-					error.makeError("INVALID_PASSWORD", "Password incorrect")
-					.then(function(err){
-						reject(err);
-					});
+					return error.errorHandler(null, "INVALID_PASSWORD", "Password incorrect", reject, null);
 				}
 			}).catch(function(err){
-				reject(err);
+				return reject(err);
 			})
 		})
 	};
@@ -785,7 +731,7 @@ function loginLocal(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		return error.sendError(err.name, err.message, res);
 	});
 };
 
@@ -805,26 +751,19 @@ function loginFacebook(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({
+			accountModel.findOne({
 				email: login.email.toLowerCase(),
 				facebook_id: login.facebook_id
-			}, function(err, result) {
+			}, function(err, resultDocument) {
 
 				if(err) {
-					// send reject as a callback
-					error.makeMongooseError(err, reject)
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
-				else if (result.length > 0){
-					resolve(result[0]);
+				else if (!resultDocument){
+					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
 				}
 				else {
-					error.makeError("INVALID_ENTRY", "Account does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return resolve(resultDocument);
 				}
 
 			});
@@ -850,7 +789,7 @@ function loginFacebook(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		return error.sendError(err.name, err.message, res);
 	});
 };
 
@@ -870,26 +809,19 @@ function loginGoogle(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({
+			accountModel.findOne({
 				email: login.email.toLowerCase(),
 				google_id: login.google_id
-			}, function(err, result) {
+			}, function(err, resultDocument) {
 
 				if(err) {
-					// send reject as a callback
-					error.makeMongooseError(err, reject)
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
-				else if (result.length > 0){
-					resolve(result[0]);
+				else if (!resultDocument){
+					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
 				}
 				else {
-					error.makeError("INVALID_ENTRY", "Account does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return resolve(resultDocument);
 				}
 
 			});
@@ -915,7 +847,7 @@ function loginGoogle(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		return error.sendError(err.name, err.message, res);
 	});
 };
 
@@ -926,23 +858,16 @@ function loginLocalFromFacebook(req, res, email){
 	// promise to check to see if account exists.
 	var loginToFacebookAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: email}, function(err, result) {
+			accountModel.findOne({email: email.toLowerCase()}, function(err, resultDocument) {
 
 				if(err) {
-					// send reject as a callback
-					error.makeMongooseError(err, reject)
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
-				else if (result.length > 0){
-					resolve(result[0]);
+				else if (!resultDocument){
+					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
 				}
 				else {
-					error.makeError("INVALID_ENTRY", "Account does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return resolve(resultDocument);
 				}
 
 			});
@@ -968,7 +893,7 @@ function loginLocalFromFacebook(req, res, email){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		return error.sendError(err.name, err.message, res);
 	});
 };
 
@@ -979,23 +904,16 @@ function loginLocalFromGoogle(req, res, email){
 	// promise to check to see if account exists.
 	var loginToGoogleAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: email}, function(err, result) {
+			accountModel.findOne({email: email.toLowerCase()}, function(err, resultDocument) {
 
 				if(err) {
-					// send reject as a callback
-					error.makeMongooseError(err, reject)
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
-				else if (result.length > 0){
-					resolve(result[0]);
+				else if (!resultDocument){
+					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
 				}
 				else {
-					error.makeError("INVALID_ENTRY", "Account does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return resolve(resultDocument);
 				}
 
 			});
@@ -1021,7 +939,7 @@ function loginLocalFromGoogle(req, res, email){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		return error.sendError(err.name, err.message, res);
 	});
 };
 
@@ -1032,23 +950,16 @@ function loginRedirect(req, res, fields){
 	// promise to check to see if account exists.
 	var loginToAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.find({email: fields.email.toLowerCase()}, function(err, result) {
+			accountModel.findOne({email: fields.email.toLowerCase()}, function(err, resultDocument) {
 
 				if(err) {
-					// send reject as a callback
-					error.makeMongooseError(err, reject)
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
 				}
-				else if (result.length > 0){
-					resolve(result[0]);
+				else if (!resultDocument){
+					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
 				}
 				else {
-					error.makeError("INVALID_ENTRY", "Account does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return resolve(resultDocument);
 				}
 
 			});
@@ -1056,7 +967,7 @@ function loginRedirect(req, res, fields){
 	}
 
 
-	// begin promise chain looping through promise array.
+	// begin promise chain
 	loginToAccount()
 	// middleware for respective login functions
 	.then(function(result){
@@ -1067,72 +978,37 @@ function loginRedirect(req, res, fields){
 						pass.compare(fields.password, result.password)
 						.then(function(isValid){
 							if(isValid){
-								resolve(result);
+								return resolve(result);
 							} else {
-								error.makeError("INCORRECT_PASSWORD", "Local account exists, but password incorrect.")
-								.then(function(err){
-									reject(err);
-								});
+								return error.errorHandler(null, "INCORRECT_PASSWORD", "Local account exists, but password incorrect.", reject, null);
 							}
 						}).catch(function(err){
-							reject(err);
+							return reject(err);
 						})
 					} else {
-						error.makeError("NO_PASSWORD", "Local account exists, but no password entered.")
-						.then(function(err){
-							reject(err);
-						});
+						return error.errorHandler(null, "NO_PASSWORD", "Local account exists, but no password entered.", reject, null);
 					}
 					break;
 				case 'facebook':
 					if (fields.facebook_id === result.facebook_id){
-						resolve(result);
+						return resolve(result);
 					} else {
-						error.makeError("INCORRECT_ID", "Facebook account exists, but facebook id incorrect.")
-						.then(function(err){
-							reject(err);
-						});
+						return error.errorHandler(null, "INCORRECT_ID", "Facebook account exists, but facebook id incorrect.", reject, null);
 					}
 					break;
 				case 'google':
 					if (fields.google_id === result.google_id){
-						resolve(result);
+						return resolve(result);
 					} else {
-						error.makeError("INCORRECT_ID", "Google account exists, but google id incorrect.")
-						.then(function(err){
-							reject(err);
-						});
+						return error.errorHandler(null, "INCORRECT_ID", "Google account exists, but google id incorrect.", reject, null);
 					}
 					break;
 				default:
-					resolve(result);
+					return resolve(result);
 					break;
 			}
 		})
 	})
-	// field mapping
-	// .then(function(result){
-
-	// 	switch (result.account_type) {
-	// 		case 'local':
-	// 			var toReturn : {
-	// 				account_id: result._id,
-	// 				email: result.email,
-	// 				first_name: result.first_name,
-	// 				last_name: result.last_name,
-	// 				account_type: result.account_type,
-	// 				user_type: result.user_type,
-	// 				profile_picture: result.profile_picture
-	// 			}
-	// 			break;
-	// 		case 'facebook':
-	// 			break;
-	// 		case 'google':
-	// 			break;
-	// 		default:
-	// 			break;
-	// 	}
-	// })
 	.then(function(result){
 		return res.send(JSON.stringify({
 			"message": ("This account already exists - login successful via "+result.account_type),
@@ -1150,14 +1026,16 @@ function loginRedirect(req, res, fields){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res);
+		return error.sendError(err.name, err.message, res);
 	});
 
 };
 
 
 
-// helper functions
+// -------------------------------------
+// HELPERS
+// -------------------------------------
 function removeFromModel(model, id){
 	// delete previously created documents before throwing error
 	model.findByIdAndRemove(id, function(err, offer){

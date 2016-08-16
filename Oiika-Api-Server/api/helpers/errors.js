@@ -3,9 +3,62 @@ const _ = require('underscore');
 const Promise = require('bluebird');
 
 module.exports = {
+	errorHandler: errorHandler,
 	sendError: sendError,
 	makeError: makeError,
 	makeMongooseError: makeMongooseError
+}
+
+// call this without a reject if you aren't running errors within promises
+// call this with a reject if you're running errors within promises
+// call this without a name or message if you're running a premade error through error handling
+// call this without an error if you're creating a new error to return.
+function errorHandler(err, name, message, reject, res){
+	if(err && reject){
+		switch (err.name){
+			case "ValidationError":
+			case "CastError":
+			case "MongoError":
+				return makeError(err.name, err.message)
+				.then(function(error){
+					return reject(error);
+				});
+				break;
+			default:
+				return makeMongooseError(err)
+				.then(function(error){
+					return reject(error);
+				});
+				break;
+		}
+	} else if (err && !reject) {
+		switch (err.name){
+			case "ValidationError":
+			case "CastError":
+			case "MongoError":
+				return makeError(err.name, err.message)
+				.then(function(err){
+					return sendError(err.name, err.message, res); 
+				});
+				break;
+			default:
+				return makeMongooseError(err)
+				.then(function(err){
+					return sendError(err.name, err.message, res); 
+				});
+				break;
+		}
+	} else if (name && message && reject){
+		return makeError(name, message)
+		.then(function(error){
+			return reject(error);
+		});
+	} else if (name && message && !reject){
+		return makeError(name, message)
+		.then(function(err){
+			sendError(err.name, err.message, res); 
+		});
+	}
 }
 
 function makeError(type, message){
@@ -14,7 +67,7 @@ function makeError(type, message){
 		err.name = type;
 		err.message = message;
 		console.error(err);
-		resolve(err);
+		return resolve(err);
 	});
 }
 
@@ -35,7 +88,7 @@ function makeMongooseError(err){
 
 					errors.push({content: err.errors[content].name, "Error": err.errors[content].message});
 
-					resolve();
+					return resolve();
 
 				})
 
@@ -48,7 +101,7 @@ function makeMongooseError(err){
 		Promise.all(promises)
 		.then(function(){
 			error.message = errors;
-			resolve(error);
+			return resolve(error);
 		});
 	});
 }
@@ -56,10 +109,9 @@ function makeMongooseError(err){
 function sendError(type, message, res) {
     // type and message must be string
     var err = new Error();
-    err.nonce = false; // error that is not handled
+    // err.nonce = false; // error that is not handled
     err.name = type;
     err.message = message;
-    console.error(err);
     return res.send(JSON.stringify({
 		"Error": err
 	}));

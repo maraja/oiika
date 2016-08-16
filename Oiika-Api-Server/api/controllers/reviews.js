@@ -23,16 +23,12 @@ function createBlankReview(accountId, tutorId){
 			tutor_id: tutorId,
 			account_id: accountId
 	    // throw errors as necessary
-		}, function(err, result) {
+		}, function(err, resultDocument) {
 
 			if(err) {
-				error.makeMongooseError(err)
-				.then(function(error){
-					reject(error);
-				});
-			}
-			else {
-				resolve(result);
+				return error.errorHandler(err, null, null, reject, null);
+			} else {
+				return resolve(resultDocument);
 			}
 
 		});
@@ -43,9 +39,7 @@ function createBlankReview(accountId, tutorId){
 // create blank review document upon account creation
 function createReview(req, res){
 
-	var params = req.swagger.params;
-	var tutorId = params.tutorId.value;
-	var review = params.review.value;
+	var review = req.swagger.params.review.value;
 
 	var fields = {
 		text: 'text',
@@ -54,33 +48,26 @@ function createReview(req, res){
 		tuteeId: 'tutee_id'
 	};
 	
-	var errors = [];
 	var fields_to_insert = {};
 
 	// create a promise array to execute through
-	var validations = [];
+	var map = [];
 
 	// populate promise array with new promises returning resolved after validating fields and assigning
 	// them into the fields_to_insert object.
 	_.each(fields, function(element, content){
 
-		validations.push(new Promise(function(resolve, reject) {
+		map.push(new Promise(function(resolve, reject) {
 
-			// check for required and non required fields to validate accordingly.
-			switch (content){
+			// map input fields to db fields.
+			switch(content){
 				case "date":
-					fields_to_insert[content] = new Date();
-					break;
-				case "text":
-				case "rating":
-				case "tuteeId":
-					fields_to_insert[fields[content]] = review[content];
-					break;
+					review[content] = new Date();
 				default:
+					fields_to_insert[fields[content]] = review[content];
+					return resolve();
 					break;
 			}
-
-			resolve();
 
 		})
 
@@ -92,7 +79,7 @@ function createReview(req, res){
 
 			reviewModel.findOneAndUpdate(
 			{
-				account_id: tutorId
+				account_id: review.tutorId
 			},
 			// set the old schedule as the new schedule
 			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
@@ -101,34 +88,19 @@ function createReview(req, res){
 					reviews: fields_to_insert
 				}
 			},
-			// this will return updated document rather than old one
-			{ new : true },
+			// this will return updated document rather than old one and run validators
+			{ 
+				new : true,
+				runValidators : true
+			},
 			function(err, resultDocument) {
 
-				console.log(resultDocument);
 				if(err) {
-					switch (err.name){
-						case "CastError":
-						case "MongoError":
-							error.makeError(err.name, err.message)
-							.then(function(error){
-								reject(error);
-							});
-							break;
-						default:
-							error.makeMongooseError(err)
-							.then(function(error){
-								reject(error);
-							});
-							break;
-					}
-				} else if (!resultDocument){
-					error.makeError("INVALID_ID", "ID does not exist.")
-					.then(function(error){
-						reject(error);
-					});
+					return error.errorHandler(err, null, null, reject, null);
+				} else if (!resultDocument) {
+					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 				} else {
-					resolve(resultDocument);
+					return resolve(resultDocument.reviews);
 				}
 
 			});
@@ -138,18 +110,7 @@ function createReview(req, res){
 
 
 	// begin promise chain looping through promise array.
-	Promise.all(validations)
-	// check for errors before posting to database
-	.then(function(){
-		return new Promise(function(resolve, reject) {
-			if(errors.length > 0){
-				error.makeError("VALIDATION_ERROR", errors)
-				.then(function(error){
-					reject(error);
-				});
-			} else { resolve(); }
-		})
-	})
+	Promise.all(map)
 	// post to database sending returned document down promise chain
 	.then(insertToDb)
 	// handle success accordingly
@@ -161,9 +122,8 @@ function createReview(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		error.sendError(err.name, err.message, res); 	
+		return error.sendError(err.name, err.message, res); 	
 	});
-
 };
 
 // get all of a tutor's reviews by their account ID
@@ -178,30 +138,13 @@ function getTutorReviewsByAccountId(accountId){
 			reviews: 1,
 			_id: 0
 		}, function(err, resultDocument) {
+
 			if(err) {
-				console.log(error);
-				switch (err.name){
-					case "CastError":
-					case "MongoError":
-						error.makeError(err.name, err.message)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-					default:
-						error.makeMongooseError(err)
-						.then(function(error){
-							reject(error);
-						});
-						break;
-				}
-			} else if (!resultDocument){
-				error.makeError("INVALID_ID", "ID does not exist.")
-				.then(function(error){
-					reject(error);
-				});
+				return error.errorHandler(err, null, null, reject, null);
+			} else if (!resultDocument) {
+				return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 			} else {
-				resolve(resultDocument);
+				return resolve(resultDocument);
 			}
 
 		});

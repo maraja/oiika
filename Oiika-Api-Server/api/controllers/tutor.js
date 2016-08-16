@@ -161,33 +161,18 @@ function getTutorsByParameter(req, res){
 function getTutorByAccountId(req, res) {
 	var accountId = req.swagger.params.accountId.value;
 
-	tutorModel.find({
+	tutorModel.findOne({
 		account_id: accountId
 	}, function(err, resultDocument) {
+
 		if(err) {
-			console.log(err);
-			switch (err.name){
-				case "CastError":
-					error.makeError(err.name, err.message)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-				default:
-					error.makeMongooseError(err)
-					.then(function(error){
-						res.send(error);
-					});
-					break;
-			}
-		} else if (resultDocument.length==0){
-			error.makeError("INVALID_ID", "ID does not exist.")
-			.then(function(error){
-				res.send(error);
-			});
+			return error.errorHandler(err, null, null, null, res);
+		} else if (!resultDocument) {
+			return error.errorHandler(null, "INVALID_ID", "ID does not exist.", null, res);
 		} else {
-			res.send(resultDocument[0]);
+			return res.send(resultDocument);
 		}
+
 	});
 };
 
@@ -282,7 +267,7 @@ function getTutorByEmail(req, res, email){
 		tutorModel.find({email: email}, function(err, resultDocument) {
 			if(err) {
 				console.log(err);
-				error.sendError(err.name, err.message, res);
+				return error.sendError(err.name, err.message, res);
 			}
 			else {
 				return res.send(resultDocument);
@@ -306,7 +291,7 @@ function updateTutorSchedule(req, res){
 			"result": result
 		}))
 	}).catch(function(err){
-		error.sendError(err.name, err.message, res);
+		return error.sendError(err.name, err.message, res);
 	});
 };
 
@@ -334,31 +319,15 @@ function updateTutorLocation(req, res){
 	},
 	function(err, resultDocument) {
 
-		console.log(resultDocument);
 		if(err) {
-			switch (err.name){
-				case "ValidationError":
-				case "CastError":
-				case "MongoError":
-					error.makeError(err.name, err.message)
-					.then(function(err){
-						error.sendError(err.name, err.message, res); 
-					});
-					break;
-				default:
-					error.makeMongooseError(err)
-					.then(function(err){
-						error.sendError(err.name, err.message, res); 
-					});
-					break;
-			}
-		} else if (!resultDocument){
-			error.makeError("INVALID_ID", "ID does not exist.")
-			.then(function(err){
-				error.sendError(err.name, err.message, res); 
-			});
+			return error.errorHandler(err, null, null, null, res);
+		} else if (!resultDocument) {
+			return error.errorHandler(null, "INVALID_ID", "ID does not exist.", null, res);
 		} else {
-			return res.send(resultDocument);
+			return res.send(JSON.stringify({
+				"message": "Successfully updated",
+				"result": resultDocument.currentLocation
+			}));
 		}
 
 	});
