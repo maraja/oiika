@@ -1,0 +1,35 @@
+doctype html
+html
+  head
+    include ../common/head
+  body
+    header
+      .container-fluid
+        .row
+          nav.navbar.navbar-fixed-top
+            .container-fluid
+              .row
+                .col-xs-12.text-center
+                  a.navbar-brand(href='/', style='float: none; display: inline-block')
+                    img.logo(src='/images/logo.png')
+    section.error_page
+      .container
+        .row
+          .col-xs-12.col-md-6
+            h1.error_code 500
+            h1.oops Oops!
+          .col-xs-12.col-md-6
+            //- p image here
+        .row
+          .col-xs-12
+            h2
+              | Sorry, it's not you. It's us.
+            br
+            h4 We're experiencing an internal server problem. Please try again later or contact
+              |&nbsp;
+              a(href='mailto:support@oiika.com') support@oiika.com
+        hr
+        .row
+          .col-xs-12
+            br
+            pre #{error.stack}

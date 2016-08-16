@@ -1,0 +1,20 @@
+doctype html
+html
+  head
+    include ./common/head
+  body
+    header
+      .container-fluid
+        .row
+          nav.navbar.navbar-fixed-top
+            .container-fluid
+              .row
+                .col-xs-12.text-center
+                  a.navbar-brand(href='/', style='float: none; display: inline-block')
+                    img.logo(src='/images/logo.png')
+    input(type='hidden', id='provider', value='' + req.auth_provider)
+    input(type='hidden', id='status', value='' + req.auth_status)
+    input(type='hidden', id='message', value='' + req.auth_message)
+    input(type='hidden', id='token', value='' + req.auth_token)
+
+    include ./common/scripts

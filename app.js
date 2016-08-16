@@ -4,124 +4,20 @@ var expressSession = require('express-session');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var path = require('path');
+var rp = require('request-promise');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var config = require('./config');
-var oauth = require('./config/oauth');
 var passport = require('passport');
-var passportLocal = require('passport-local');
-var passportFacebook = require('passport-facebook');
-var passportGoogle = require('passport-google-oauth');
-var jwt = require('jsonwebtoken');
+var auth = require('./helpers/auth');
 var api = require('./helpers/api');
 var util = require('util');
-
-//routes
-var routes = require('./routes/index');
-
-// serialize and deserialize
-passport.serializeUser(function(user, done) {
-  console.log(user);
-  done(null, user.id);
-});
-passport.deserializeUser(function(obj, done) {
-  //query database or cache here!
-  done(null, {
-    id: 123,
-    name: "Reza"
-  });
-});
-
-function tokenize(id) {
-	return jwt.sign({
-		iss: 'oiika',
-		uid: id,
-		exp: (Math.floor(Date.now() / 1000)) + (60 * 60 * 24 * 30), //expire in 30 days from now
-	}, 'oiika12345');
-}
-
-// passport strategies
-// local
-passport.use(new passportLocal.Strategy(function (username, password, done) {
-  //do api call
-  var result = api.post('http://thehotspot.ca:10010/signup');
-  if(true) {
-    var result = {
-      "success": true,
-      "token": tokenize(id)
-    }
-    done(null, result);
-  } else {
-    done(null, null); //error
-  }
-}));
-
-// facebook
-passport.use(new passportFacebook.Strategy({
-  clientID: oauth.facebook.clientID,
-  clientSecret: oauth.facebook.clientSecret,
-  callbackURL: oauth.facebook.callbackURL,
-  profileFields: ['id', 'name', 'gender', 'photos', 'emails']
-  },
-  function(accessToken, refreshToken, profile, done) {
-    if(1 == 2) {
-      var user_type = 'tutee';
-    } else {
-      var user_type = 'tutor';
-    }
-
-    var data = {
-      'facebook_id': profile.id,
-      'first_name': profile.name.givenName,
-      'last_name': profile.name.familyName,
-      'email': profile.emails[0].value,
-      'gender': profile.gender,
-      'profile_picture': 'http://graph.facebook.com/' + profile.id + '/picture?type=large',
-      'user_type': user_type
-    }
-    //http://graph.facebook.com/603718516475999/picture?type=large
-    api.post('http://thehotspot.ca:10010/signup/facebook', data).then(result => {
-      return done(null, result);
-    })
-    .catch(err => {
-      return done(err, null);
-    });
-    // process.nextTick(function () {
-    //   return done(null, profile);
-    // });
-  }
-));
-
-// google
-passport.use(new passportGoogle.OAuth2Strategy({
-  clientID: oauth.google.clientID,
-  clientSecret: oauth.google.clientSecret,
-  callbackURL: oauth.google.callbackURL
-  },
-  function(accessToken, refreshToken, profile, done) {
-    console.log(accessToken);
-    console.log(refreshToken);
-    console.log(profile);
-    process.nextTick(function () {
-      return done(null, profile);
-    });
-  }
-));
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
-//pass requested page URL as a local var to be used by views
-app.use(function(req, res, next){
-  res.locals.path = req.path;
-  res.locals.req = req;
-  // res.local.isAuthenticated = req.isAuthenticated();
-  // res.local.user = req.user;
-  next();
-});
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -132,7 +28,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressSession({
-  secret: 'oiika',
+  secret: config.session_secret,
   resave: false,
   saveUninitialized: false
 }));
@@ -142,10 +38,35 @@ app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+//pass requested page URL as a local var to be used by views
+app.use(function(req, res, next){
+  res.locals.path = req.path;
+  res.locals.req = req;
+  next();
+});
+
+//routes
+var routes = require('./routes/index');
+
 app.use('/', routes);
 
 
 // ERROR HANDLERS
+// Handle 404
+  app.use(function(req, res) {
+    res.status(404);
+    res.render('error/404', {title: '404'});
+  });
+
+  // Handle 500
+  app.use(function(error, req, res, next) {
+    res.status(500);
+    if (config.environment === 'development') {
+      res.render('error/500', {title: '500', error: error});
+    } else {
+      res.render('error/500');
+    }
+  });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -156,7 +77,7 @@ app.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
+if (config.environment === 'development') {
 	app.use(function(err, req, res, next) {
 		res.status(err.status || 500);
 		res.render('error', {

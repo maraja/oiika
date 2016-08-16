@@ -1,46 +1,46 @@
 header
-    .container-fluid
-        .row
-          nav.navbar.navbar-fixed-top
-            .container-fluid
-              .navbar-header
-                button.navbar-toggle(type='button', data-toggle='collapse', data-target='.js-navbar-collapse')
-                  span.sr-only Toggle navigation
-                  span.icon-bar
-                  span.icon-bar
-                  span.icon-bar
-                a.navbar-brand(href='/')
-                  img.logo(src='/images/logo.png')
-              .collapse.navbar-collapse.js-navbar-collapse
-                if path != "/"
-                  ul.nav.navbar-nav
-                    li
-                      i.icon.icon_search
-                      if req.query.subject
-                        input(type='text', id='top_search', placeholder='I need help with ...' value='' + req.query.subject)
-                      else
-                        input(type='text', id='top_search', placeholder='I need help with ...')
-                ul.nav.navbar-nav.navbar-right
-                  li
-                    a.btn.btn-primary(href='#') Become a Tutor
-                  if(!isAuthenticated)
-                    li
-                      a(href='#', data-toggle="modal", data-target="#signup_modal") Sign Up
-                    li
-                      a(href='#', data-toggle="modal", data-target="#login_modal") Log In
+  .container-fluid
+    .row
+      nav.navbar.navbar-fixed-top
+        .container-fluid
+          .navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.js-navbar-collapse')
+              span.sr-only Toggle navigation
+              span.icon-bar
+              span.icon-bar
+              span.icon-bar
+            a.navbar-brand(href='/')
+              img.logo(src='/images/logo.png')
+          .collapse.navbar-collapse.js-navbar-collapse
+            if path != "/"
+              ul.nav.navbar-nav
+                li
+                  i.icon.icon_search
+                  if req.query.subject
+                    input(type='text', id='top_search', placeholder='I need help with ...' value='' + req.query.subject)
                   else
-                    li.dropdown
-                        a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false')
-                            | Reza
-                            img.profile_img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
-                        ul.dropdown-menu(role='menu')
-                            li
-                                a(href='#') My Profile
-                            li
-                                a(href='#') My Bookings
-                            li
-                                a(href='/tutor-settings') Settings
-                            li
-                                a(href='#') Help
-                            li
-                                a(href='#') Sign Out
+                    input(type='text', id='top_search', placeholder='I need help with ...')
+            ul.nav.navbar-nav.navbar-right
+              li
+                a.btn.btn-primary(href='#') Become a Tutor
+              if(!req.isAuthenticated())
+                li
+                  a(href='#', data-toggle="modal", data-target="#signup_modal") Sign Up
+                li
+                  a(href='#', data-toggle="modal", data-target="#login_modal") Log In
+              else
+                li.dropdown
+                    a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false')
+                        | #{req.session.passport.user.first_name}
+                        img.profile_img(src='https://a2.muscache.com/im/pictures/460c4846-cb56-4e4f-95eb-2b00eb0912a2.jpg?aki_policy=profile_small')
+                    ul.dropdown-menu(role='menu')
+                        li
+                            a(href='#') My Profile
+                        li
+                            a(href='#') My Bookings
+                        li
+                            a(href='/tutor-settings') Settings
+                        li
+                            a(href='#') Help
+                        li
+                            a(href='/logout') Sign Out

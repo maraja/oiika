@@ -240,6 +240,27 @@ input#top_search:focus {
   border-radius: 0;
   box-shadow: 0 3px 10px rgba(0,0,0,.07);
 }
+.header_alert {
+    position: fixed;
+    top: -100px;
+    width: 100%;
+    text-align: center;
+    background: #ff5050;
+    color: #FFF;
+    padding: 16px;
+    border-radius: 0;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,.2);
+		display: none;
+}
+.header_alert.error {
+	background: rgba(255, 11, 11, 0.75);
+}
+.header_alert.warning {
+	background: rgba(236, 184, 29, 0.75);
+}
+.header_alert.success {
+	background: rgba(14, 175, 35, 0.75);
+}
 #homepage_cover {
   position: relative;
   background: url(../images/cover-photo.jpg) no-repeat center center;
@@ -906,6 +927,41 @@ footer .social_icons .icon:hover, footer .social_icons .icon:active {
 #login_modal .social_logins a.google:hover, #login_modal .social_logins a.google:active,
 #signup_modal .social_logins a.google:hover, #signup_modal .social_logins a.google:active {
     background: #f34246;
+}
+
+.modal-message {
+  padding: 23px 30px;
+	color: #FFF;
+	font-size: 15px;
+}
+.modal-message.error {
+  background: rgba(255, 11, 11, 0.75);
+}
+.modal-message.success {
+	background: rgba(14, 175, 35, 0.75);
+}
+
+.error_page .error_code {
+	font-size: 280px;
+  color: #DDD;
+  margin: 0;
+	margin-left: -10px;
+}
+.error_page .oops {
+	font-size: 130px;
+  font-weight: 600;
+  margin: -20px 0 10px 0;
+  color: #ff8919;
+}
+.error_page h2 {
+	font-size: 40px;
+}
+.error_page p {
+	font-size: 20px;
+}
+.error_page pre {
+  font-size: 15px;
+  font-family: monospace;
 }
 
 @media (min-width: 768px) {

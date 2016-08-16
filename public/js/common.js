@@ -10,6 +10,10 @@ $(document).ready(function() {
     case "/":
       o.index.init();
       break;
+    case "/auth/facebook":
+    case "/auth/google":
+      o.auth_callback();
+      break;
     case "/search":
       o.search.init();
       break;
@@ -19,11 +23,6 @@ $(document).ready(function() {
     case "/tutor-settings":
       o.tutor_settings.init();
       break;
-  }
-
-  if(window.opener) {
-    window.opener.location.reload();
-    window.close();
   }
 });
 
@@ -36,12 +35,17 @@ o.init = function() {
   } else {
     o.token = null;
   }
+  console.log(o.token);
 
   //initialize common components
   $('.social_logins .facebook').click(function () {
     var left = (screen.width/2)-(780/2);
     var top = (screen.height/2)-(600/2);
-    popup = window.open("http://localhost:3000/auth/facebook", "SignIn", "width=780,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + left + ",top=" + top);
+    var url = $(this).attr('href');
+
+    $('.modal.in .modal-message').remove();
+
+    popup = window.open(url, "SignIn", "width=780,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + left + ",top=" + top);
     //setTimeout(CheckLoginStatus, 2000);
     popup.focus();
     return false;
@@ -50,7 +54,11 @@ o.init = function() {
   $('.social_logins .google').click(function () {
     var left = (screen.width/2)-(780/2);
     var top = (screen.height/2)-(600/2);
-    popup = window.open("http://localhost:3000/auth/google", "SignIn", "width=780,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + left + ",top=" + top);
+    var url = $(this).attr('href');
+
+    $('.modal.in .modal-message').remove();
+
+    popup = window.open(url, "SignIn", "width=780,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + left + ",top=" + top);
     //setTimeout(CheckLoginStatus, 2000);
     popup.focus();
     return false;
@@ -59,6 +67,8 @@ o.init = function() {
   $('#login_modal form .submit').click(function() {
     var email = $('#login_modal form #login_email').val();
     var password = $('#login_modal form #login_password').val();
+
+    $('.modal.in .modal-message').remove();
 
     $.ajax({
         url: "http://localhost:3000/login",
@@ -86,7 +96,9 @@ o.init = function() {
     var last_name = $('#signup_modal form #signup_last_name').val();
     var email = $('#signup_modal form #signup_email').val();
     var password = $('#signup_modal form #signup_password').val();
-    var user_type; // GET THE USER TYPE SOMEHOW
+    var user_type = 'tutee'; // GET THE USER TYPE SOMEHOW
+
+    $('.modal.in .modal-message').remove();
 
     $.ajax({
         url: "http://localhost:3000/signup",
@@ -101,20 +113,51 @@ o.init = function() {
     }).done(function(data) {
       if(data.error) {
         //throw error
+      } else if(data.token) {
+          localStorage.token = data.token;
       } else {
-        localStorage.token = data.token;
+        //no token was returned, should happen in case that user signs up with email/password and needs to verify email first
       }
 
     	location.reload();
-
     }).fail(function() {
-      //alert( "error" );
+      //o.alertError("An error occurred while connecting to the server. Please try again later", 2000);
     });
+
+    return false;
   });
+}
+
+o.auth_callback = function() {
+  //runs in the popup window
+  var provider = $('input#provider').val();
+  var status = $('input#status').val();
+  var message = $('input#message').val();
+  localStorage.token = $('input#token').val();
+
+  if(window.opener) {
+    window.opener.o.authPopupCallback(provider, status, message);
+
+    if(status == 'success') {
+      window.opener.location.reload();
+    }
+
+    window.close();
+  }
+}
+
+o.authPopupCallback = function(provider, status, message) {
+  //called from popup window
+  $('.modal.in .modal-message').remove();
+  $('.modal.in .modal-content').prepend('<div class="modal-message ' + status + '">' + message + '</div>').show();
 }
 
 o.index = {};
 o.index.init = function() {
+  setTimeout(function() {
+    o.alert('This is a test alert. It works!', 'success', 2000);
+  }, 1000);
+
   //initialize autocomplete
   google.maps.event.addDomListener(window, 'load', function() {
     var options = {
@@ -275,12 +318,12 @@ o.tutor.loadReviews = function() {
       }
   }).done(function(data) {
     if(data.error) {
-      o.alertError(data.error);
+      o.alert(data.error, 'error', 4000);
     } else {
       $('.reviews_wrapper').html(data);
     }
   }).fail(function(error) {
-    o.alertError(error);
+    o.alertError(error, 'error', 4000);
   });
 }
 
@@ -394,4 +437,20 @@ o.tutor_settings.init = function() {
 o.messages = {};
 o.messages.init = function() {
   //initialize messages
+}
+
+//display error to user
+o.alert = function(message, type, duration) {
+  $('body').append('<div class="header_alert ' + type + '">' + message + '</div>');
+  $('.header_alert').fadeIn('fast').animate({
+    top: '60'
+  }, 400, function() {
+    setTimeout(function() {
+      $('.header_alert').animate({
+        top: '-100'
+      }, 500, function() {
+        $(this).hide();
+      });
+    }, duration);
+  });
 }
