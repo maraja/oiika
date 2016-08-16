@@ -62,7 +62,7 @@ passport.use('login', new passportLocal.Strategy({
 
       return done(null, false);
     });
-  });
+  }
 ));
 
 passport.use('signup', new passportLocal.Strategy({
