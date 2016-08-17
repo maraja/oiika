@@ -19,6 +19,7 @@ const _ = require('underscore');
 
 module.exports = {
 	authLocal: authLocal,
+	loginLocal: loginLocal,
 	authFacebook: authFacebook,
 	authGoogle: authGoogle
 };
@@ -26,7 +27,7 @@ module.exports = {
 // LOCAL SIGNUP FUNCTION
 // maps fields, checks if account exists by email, validates fields and then inserts.
 function authLocal(req, res){
-	var auth = req.swagger.params.auth.value;
+	var signup = req.swagger.params.signup.value;
 	var saltRounds = 10;
 
 	var fields = {
@@ -41,7 +42,7 @@ function authLocal(req, res){
 	
 	var fields_to_insert = {};
 	fields_to_insert["account_type"] = "local";
-	auth["account_type"] = "local";
+	signup["account_type"] = "local";
 
 	// create a promise array to execute through
 	var map = [];
@@ -57,7 +58,7 @@ function authLocal(req, res){
 			// 	case "email":
 			// 		auth[content] = auth[content].toLowerCase();
 			// 	default:
-					fields_to_insert[fields[content]] = auth[content];
+					fields_to_insert[fields[content]] = signup[content];
 					resolve();
 					// break;
 			// }
@@ -77,7 +78,7 @@ function authLocal(req, res){
 				} else if (resultDocument) {
 					return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
 					.then(function(error){
-						loginRedirect(req, res, auth);
+						// loginRedirect(req, res, auth);
 						return reject(error);
 					});
 				} else {
@@ -102,8 +103,8 @@ function authLocal(req, res){
 						email: fields_to_insert.email,
 						account_type: fields_to_insert.account_type,
 						currentLocation: {
-							lat: (auth.location_lat ? auth.location_lat : 999),
-							lng: (auth.location_lng ? auth.location_lng : -999)
+							lat: (signup.location_lat ? signup.location_lat : 999),
+							lng: (signup.location_lng ? signup.location_lng : -999)
 						}
 					}, function(err, result) {
 
@@ -230,14 +231,11 @@ function authLocal(req, res){
 	})
 	// catch all errors and handle accordingly
 	.catch(function(err){
-		// sent to loginLocalFromGoogle to handle request.
-		// end this api call
-		if (err.name === "DUPLICATE_EMAIL") {
-			return;
-		// if not, continue.
-		} else { 
+		// if (err.name === "DUPLICATE_EMAIL") {
+		// 	return;
+		// } else { 
 			return error.sendError(err.name, err.message, res); 
-		}
+		// }
 	});
 };
 
@@ -679,7 +677,7 @@ function loginLocal(req, res){
 	// promise to check to see if account exists.
 	var checkAccount = function(){
 		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: login.email.toLowerCase()}, function(err, resulDocument) {
+			accountModel.findOne({email: login.email.toLowerCase()}, function(err, resultDocument) {
 
 				if(err) {
 					return error.errorHandler(err, null, null, reject, null);
@@ -703,7 +701,7 @@ function loginLocal(req, res){
 				if(isValid){
 					return resolve(result);
 				} else {
-					return error.errorHandler(null, "INVALID_PASSWORD", "Password incorrect", reject, null);
+					return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Incorrect credentials entered.", reject, null);
 				}
 			}).catch(function(err){
 				return reject(err);

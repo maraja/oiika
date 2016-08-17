@@ -22,7 +22,7 @@ paths:
 # LOGIN
 
   '/login':
-    x-swagger-router-controller: login
+    x-swagger-router-controller: auth
     post:
       description: login local user
       operationId: loginLocal
@@ -135,10 +135,10 @@ paths:
 # SIGNUP
 
   '/signup':
-    x-swagger-router-controller: signup
+    x-swagger-router-controller: auth
     post:
       description: signup local user
-      operationId: signupLocal
+      operationId: authLocal
       tags:
         - signup
       parameters:
@@ -264,50 +264,50 @@ paths:
 
 # AUTH
 
-  '/auth':
-    x-swagger-router-controller: auth
-    post:
-      description: auth local user
-      operationId: authLocal
-      tags:
-        - auth
-      parameters:
-          - name: auth
-            in: body
-            required: true
-            schema:
-              properties:
-                first_name:
-                  type: string
-                last_name:
-                  type: string
-                email:
-                  type: string
-                gender:
-                  type: string
-                password:
-                  type: string
-                user_type:
-                  type: string
-                location_lat:
-                  type: number
-                location_lng:
-                  type: number
-              required:
-                - first_name
-                - last_name
-                - email
-                - password
-                - user_type
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/HelloWorldResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
+  # '/auth':
+  #   x-swagger-router-controller: auth
+  #   post:
+  #     description: auth local user
+  #     operationId: authLocal
+  #     tags:
+  #       - auth
+  #     parameters:
+  #         - name: auth
+  #           in: body
+  #           required: true
+  #           schema:
+  #             properties:
+  #               first_name:
+  #                 type: string
+  #               last_name:
+  #                 type: string
+  #               email:
+  #                 type: string
+  #               gender:
+  #                 type: string
+  #               password:
+  #                 type: string
+  #               user_type:
+  #                 type: string
+  #               location_lat:
+  #                 type: number
+  #               location_lng:
+  #                 type: number
+  #             required:
+  #               - first_name
+  #               - last_name
+  #               - email
+  #               - password
+  #               - user_type
+  #     responses:
+  #       "200":
+  #         description: Success
+  #         schema:
+  #           $ref: "#/definitions/HelloWorldResponse"
+  #       default:
+  #         description: Error
+  #         schema:
+  #           $ref: "#/definitions/ErrorResponse"
 
   '/auth/facebook':
     x-swagger-router-controller: auth

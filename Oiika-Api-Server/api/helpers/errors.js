@@ -56,7 +56,7 @@ function errorHandler(err, name, message, reject, res){
 	} else if (name && message && !reject){
 		return makeError(name, message)
 		.then(function(err){
-			sendError(err.name, err.message, res); 
+			return sendError(err.name, err.message, res); 
 		});
 	}
 }
@@ -72,7 +72,6 @@ function makeError(type, message){
 }
 
 function makeMongooseError(err){
-	console.error(err);
 	return new Promise(function(resolve, reject){
 		var errors = [];
 
@@ -112,7 +111,7 @@ function sendError(type, message, res) {
     // err.nonce = false; // error that is not handled
     err.name = type;
     err.message = message;
-    return res.send(JSON.stringify({
-		"Error": err
+    return res.status(400).send(JSON.stringify({
+		"error": err
 	}));
 }
