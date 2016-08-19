@@ -546,7 +546,7 @@ paths:
             $ref: "#/definitions/ErrorResponse"
 
   # Get tutor profile info - GET
-  '/tutor/{accountId}':
+  '/tutor/{tutorId}':
     x-swagger-router-controller: tutor
     get:
       description: get tutor profile information
@@ -555,7 +555,7 @@ paths:
         - Tutor
       parameters:
           -
-            name: accountId
+            name: tutorId
             in: path
             required: true
             type: string
@@ -570,7 +570,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # Get tutor reviews - GET
-  '/tutor/{accountId}/reviews':
+  '/tutor/{tutorId}/reviews':
     x-swagger-router-controller: tutor
     get:
       description: get tutor reviews
@@ -579,7 +579,7 @@ paths:
         - Tutor
       parameters:
           -
-            name: accountId
+            name: tutorId
             in: path
             required: true
             type: string
@@ -594,7 +594,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # Get tutor schedule - GET
-  '/tutor/{accountId}/schedule':
+  '/tutor/{tutorId}/schedule':
     x-swagger-router-controller: tutor
     get:
       description: get tutor schedule returned in a JSON object with days arrays
@@ -603,7 +603,7 @@ paths:
         - Tutor
       parameters:
           -
-            name: accountId
+            name: tutorId
             in: path
             required: true
             type: string
@@ -745,16 +745,20 @@ paths:
                 tutorId:
                   type: string
                   description: account id of tutor
-                date:
-                  type: string
-                  description: beginning datetime of exception
-                duration:
-                  type: number
-                  description: duration of exception in 30 min intervals
               required:
                 - tutorId
-                - date
-                - duration
+              #   date:
+              #     type: string
+              #     description: beginning datetime of exception
+              #   duration:
+              #     type: number
+              #     description: duration of exception in 30 min intervals
+              # required:
+              #   - tutorId
+              #   - date
+              #   - duration
+              additionalProperties:
+                type: object 
       responses:
           "200":
             description: Success
@@ -853,17 +857,26 @@ paths:
                 tutorId:
                   type: string
                   description: account id of tutor
+                subjectId:
+                  type: string
+                  description: id of tutored subject
+                hourly_rate:
+                  type: number
+                  description: hourly rate of session
                 date:
                   type: string
                   description: date time of session
-                duration:
-                  type: number
-                  description: duration of session in 30 minute intervals
+                timeslots:
+                  type: array
+                  items:
+                    type: string
               required:
                 - tuteeId
                 - tutorId
+                - subjectId
+                - hourly_rate
                 - date
-                - duration
+                - timeslots
 
       responses:
         "200":

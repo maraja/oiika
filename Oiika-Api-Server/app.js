@@ -11,11 +11,9 @@ app = require('express')();
 app.models = {
   tutorModel: require('./api/models/Tutors')(),
   tuteeModel: require('./api/models/Tutees')(),
-  sessionModel: require('./api/models/Sessions')(),
   scheduleModel: require('./api/models/Schedules')(),
 
-  tutorSessionModel: require('./api/models/TutorSessions')(),
-  tuteeSessionModel: require('./api/models/TuteeSessions')(),
+  sessionModel: require('./api/models/Sessions')(),
 
   reviewModel: require('./api/models/Reviews')(),
   accountModel: require('./api/models/Accounts')()

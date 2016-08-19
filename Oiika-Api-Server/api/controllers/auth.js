@@ -97,11 +97,7 @@ function authLocal(req, res){
 
 				return new Promise(function(resolve, reject) {
 					tutorModel.create({
-						account_id: newAccount._id,
-						first_name: fields_to_insert.first_name,
-						last_name: fields_to_insert.last_name,
-						email: fields_to_insert.email,
-						account_type: fields_to_insert.account_type,
+						tutor_id: newAccount._id,
 						currentLocation: {
 							lat: (signup.location_lat ? signup.location_lat : 999),
 							lng: (signup.location_lng ? signup.location_lng : -999)
@@ -111,27 +107,9 @@ function authLocal(req, res){
 						if(err) {
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
-							// send reject as a callback
 							return error.errorHandler(err, null, null, reject, null);
-						}
-						else {
-							// create blank tutor schedule
-							schedules.createBlankSchedule(newAccount._id, result._id)
-							// create blank tutor reviews
-							.then(reviews.createBlankReview(newAccount._id, result._id))
-							// create blank tutor sessions
-							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
-							// if returned successfully, resolve and continue.
-							.then(function(){
-								return resolve(newAccount);
-							})
-							// catch all errors and handle accordingly
-							.catch(function(err){
-								// delete previously created documents before throwing error
-								removeFromModel(accountModel, newAccount._id);
-								removeFromModel(userModel, result._id);
-								return error.sendError(err.name, err.message, res);
-							});
+						} else {
+							return resolve(newAccount);
 						}
 
 					});
@@ -142,33 +120,15 @@ function authLocal(req, res){
 
 				return new Promise(function(resolve, reject) {
 					tuteeModel.create({
-						account_id: newAccount._id,
-						first_name: fields_to_insert.first_name,
-						last_name: fields_to_insert.last_name,
-						email: fields_to_insert.email,
-						account_type: fields_to_insert.account_type
+						tutee_id: newAccount._id
 					}, function(err, result) {
 
 						if(err) {
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
-							// send reject as a callback
 							return error.errorHandler(err, null, null, reject, null);
-						}
-						else {
-							// create blank tutee sessions
-							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
-							// if returned successfully, resolve and continue.
-							.then(function(){
-								return resolve(newAccount);
-							})
-							// catch all errors and handle accordingly
-							.catch(function(err){
-								// delete previously created documents before throwing error
-								removeFromModel(accountModel, newAccount._id);
-								removeFromModel(userModel, result._id);
-								return error.sendError(err.name, err.message, res);
-							});
+						} else {
+							return resolve(newAccount);
 						}
 
 					});
@@ -260,7 +220,7 @@ function authFacebook(req, res){
 	var errors = [];
 	var fields_to_insert = {};
 	fields_to_insert["account_type"] = "facebook";
-	auth["account_type"] = "local";
+	auth["account_type"] = "facebook";
 
 	// create a promise array to execute through
 	var map = [];
@@ -306,8 +266,7 @@ function authFacebook(req, res){
 			});
 		})
 	};
-
-
+	
 	// creates relevant user. If tutor, also creates schedule in schedule collection
 	var createUser = function(newAccount){
 		switch (newAccount.user_type){
@@ -315,41 +274,19 @@ function authFacebook(req, res){
 
 				return new Promise(function(resolve, reject) {
 					tutorModel.create({
-						account_id: newAccount._id,
-						first_name: fields_to_insert.first_name,
-						last_name: fields_to_insert.last_name,
-						email: fields_to_insert.email,
-						account_type: fields_to_insert.account_type,
+						tutor_id: newAccount._id,
 						currentLocation: {
-							lat: (auth.location_lat ? auth.location_lat : 999),
-							lng: (auth.location_lng ? auth.location_lng : -999)
+							lat: (signup.location_lat ? signup.location_lat : 999),
+							lng: (signup.location_lng ? signup.location_lng : -999)
 						}
 					}, function(err, result) {
 
 						if(err) {
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
-							// send reject as a callback
 							return error.errorHandler(err, null, null, reject, null);
-						}
-						else {
-							// create blank tutor schedule
-							schedules.createBlankSchedule(newAccount._id, result._id)
-							// create blank tutor reviews
-							.then(reviews.createBlankReview(newAccount._id, result._id))
-							// create blank tutor sessions
-							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
-							// if returned successfully, resolve and continue.
-							.then(function(){
-								return resolve(newAccount);
-							})
-							// catch all errors and handle accordingly
-							.catch(function(err){
-								// delete previously created documents before throwing error
-								removeFromModel(accountModel, newAccount._id);
-								removeFromModel(userModel, result._id);
-								return error.sendError(err.name, err.message, res);
-							});
+						} else {
+							return resolve(newAccount);
 						}
 
 					});
@@ -360,33 +297,15 @@ function authFacebook(req, res){
 
 				return new Promise(function(resolve, reject) {
 					tuteeModel.create({
-						account_id: newAccount._id,
-						first_name: fields_to_insert.first_name,
-						last_name: fields_to_insert.last_name,
-						email: fields_to_insert.email,
-						account_type: fields_to_insert.account_type
+						tutee_id: newAccount._id
 					}, function(err, result) {
 
 						if(err) {
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
-							// send reject as a callback
 							return error.errorHandler(err, null, null, reject, null);
-						}
-						else {
-							// create blank tutee sessions
-							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
-							// if returned successfully, resolve and continue.
-							.then(function(){
-								return resolve(newAccount);
-							})
-							// catch all errors and handle accordingly
-							.catch(function(err){
-								// delete previously created documents before throwing error
-								removeFromModel(accountModel, newAccount._id);
-								removeFromModel(userModel, result._id);
-								return error.sendError(err.name, err.message, res);
-							});
+						} else {
+							return resolve(newAccount);
 						}
 
 					});
@@ -473,7 +392,7 @@ function authGoogle(req, res){
 	var errors = [];
 	var fields_to_insert = {};
 	fields_to_insert["account_type"] = "google";
-	auth["account_type"] = "local";
+	auth["account_type"] = "google";
 
 	// create a promise array to execute through
 	var map = [];
@@ -528,41 +447,19 @@ function authGoogle(req, res){
 
 				return new Promise(function(resolve, reject) {
 					tutorModel.create({
-						account_id: newAccount._id,
-						first_name: fields_to_insert.first_name,
-						last_name: fields_to_insert.last_name,
-						email: fields_to_insert.email,
-						account_type: fields_to_insert.account_type,
+						tutor_id: newAccount._id,
 						currentLocation: {
-							lat: (auth.location_lat ? auth.location_lat : 999),
-							lng: (auth.location_lng ? auth.location_lng : -999)
+							lat: (signup.location_lat ? signup.location_lat : 999),
+							lng: (signup.location_lng ? signup.location_lng : -999)
 						}
 					}, function(err, result) {
 
 						if(err) {
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
-							// send reject as a callback
 							return error.errorHandler(err, null, null, reject, null);
-						}
-						else {
-							// create blank tutor schedule
-							schedules.createBlankSchedule(newAccount._id, result._id)
-							// create blank tutor reviews
-							.then(reviews.createBlankReview(newAccount._id, result._id))
-							// create blank tutor sessions
-							.then(sessions.createBlankSession(newAccount._id, result._id, 'tutor'))
-							// if returned successfully, resolve and continue.
-							.then(function(){
-								return resolve(newAccount);
-							})
-							// catch all errors and handle accordingly
-							.catch(function(err){
-								// delete previously created documents before throwing error
-								removeFromModel(accountModel, newAccount._id);
-								removeFromModel(userModel, result._id);
-								return error.sendError(err.name, err.message, res);
-							});
+						} else {
+							return resolve(newAccount);
 						}
 
 					});
@@ -573,33 +470,15 @@ function authGoogle(req, res){
 
 				return new Promise(function(resolve, reject) {
 					tuteeModel.create({
-						account_id: newAccount._id,
-						first_name: fields_to_insert.first_name,
-						last_name: fields_to_insert.last_name,
-						email: fields_to_insert.email,
-						account_type: fields_to_insert.account_type
+						tutee_id: newAccount._id
 					}, function(err, result) {
 
 						if(err) {
 							// delete previously created documents before throwing error
 							removeFromModel(accountModel, newAccount._id);
-							// send reject as a callback
 							return error.errorHandler(err, null, null, reject, null);
-						}
-						else {
-							// create blank tutee sessions
-							sessions.createBlankSession(newAccount._id, result._id, 'tutee')
-							// if returned successfully, resolve and continue.
-							.then(function(){
-								return resolve(newAccount);
-							})
-							// catch all errors and handle accordingly
-							.catch(function(err){
-								// delete previously created documents before throwing error
-								removeFromModel(accountModel, newAccount._id);
-								removeFromModel(userModel, result._id);
-								return error.sendError(err.name, err.message, res);
-							});
+						} else {
+							return resolve(newAccount);
 						}
 
 					});
@@ -978,7 +857,7 @@ function loginRedirect(req, res, fields){
 							if(isValid){
 								return resolve(result);
 							} else {
-								return error.errorHandler(null, "INCORRECT_PASSWORD", "Local account exists, but password incorrect.", reject, null);
+								return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Local account exists, but incorrect credentials entered.", reject, null);
 							}
 						}).catch(function(err){
 							return reject(err);
@@ -991,14 +870,14 @@ function loginRedirect(req, res, fields){
 					if (fields.facebook_id === result.facebook_id){
 						return resolve(result);
 					} else {
-						return error.errorHandler(null, "INCORRECT_ID", "Facebook account exists, but facebook id incorrect.", reject, null);
+						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Facebook account exists, but incorrect credentials entered.", reject, null);
 					}
 					break;
 				case 'google':
 					if (fields.google_id === result.google_id){
 						return resolve(result);
 					} else {
-						return error.errorHandler(null, "INCORRECT_ID", "Google account exists, but google id incorrect.", reject, null);
+						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Google account exists, but incorrect credentials entered.", reject, null);
 					}
 					break;
 				default:

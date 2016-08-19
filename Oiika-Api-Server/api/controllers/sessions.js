@@ -1,6 +1,5 @@
 
-const tutorSessionModel = app.models.tutorSessionModel;
-const tuteeSessionModel = app.models.tuteeSessionModel;
+const sessionModel = app.models.sessionModel;
 const tutorModel = app.models.tutorModel;
 
 // var ObjectId = require('mongodb').ObjectId;
@@ -81,21 +80,20 @@ function getTuteeSessionsByAccountId(req, res) {
 
 	var getSessions = function(){
 		return new Promise(function(resolve, reject) {
-			tuteeSessionModel.findOne(
+			sessionModel.find(
 			{
-				account_id: tuteeId
+				tutee_id: tuteeId
 			},
 			{
-				sessions: 1,
 				_id: 0
 			}, function(err, resultDocument) {
 
 				if(err) {
 					return error.errorHandler(err, null, null, reject, null);
-				} else if (!resultDocument) {
-					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
+				} else if (resultDocument.length===0) {
+					return error.errorHandler(null, "NO_SESSIONS", "No sessions exist for the entered user.", reject, null);
 				} else {
-					return resolve(resultDocument.sessions);
+					return resolve(resultDocument);
 				}
 
 			});
@@ -110,6 +108,7 @@ function getTuteeSessionsByAccountId(req, res) {
 	});
 };
 
+// DEPRECATED
 function createBlankSession(accountId, userId, userType){
 
 	// create blank model and id for placeholders to insert into respective collections
@@ -155,8 +154,11 @@ function createSession(req, res) {
 
 	var fields = {
 		tutorId: 'tutor_id',
+		tuteeId: 'tutee_id',
+		subjectId: 'subject_id',
+		hourly_rate: 'hourly_rate',
 		date: 'date',
-		duration: 'duration'
+		timeslots: 'timeslots'
 	};
 	
 	var fields_to_insert = {};
@@ -188,35 +190,18 @@ function createSession(req, res) {
 	var insertToDb = function(){
 		return new Promise(function(resolve, reject) {
 
-			tuteeSessionModel.findOneAndUpdate(
-			{
-				account_id: session.tuteeId
-			},
-			// set the old schedule as the new schedule
-			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
-			{
-				$push: {
-					sessions: fields_to_insert
-				}
-			},
-			// this will return updated document rather than old one and run validators
-			{ 
-				new : true,
-				runValidators : true
-			},
-			function(err, resultDocument) {
+			sessionModel.create(fields_to_insert, function(err, resultDocument) {
 
 				if(err) {
 					return error.errorHandler(err, null, null, reject, null);
-				} else if (!resultDocument) {
-					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
-				} else {
-					return resolve(resultDocument.sessions);
+				}
+				else {
+					return resolve(resultDocument);
 				}
 
 			});
 
-		})
+		});
 	};
 
 
@@ -227,7 +212,7 @@ function createSession(req, res) {
 	// handle success accordingly
 	.then(function(result){
 		return res.send(JSON.stringify({
-			"message": "Successfully inserted",
+			"message": "Successfully created",
 			"result": result
 		}))
 	})

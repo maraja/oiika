@@ -8,15 +8,12 @@ module.exports = function() {
   var Reviews = new mongoose.Schema({
     // first_name : { type: String, required:true, index: true, lowercase: true, trim:true, unique: true, validate: [util.validate.email, 'not valid'] },
     // account id of tutor reviews are associated to
-    account_id : { type: ObjectId, unique: true, index: true, required: true },
-    tutor_id : { type: ObjectId, unique: true, index: true, required: true },
-    reviews : [{
-      // account id of tutee reviews are associated to
-      tutee_id : { type: ObjectId, index: true, required: true },
-      text : { type: String, required: true },
-      rating : { type: Number, required: true },
-      date : { type: Date, required: true }
-    }]
+    tutor_id : { type: ObjectId, index: true, required: true },
+    // account id of tutee reviews are associated to
+    tutee_id : { type: ObjectId, index: true, required: true },
+    text : { type: String, required: true },
+    rating : { type: Number, required: true },
+    date : { type: Date, required: true }
   }, {strict:true, collection: 'reviews' });
 
   // Export

@@ -1,5 +1,6 @@
 
 const scheduleModel = app.models.scheduleModel;
+const tutorModel = app.models.tutorModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
@@ -15,7 +16,7 @@ module.exports = {
 	updateScheduleExceptions: updateScheduleExceptions
 };
 
-// create schedule function
+// DEPRECATED
 function createBlankSchedule(accountId, tutorId){
 
 	return new Promise(function(resolve, reject) {
@@ -48,12 +49,12 @@ function createBlankSchedule(accountId, tutorId){
 	});
 };
 
-function getTutorScheduleByAccountId(accountId){
+function getTutorScheduleByAccountId(tutorId){
 	return new Promise(function(resolve, reject) {
 
-		scheduleModel.findOne(
+		tutorModel.findOne(
 		{
-			account_id: accountId
+			tutor_id: tutorId
 		},
 		{
 			schedule: 1,
@@ -78,9 +79,9 @@ function updateSchedule(schedule){
 
 	return new Promise(function(resolve, reject) {
 
-		scheduleModel.findOneAndUpdate(
+		tutorModel.findOneAndUpdate(
 		{
-			account_id: schedule.tutorId
+			tutor_id: schedule.tutorId
 		},
 		// set the old schedule as the new schedule
 		// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
@@ -112,12 +113,13 @@ function updateSchedule(schedule){
 function updateScheduleExceptions(req, res){
 
 	var exceptions = req.swagger.params.scheduleExceptions.value;
+	console.log(exceptions);
 	var tutorId = exceptions.tutorId;
 
-	var fields = {
-		date: 'date',
-		duration: 'duration'
-	};
+	// var fields = {
+	// 	date: 'date',
+	// 	duration: 'duration'
+	// };
 	
 	var fields_to_insert = {};
 
@@ -126,16 +128,16 @@ function updateScheduleExceptions(req, res){
 
 	// populate promise array with new promises returning resolved after validating fields and assigning
 	// them into the fields_to_insert object.
-	_.each(fields, function(element, content){
+	_.each(exceptions, function(element, content){
 
 		map.push(new Promise(function(resolve, reject) {
 
 			// check for required and non required fields to validate accordingly.
 			switch (content){
-				case "date":
-					exceptions[content] = new Date();
+				case "tutorId":
+					break;
 				default:
-					fields_to_insert[fields[content]] = exceptions[content];
+					fields_to_insert[content] = exceptions[content];
 					break;
 			}
 
@@ -151,7 +153,7 @@ function updateScheduleExceptions(req, res){
 
 			scheduleModel.findOneAndUpdate(
 			{
-				account_id: tutorId
+				tutor_id: tutorId
 			},
 			// set the old schedule as the new schedule
 			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.

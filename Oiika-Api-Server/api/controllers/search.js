@@ -33,8 +33,8 @@ function getTutorsByLocation(req, res){
 
 		if(err) {
 			return error.errorHandler(err, null, null, null, res);
-		} else if (resultDocument.length===0) {
-			return error.errorHandler(null, "BAD_SEARCH", "No Tutors in the area provided.", null, res);
+		// } else if (resultDocument.length===0) {
+		// 	return error.errorHandler(null, "BAD_SEARCH", "No Tutors in the area provided.", null, res);
 		} else {
 			return res.send(resultDocument);
 		}

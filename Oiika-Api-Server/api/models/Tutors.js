@@ -8,11 +8,11 @@ module.exports = function() {
   var Tutors = new mongoose.Schema({
     // first_name : { type: String, required:true, index: true, lowercase: true, trim:true, unique: true, validate: [util.validate.email, 'not valid'] },
     // REQUIRED
-    account_id : { type: ObjectId, index: true, required: false },
-    first_name : { type: String, required: true, validate: [utils.validate.length(2), 'first name must be at least 2 characters long.'] },
-    last_name : { type: String, required: true, validate: [utils.validate.length(2), 'last name must be at least 2 characters long.'] },
-    email : { type: String, required: true, lowercase: true, index: true, unique: true, trim: true, validate: [utils.validate.email, 'invalid email entered.'] },
-    account_type : { type: String, required: true, validate: [utils.validate.account, 'invalid account type.'] },
+    tutor_id : { type: ObjectId, index: true, required: false },
+    // first_name : { type: String, required: true, validate: [utils.validate.length(2), 'first name must be at least 2 characters long.'] },
+    // last_name : { type: String, required: true, validate: [utils.validate.length(2), 'last name must be at least 2 characters long.'] },
+    // email : { type: String, required: true, lowercase: true, index: true, unique: true, trim: true, validate: [utils.validate.email, 'invalid email entered.'] },
+    // account_type : { type: String, required: true, validate: [utils.validate.account, 'invalid account type.'] },
 
     // NOT REQUIRED
     short_description: { type: String, required: false, trim: true},
@@ -25,6 +25,16 @@ module.exports = function() {
       // longitude of location
       lng: { type: Number, required: false, validate: [utils.validate.lng, 'not a valid longitude']},
     },
+    schedule: { 
+      "0": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered for Sunday.']},
+      "1": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered for Monday.']},
+      "2": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered for Tuesday.']},
+      "3": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered for Wednesday.']},
+      "4": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered for Thursday.']},
+      "5": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered for Friday.']},
+      "6": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered for Saturday.']}
+    },
+    schedule_exceptions : [mongoose.Schema.Types.Mixed],
     // distance tutor is willing to travel
     // Note: Calculated based on just an integer value for lat and long. Algorithm to calculate KM distance should be created later.
     travel_distance: { type: Number, required: false},

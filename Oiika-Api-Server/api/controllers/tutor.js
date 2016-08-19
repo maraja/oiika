@@ -159,10 +159,13 @@ function getTutorsByParameter(req, res){
 };
 
 function getTutorByAccountId(req, res) {
-	var accountId = req.swagger.params.accountId.value;
+	// NOTE: when this route is run, it'll only return data from the TUTOR collection,
+	// which means it won't include basic information such as first_name, last_name and email.
+	// please store this information in the express/redis session upon login!
+	var tutorId = req.swagger.params.tutorId.value;
 
 	tutorModel.findOne({
-		account_id: accountId
+		tutor_id: tutorId
 	}, function(err, resultDocument) {
 
 		if(err) {
@@ -177,11 +180,10 @@ function getTutorByAccountId(req, res) {
 };
 
 function getTutorReviewsByAccountId(req, res){
-	var accountId = req.swagger.params.accountId.value;
-	console.log(accountId);
+	var tutorId = req.swagger.params.tutorId.value;
 
 	// begin promise chain
-	reviews.getTutorReviewsByAccountId(accountId)
+	reviews.getTutorReviewsByAccountId(tutorId)
 	.then(function(result){
 		return res.send(JSON.stringify(result));
 	}).catch(function(err){
@@ -190,9 +192,9 @@ function getTutorReviewsByAccountId(req, res){
 };
 
 function getTutorScheduleByAccountId(req, res){
-	var accountId = req.swagger.params.accountId.value;
+	var tutorId = req.swagger.params.tutorId.value;
 
-	schedules.getTutorScheduleByAccountId(accountId)
+	schedules.getTutorScheduleByAccountId(tutorId)
 	// send resulting schedule for tutor
 	.then(function(resultDocument){
 		res.send(resultDocument);
@@ -300,7 +302,7 @@ function updateTutorLocation(req, res){
 
 	tutorModel.findOneAndUpdate(
 	{
-		account_id: location.tutorId
+		tutor_id: location.tutorId
 	},
 	// set the old schedule as the new schedule
 	// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.

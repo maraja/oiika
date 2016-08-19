@@ -50,7 +50,7 @@ module.exports = {
 		return date && date.match(re) !== null;
 	},
 
-	time: function(time) {
+	schedule_time: function(time) {
 		var re = /^([01]\d|2[0-3]):?([0-5]\d)$/;
 
 		// if(time.length==0) {time.push("-1");}
@@ -59,29 +59,56 @@ module.exports = {
 			return time && time.match(re) !== null;
 		} else {
 			// this method works -- not sure why?
-			return time && true;
+			// return time && true;
 
 			// the following commented code also works and is the logical way of doing it!
-			// var isValid = true;
-			// var map = [];
+			var isValid = true;
+			var map = [];
 			
-			// _.each(time, function(element, content){
+			_.each(time, function(element, content){
 
-			// 	map.push(new Promise(function(resolve, reject) {
+				map.push(new Promise(function(resolve, reject) {
 
-			// 		isValid = (element.match(re) ? true : false );
+					isValid = (element.match(re) ? true : false );
 
-			// 		return resolve();
+					return resolve();
 
-			// 	}))
-			// });
+				}))
+			});
 
-			// // run through the array to check all values
-			// Promise.all(map)
-			// .then(function(){
-			// 	return (isValid ? time && true : time && false);
-			// })
+			// run through the array to check all values
+			Promise.all(map)
+			.then(function(){
+				return (isValid ? time && true : time && false);
+			})
 		}
+	},
+
+	session_time: function(time) {
+		var re = /^([01]\d|2[0-3]):?([0-5]\d)$/;
+
+		// the following commented code also works and is the logical way of doing it!
+		var isValid = true;
+		var map = [];
+		
+		_.each(time, function(element, content){
+
+			map.push(new Promise(function(resolve, reject) {
+
+				isValid = (element.match(re) ? true : false );
+
+				return resolve();
+
+			}))
+		});
+
+		// run through the array to check all values
+		Promise.all(map)
+		.then(function(){
+			if(isValid) return time && true
+			else return time && false
+			// return (isValid ? time && true : time && false);
+		})
 	},
 
 	lat: function(coordinate) {

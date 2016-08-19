@@ -13,7 +13,7 @@ module.exports = {
 	createReview: createReview
 };
 
-// create blank review document upon account creation
+// create blank review document upon account creation - deprecated
 function createBlankReview(accountId, tutorId){
 
 	return new Promise(function(resolve, reject) {
@@ -42,10 +42,11 @@ function createReview(req, res){
 	var review = req.swagger.params.review.value;
 
 	var fields = {
+		tutorId: 'tutor_id',
+		tuteeId: 'tutee_id',
 		text: 'text',
 		rating: 'rating',
-		date: 'date',
-		tuteeId: 'tutee_id'
+		date: 'date'
 	};
 	
 	var fields_to_insert = {};
@@ -77,30 +78,13 @@ function createReview(req, res){
 	var insertToDb = function(){
 		return new Promise(function(resolve, reject) {
 
-			reviewModel.findOneAndUpdate(
-			{
-				account_id: review.tutorId
-			},
-			// set the old schedule as the new schedule
-			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
-			{
-				$push: {
-					reviews: fields_to_insert
-				}
-			},
-			// this will return updated document rather than old one and run validators
-			{ 
-				new : true,
-				runValidators : true
-			},
-			function(err, resultDocument) {
+			reviewModel.create(fields_to_insert, function(err, resultDocument) {
 
 				if(err) {
 					return error.errorHandler(err, null, null, reject, null);
-				} else if (!resultDocument) {
-					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
-				} else {
-					return resolve(resultDocument.reviews);
+				}
+				else {
+					return resolve(resultDocument);
 				}
 
 			});
@@ -127,22 +111,22 @@ function createReview(req, res){
 };
 
 // get all of a tutor's reviews by their account ID
-function getTutorReviewsByAccountId(accountId){
+function getTutorReviewsByAccountId(tutorId){
 	return new Promise(function(resolve, reject) {
 
-		reviewModel.findOne(
+		reviewModel.find(
 		{
-			account_id: accountId
+			tutor_id: tutorId
 		},
 		{
-			reviews: 1,
-			_id: 0
+			reviews: 1
+			// _id: 0
 		}, function(err, resultDocument) {
 
 			if(err) {
 				return error.errorHandler(err, null, null, reject, null);
-			} else if (!resultDocument) {
-				return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
+			// } else if (resultDocument.length===0) {
+			// 	return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 			} else {
 				return resolve(resultDocument);
 			}
