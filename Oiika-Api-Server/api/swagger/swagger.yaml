@@ -745,20 +745,29 @@ paths:
                 tutorId:
                   type: string
                   description: account id of tutor
+                exceptions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                    - date
+                    - all_day
+                    - timeslots
+                    properties:
+                      date:
+                        type: string
+                        description: beginning datetime of exception
+                      all_day:
+                        type: boolean
+                        description: all day flag
+                      timeslots:
+                        type: array
+                        items:
+                          type: string
+                          description: slots of time that should be occupied by the exception.
               required:
+                - exceptions
                 - tutorId
-              #   date:
-              #     type: string
-              #     description: beginning datetime of exception
-              #   duration:
-              #     type: number
-              #     description: duration of exception in 30 min intervals
-              # required:
-              #   - tutorId
-              #   - date
-              #   - duration
-              additionalProperties:
-                type: object 
       responses:
           "200":
             description: Success

@@ -51,6 +51,8 @@ module.exports = {
 	},
 
 	schedule_time: function(time) {
+		console.log("hello");
+		console.log(time);
 		var re = /^([01]\d|2[0-3]):?([0-5]\d)$/;
 
 		// if(time.length==0) {time.push("-1");}
