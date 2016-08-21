@@ -21,7 +21,9 @@ module.exports = {
 	authLocal: authLocal,
 	loginLocal: loginLocal,
 	authFacebook: authFacebook,
-	authGoogle: authGoogle
+	authGoogle: authGoogle,
+	updatePassword: updatePassword,
+	updateAccountInfo: updateAccountInfo
 };
 
 // LOCAL SIGNUP FUNCTION
@@ -908,6 +910,15 @@ function loginRedirect(req, res, fields){
 
 };
 
+
+// PUT REQUESTS
+function updatePassword(req, res){
+
+};
+
+function updateAccountInfo(req, res){
+
+};
 
 
 // -------------------------------------

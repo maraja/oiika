@@ -3,6 +3,8 @@ var SwaggerExpress = require('swagger-express-mw');
 var handlers = require('./handlers');
 var config = require('./config');
 
+var logger = require('./handlers/logger');
+
 // declare app as a global variable (no var in front to hoist it to global scope)
 // so that models and any other configuration can be used worldwide.
 app = require('express')();
@@ -18,6 +20,18 @@ app.models = {
   reviewModel: require('./api/models/Reviews')(),
   accountModel: require('./api/models/Accounts')()
 }
+
+
+switch (process.env.NODE_ENV){
+  case 'unit-test':
+    break;
+  default:
+    logger.debug("Overriding 'Express' logger");
+    app.use(require('morgan')('combined', {stream: logger.stream}));
+    break;
+}
+
+
 
 module.exports = app; // for testing
 

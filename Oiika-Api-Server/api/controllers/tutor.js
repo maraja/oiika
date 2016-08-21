@@ -1,5 +1,6 @@
 
 const tutorModel = app.models.tutorModel;
+const sessionModel = app.models.sessionModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
@@ -164,18 +165,74 @@ function getTutorByAccountId(req, res) {
 	// please store this information in the express/redis session upon login!
 	var tutorId = req.swagger.params.tutorId.value;
 
-	tutorModel.findOne({
-		tutor_id: tutorId
-	}, function(err, resultDocument) {
+	var findTutor = function(){
+		return new Promise(function(resolve, reject) {
 
-		if(err) {
-			return error.errorHandler(err, null, null, null, res);
-		} else if (!resultDocument) {
-			return error.errorHandler(null, "INVALID_ID", "ID does not exist.", null, res);
-		} else {
-			return res.send(resultDocument);
-		}
+			tutorModel.findOne({
+				tutor_id: tutorId
+			}, function(err, resultDocument) {
 
+				if(err) {
+					return error.errorHandler(err, null, null, reject, res);
+				} else if (!resultDocument) {
+					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, res);
+				} else {
+					return resolve(resultDocument);
+				}
+
+			});
+
+		});
+		
+	};
+
+	var findTutorSessions = function(tutor){
+		return new Promise(function(resolve, reject) {
+
+			sessionModel.find({
+				tutor_id: tutor.tutor_id
+			}, function(err, resultDocument) {
+
+				if(err) {
+					return error.errorHandler(err, null, null, reject, res);
+				} else {
+					tutor["sessions"] = resultDocument; 
+					return resolve(tutor);
+				}
+
+			});
+
+		});
+	};
+
+	// begin promise chain
+	// start by finding the tutor
+	findTutor()
+	.then(findTutorSessions)
+	// handle success accordingly
+	.then(function(result){
+		return res.send(JSON.stringify({
+			"message": "Successfully received",
+			"result": {
+				skills: result.skills,
+				schedule: result.schedule,
+				schedule_exceptions: result.schedule_exceptions,
+				currentLocation: result.currentLocation,
+				// sessions: {
+				// 	tutor_id: result.sessions.tutor_id,
+				// 	tutee_id: result.sessions.tutee_id,
+				// 	subject_id: result.sessions.subject_id,
+				// 	hourly_rate: result.sessions.hourly_rate,
+				// 	date: result.sessions.date,
+				// 	timeslots: result.sessions.timeslots,
+				// }
+				sessions: result.sessions
+			}
+		}))
+	})
+	// catch all errors and handle accordingly
+	.catch(function(err){
+		return error.sendError(err.name, err.message, res); 	
 	});
 };
 
@@ -276,7 +333,7 @@ function getTutorByEmail(req, res, email){
 			}
 		});
 	} else {
-		error.sendError("Error", errors[0], res);
+		return error.sendError("Error", errors[0], res);
 	}
 };
 

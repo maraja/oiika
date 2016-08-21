@@ -1,6 +1,7 @@
 'use strict';
 const _ = require('underscore');
 const Promise = require('bluebird');
+const logger = require('../../handlers/logger');
 
 module.exports = {
 	errorHandler: errorHandler,
@@ -66,12 +67,13 @@ function makeError(type, message){
 		var err = new Error();
 		err.name = type;
 		err.message = message;
-		console.error(err);
+		logger.error(err);
 		return resolve(err);
 	});
 }
 
 function makeMongooseError(err){
+	logger.error(err);
 	return new Promise(function(resolve, reject){
 		var errors = [];
 
