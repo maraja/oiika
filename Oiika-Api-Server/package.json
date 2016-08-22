@@ -27,13 +27,15 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
+    "chai-json-schema": "^1.2.0",
     "istanbul": "^0.4.4",
     "mocha": "^3.0.2",
     "should": "^7.1.0",
     "supertest": "^1.0.0"
   },
   "scripts": {
-    "start": "node app.js",
+    "start:dev": "node app.js",
+    "start:prod": "cross-env ENVIRONMENT=prod node app.js",
     "unit-test": "cross-env NODE_ENV=unit-test mocha --timeout 10000",
     "coverage": "cross-env NODE_ENV=unit-test ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec"
   }

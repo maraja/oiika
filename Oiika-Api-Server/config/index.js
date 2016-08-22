@@ -3,10 +3,18 @@ var config = {};
 module.exports = config;
 
 config["db"] = {
-    "dev": {
+    "prod": {
         "username": "oiika",
         "password": "oiikadoceo",
         "database": "oiika",
+        "host": "thehotspot.ca",
+        "port": 27017,
+        "dialect": "mongodb"
+    },
+    "dev": {
+        "username": "oiika-dev",
+        "password": "oiikadoceo",
+        "database": "oiika-dev",
         "host": "thehotspot.ca",
         "port": 27017,
         "dialect": "mongodb"

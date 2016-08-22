@@ -67,13 +67,13 @@ function makeError(type, message){
 		var err = new Error();
 		err.name = type;
 		err.message = message;
-		logger.error(err);
+		printError(err);
 		return resolve(err);
 	});
 }
 
 function makeMongooseError(err){
-	logger.error(err);
+	printError(err);
 	return new Promise(function(resolve, reject){
 		var errors = [];
 
@@ -116,4 +116,14 @@ function sendError(type, message, res) {
     return res.status(400).send(JSON.stringify({
 		"error": err
 	}));
+}
+
+function printError(err){
+	switch (process.env.NODE_ENV){
+	  case 'unit-test':
+	    break;
+	  default:
+		logger.error(err);
+	    break;
+	}
 }

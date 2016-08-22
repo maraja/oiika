@@ -1,18 +1,18 @@
 let mongoose = require("mongoose");
-// let Tutor = app.models.tutorModel;
-// let Tutor = require('../api/models/Tutors')();
-// let Account = app.models.accountModel;
+const _ = require('underscore');
 
 //Require the dev-dependencies
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../app');
-let tutor = server.models.tutorModel;
+let tutor = server.models.accountModel;
 let should = chai.should();
-// let expect = chai.expect;
 
 chai.use(chaiHttp);
 chai.use(require('chai-json-schema'));
+
+const inputs = require('./helpers/auth_input').inputs;
+// console.log(inputs);
 
 // var fruitSchema = {
 //   "title": "fresh fruit schema v1",
@@ -38,30 +38,39 @@ chai.use(require('chai-json-schema'));
 // };
 
 //Our parent block
-describe('Tutors', () => {
-    // beforeEach((done) => { //Before each test we empty the database
-    //     Book.remove({}, (err) => { 
-    //        done();         
-    //     });     
-    // });
+describe('Auth', () => {
+		// beforeEach((done) => { //Before each test we empty the database
+		//     Book.remove({}, (err) => { 
+		//        done();         
+		//     });     
+		// });
 
-  /*
-  * Test the /GET route
-  */
-  describe('/GET tutor', () => {
-    it('should GET a tutor', (done) => {
-      chai.request(server)
-        .get('/tutor/57b65f7e14728a2c8eb57884')
-        .set('Accept', 'application/json')
-        .end((err, res) => {
-          should.exist(res);
-          should.not.exist(err);
-          res.should.be.an('object');
-          // res.body.should.be.jsonSchema(schemaGoesHere);
-          res.should.have.status(200);
-          done();
-        });
-    });
-  });
+
+	// for each loop for future implementation if needed.
+	// _.each(inputs.get_tutor, function(element, content){
+
+	//         fields_to_insert[fields[content]] = signup[content];
+	//         resolve();
+
+	// });
+
+
+	// GET REQUESTS
+	describe('/GET tutor', () => {
+
+		it('should fail: tutorId is blank string - route should not exist', (done) => {
+			chai.request(server)
+				.get('/tutor/'+inputs.get_tutor.fail_0)
+				.set('Accept', 'application/json')
+				.end((err, res) => {
+					should.exist(err);
+					res.should.be.an('object');
+					// res.body.should.be.jsonSchema(schemaGoesHere);
+					res.should.have.status(404);
+					done();
+				});
+		});
+
+	});
 
 });

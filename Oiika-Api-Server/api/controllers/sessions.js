@@ -14,7 +14,6 @@ const moment = require('moment');
 
 module.exports = {
 	createSession: createSession,
-	createBlankSession: createBlankSession,
 	getTuteeSessionsByAccountId: getTuteeSessionsByAccountId
 }
 
@@ -108,45 +107,6 @@ function getTuteeSessionsByAccountId(req, res) {
 	});
 };
 
-// DEPRECATED
-function createBlankSession(accountId, userId, userType){
-
-	// create blank model and id for placeholders to insert into respective collections
-	var model, id;
-	switch (userType){
-		case "tutee":
-			model = tuteeSessionModel;
-			id = 'tutee_id';
-			break;
-		case "tutor":
-			model = tutorSessionModel;
-			id = 'tutor_id';
-			break;
-		default:
-			break;
-	}
-	// create blank document
-	return new Promise(function(resolve, reject) {
-
-		// create empty schedule for each tutor created
-		model.create({
-			[id] : userId,
-			account_id : accountId
-	    // throw errors as necessary
-		}, function(err, result) {
-
-			if(err) {
-				return error.errorHandler(err, null, null, reject, null);
-			}
-			else {
-				return resolve(result);
-			}
-
-		});
-
-	});
-
-};
 
 // TODO: revamp this for new model.
 function createSession(req, res) {

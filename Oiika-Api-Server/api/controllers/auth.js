@@ -23,7 +23,8 @@ module.exports = {
 	authFacebook: authFacebook,
 	authGoogle: authGoogle,
 	updatePassword: updatePassword,
-	updateAccountInfo: updateAccountInfo
+	updateAccountInfo: updateAccountInfo,
+	removeAccount: removeAccount
 };
 
 // LOCAL SIGNUP FUNCTION
@@ -97,6 +98,7 @@ function authLocal(req, res){
 		switch (newAccount.user_type){
 			case "tutor":
 
+				console.log(newAccount._id);
 				return new Promise(function(resolve, reject) {
 					tutorModel.create({
 						tutor_id: newAccount._id,
@@ -108,7 +110,7 @@ function authLocal(req, res){
 
 						if(err) {
 							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
+							// removeFromModel(accountModel, newAccount._id);
 							return error.errorHandler(err, null, null, reject, null);
 						} else {
 							return resolve(newAccount);
@@ -127,7 +129,7 @@ function authLocal(req, res){
 
 						if(err) {
 							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
+							// removeFromModel(accountModel, newAccount._id);
 							return error.errorHandler(err, null, null, reject, null);
 						} else {
 							return resolve(newAccount);
@@ -919,6 +921,56 @@ function updatePassword(req, res){
 function updateAccountInfo(req, res){
 
 };
+
+
+// DELETE REQUESTS
+function removeAccount(req, res){
+
+	var accountId = req.swagger.params.accountId.value;
+
+	var getAccount = (() => {
+		return new Promise((resolve, reject) => {
+			accountModel.findOne({ _id: accountId }, (err, resultDocument) => {
+
+				if(err) {
+					return error.errorHandler(err, null, null, reject, res);
+				} else if (!resultDocument) {
+					return error.errorHandler(null, "INVALID_ID", "Entered ID does not exist.", reject, res);
+				} else {
+					return resolve(resultDocument);
+				}
+
+			});
+		})
+	})
+
+	var deleteAccount = ((account) => {
+		return new Promise((resolve, reject) => {
+			accountModel.findOneAndRemove({ _id: accountId }, (err, resultDocument) => {
+
+				if(err) {
+					return error.errorHandler(err, null, null, reject, res);
+				} else if (!resultDocument) {
+					return error.errorHandler(null, "INVALID_ID", "Entered ID does not exist.", reject, res);
+				} else {
+					return resolve(account);
+				}
+
+			});
+		})
+	})
+
+	getAccount()
+	.then(deleteAccount)
+	.then((deletedAccount) => {
+		return res.send(JSON.stringify({
+			"message": ("Account with email "+deletedAccount.email+' deleted.'),
+			"result": deletedAccount
+			// "result": result
+		}))
+	})
+	
+}
 
 
 // -------------------------------------

@@ -9,31 +9,7 @@ const _ = require('underscore');
 
 module.exports = {
 	getTutorReviewsByAccountId: getTutorReviewsByAccountId,
-	createBlankReview: createBlankReview,
 	createReview: createReview
-};
-
-// create blank review document upon account creation - deprecated
-function createBlankReview(accountId, tutorId){
-
-	return new Promise(function(resolve, reject) {
-
-		// create empty schedule for each tutor created
-		reviewModel.create({
-			tutor_id: tutorId,
-			account_id: accountId
-	    // throw errors as necessary
-		}, function(err, resultDocument) {
-
-			if(err) {
-				return error.errorHandler(err, null, null, reject, null);
-			} else {
-				return resolve(resultDocument);
-			}
-
-		});
-
-	});
 };
 
 // create blank review document upon account creation
