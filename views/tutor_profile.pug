@@ -1,5 +1,8 @@
 extend layout
 block content
+  //- DATA
+  script.
+    var p = !{JSON.stringify(req.data).replace(/<\//g, '<\\/')}
   //- COVER
   section#tutor_cover
 
@@ -135,6 +138,9 @@ block content
                   label.half(for='starhalf')
               .clearfix
               hr.m-t-5
+              .loader
+                svg(viewbox='0 0 66 66')
+                  circle.path(fill='none', stroke-width='6', stroke-linecap='round', cx='33', cy='33', r='30')
               .reviews_wrapper
                 - for (var x = 1; x < 6; x++)
                   .review_item
@@ -158,9 +164,12 @@ block content
       .col-xs-12.col-md-4.sidebar
         .calendar_wrapper
           .calendar#datepicker
-          a(href='#').btn.btn-warning.btn-block.book_session Book Session
+          a(href='#').btn.btn-warning.btn-block.book_session Continue
         .booking_wrapper
-              p Confirm your booking
-              a(href='#').btn.btn-warning.btn-block.confirm_booking Confirm Booking
-              a(href='#').btn.btn-block.go_back Go Back
+          h2.selected_day
+          h3.selected_date
+          p.text-center.m-t-30.m-b-15 Choose your desired session times
+          ul.timeslots
+          a(href='#').btn.btn-warning.btn-block.confirm_booking Book Session
+          a(href='#').btn.btn-block.go_back Go Back
         br

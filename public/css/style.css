@@ -109,6 +109,14 @@ p {
     font-size: 16px;
     line-height: 22px;
 }
+
+.m-t-30 {
+		margin-top: 30px;
+}
+.m-b-15 {
+	margin-bottom: 15px;
+}
+
 .btn-block {
   padding: 10px;
 }
@@ -731,7 +739,7 @@ input[type="checkbox"]:checked:before {
 
 .sidebar {
   overflow-x: hidden;
-  height: 500px;
+	min-height: 800px;
 }
 .sidebar .booking_wrapper {
   height: 400px;
@@ -739,6 +747,45 @@ input[type="checkbox"]:checked:before {
   padding: 15px;
   display: none;
 }
+
+.booking_wrapper .selected_day {
+    margin-top: -6px;
+    color: #f8f8f8;
+    font-weight: 300;
+		transition: color .1s ease-in-out;
+}
+.booking_wrapper .selected_date {
+		margin-top: 0;
+    color: #f8f8f8;
+    font-weight: 300;
+		transition: color .1s ease-in-out;
+}
+
+.booking_wrapper ul.timeslots {
+    max-height: 390px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.booking_wrapper ul.timeslots li {
+	height: 0;
+	opacity: 0;
+  border: 1px solid #DDD;
+  background: #ffffff;
+  border-radius: 2px;
+	padding: 10px;
+	margin-bottom: 10px;
+	text-align: center;
+	font-size: 18px;
+  color: #555;
+  cursor: pointer;
+	transition: background .1s ease-in-out;
+}
+.booking_wrapper ul.timeslots li:hover {
+	background: #F8F8F8;
+}
+
 .relative {
   position: relative;
 }
@@ -964,6 +1011,12 @@ footer .social_icons .icon:hover, footer .social_icons .icon:active {
   font-family: monospace;
 }
 
+img.loader {
+	display: block;
+	margin: 0 auto;
+	display: none;
+}
+
 @media (min-width: 768px) {
 
   .modal-content {
@@ -971,6 +1024,52 @@ footer .social_icons .icon:hover, footer .social_icons .icon:active {
   }
 }
 
+
+/****** Spinner ******/
+.loader {
+		display: block;
+		text-align: center;
+}
+
+.loader svg {
+	width: 48px;
+	height: 48px;
+  animation: rotator 1.6s linear infinite;
+}
+
+@keyframes rotator {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
+}
+
+.loader svg .path {
+  stroke-dasharray: 187;
+  stroke-dashoffset: 0;
+  transform-origin: center;
+  animation:
+    dash 1.6s ease-in-out infinite,
+    colors 6.4s ease-in-out infinite;
+}
+
+@keyframes colors {
+	0% { stroke: #2ba9cc; }
+	25% { stroke: #DDD; }
+	50% { stroke: #f39742; }
+	75% { stroke: #DDD; }
+  100% { stroke: #2ba9cc; }
+}
+
+@keyframes dash {
+ 0% { stroke-dashoffset: 187; }
+ 50% {
+   stroke-dashoffset: 47;
+   transform:rotate(135deg);
+ }
+ 100% {
+   stroke-dashoffset: 187;
+   transform:rotate(450deg);
+ }
+}
 
 /****** Style Datepicker ******/
 .calendar {
@@ -1081,6 +1180,31 @@ footer .social_icons .icon:hover, footer .social_icons .icon:active {
 	border: 2px solid transparent;
 }
 
+.calendar td .ui-state-default {
+    position: relative;
+		margin: 3px;
+		line-height: 45px;
+}
+.calendar .bar {
+		position: absolute;
+		display: block;
+		height: 3px;
+		bottom: -5px;
+		left: 0;
+		border-radius: 2px;
+		width: 0;
+		transition: all 1s ease;
+}
+.calendar .bar.green {
+    background: #88de2d;
+}
+.calendar .bar.yellow {
+    background: #ffd700;
+}
+.calendar .bar.red {
+    background: #ff7777;
+}
+
 /************************************/
 
 /****** Schedule Selector ******/
@@ -1124,7 +1248,7 @@ table.schedule-table th {
   float: left;
 }
 .rating.rating_xl {
-    margin: 13px 10px;
+    margin: 22px 10px;
 }
 .rating > input { display: none; }
 .rating > label:before {
@@ -1159,3 +1283,8 @@ table.schedule-table th {
 .rating:not(.disabled) > input:checked ~ label:hover,
 .rating:not(.disabled) > label:hover ~ input:checked ~ label, /* lighten current selection */
 .rating:not(.disabled) > input:checked ~ label:hover ~ label { color: #FFED85;  }
+
+
+.profile_picture img {
+	display: none;
+}

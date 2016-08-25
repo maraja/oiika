@@ -39,12 +39,13 @@ passport.use('login', new passportLocal.Strategy({
       'password': req.body.password,
     }
 
-    api.post('auth/login', data).then(result => {
+    api.post('login', data).then(result => {
       var token = tokenize(result.result.account_id);
       req.auth_provider = 'local';
       req.auth_status = 'success';
       req.auth_message = 'Welcome back, ' + result.result.first_name;
       req.auth_token = token;
+      req.session.token = token;
 
       return done(null, result.result);
     })
@@ -94,7 +95,7 @@ passport.use('signup', new passportLocal.Strategy({
         data.location_lng = parseFloat(lat_lng[1]);
       }
 
-      api.post('auth/signup', data).then(result => { console.log("result: " + result.result);
+      api.post('signup', data).then(result => { console.log("result: " + result.result);
         req.auth_provider = 'local';
         req.auth_status = 'success';
         req.auth_message = 'Success!<br>We have sent you a confirmation email. Please follow the link in the email to verify your account.';

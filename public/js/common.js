@@ -121,7 +121,7 @@ o.init = function() {
 
     	location.reload();
     }).fail(function() {
-      //o.alertError("An error occurred while connecting to the server. Please try again later", 2000);
+      //o.alert("An error occurred while connecting to the server. Please try again later", 2000);
     });
 
     return false;
@@ -154,9 +154,6 @@ o.authPopupCallback = function(provider, status, message) {
 
 o.index = {};
 o.index.init = function() {
-  setTimeout(function() {
-    o.alert('This is a test alert. It works!', 'success', 2000);
-  }, 1000);
 
   //initialize autocomplete
   google.maps.event.addDomListener(window, 'load', function() {
@@ -198,9 +195,15 @@ o.user.init = function() {
 o.tutor = {};
 o.tutor.init = function() {
     //initialize tutor profiles
+    var reviews_top = $('.tutor_reviews').offset().top;
+    var reviews_loaded = false;
+
+    o.tutor.calendar.parseSchedule();
+
     $('#datepicker').datepicker({
       minDate: 0,
-      beforeShowDay: o.tutor.checkDates
+      onChangeMonthYear: o.tutor.calendar.parseSchedule,
+      beforeShowDay: o.tutor.calendar.checkDates
     });
     $(".sidebar").stick_in_parent({
       offset_top: 60
@@ -214,6 +217,7 @@ o.tutor.init = function() {
     var booking_view = $('.sidebar .booking_wrapper');
 
     $(".book_session").click(function(){
+        o.tutor.calendar.selectedDate = $.datepicker.formatDate('yy-mm-dd', $('#datepicker').datepicker('getDate'));
         o.tutor.calendar.next(calendar_view, booking_view);
         return false;
     });
@@ -222,35 +226,171 @@ o.tutor.init = function() {
         return false;
     });
 
-    $(document).scroll(function() {
-      if(!$('.calendar').hasClass('contrast_fix') && $(document).scrollTop() > 300) {
+    $(window).scroll(function() {
+      //calendar view logic
+      if(!$('.calendar').hasClass('contrast_fix') && $(window).scrollTop() > 300) {
         $('.ui-datepicker-title').css('color', '#777');
         $('.ui-datepicker-calendar thead tr th span').css('color', '#777');
         $('.calendar').addClass('contrast_fix');
-      } else if($('.calendar').hasClass('contrast_fix') && $(document).scrollTop() < 190) {
+        $('.selected_day').css('color', '#222');
+        $('.selected_date').css('color', '#222');
+      } else if($('.calendar').hasClass('contrast_fix') && $(window).scrollTop() < 190) {
         $('.ui-datepicker-title').css('color', '#AAA');
         $('.ui-datepicker-calendar thead tr th span').css('color', '#AAA');
         $('.calendar').removeClass('contrast_fix');
+        $('.selected_day').css('color', '#f8f8f8');
+        $('.selected_date').css('color', '#f8f8f8');
+      }
+
+      //reviews view logic
+      if($(window).scrollTop() + $(window).height() > reviews_top && reviews_loaded == false) {
+        reviews_loaded = true;
+        o.tutor.loadReviews();
       }
     });
 
     $('#reviews_scroll').smoothScroll({offset: -90});
 
-    //TODO: Trigger to load tutor reviews as user scrolls down
-
     //initialize map
     google.maps.event.addDomListener(window, 'load', o.tutor.initMap);
 }
 
-o.tutor.checkDates = function(date) {
-  //Check for unavailable dates before rendering calendar
-  var disableddates = ["05-08-2016", "12-11-2014", "12-25-2014", "12-20-2014"];
-  var string = $.datepicker.formatDate('dd-mm-yy', date);
-  return [disableddates.indexOf(string) == -1];
+o.tutor.calendar = {};
+o.tutor.calendar.parseSchedule = function(year, month, instance) {
+  //calculate monthly schedule
+  var all_day_exceptions = []; //negated from available dates on calendar
+  var partial_exceptions = []; //negated from available monthly schedule
+  var monthly_schedule = {};
+  var monthly_availability = {};
+
+  var month = (typeof month !== 'undefined') ? (month - 1) : moment().month(); //0 indexed
+  var current_month = moment().month();
+
+  if(month == current_month) {
+    var days_in_month = moment().daysInMonth();
+    var day_of_month = moment().date();
+  } else {
+    var days_in_month = moment().daysInMonth(month);
+    var day_of_month = 1;
+  }
+
+  for(var i = day_of_month; i <= days_in_month; i++) {
+    var date = moment().month(month).date(i);
+    var day_of_week = moment(date).day();
+
+    for(var exception of p.exceptions) {
+      if(moment(date).isSame(exception.date, 'day')) {
+        //date matches a day in exceptions
+        if(exception.all_day == true) {
+          all_day_exceptions.push(moment(date).format('YYYY-MM-DD'));
+        } else {
+          partial_exceptions.push({
+            'date': moment(date).format('YYYY-MM-DD'),
+            'timeslots': exception.timeslots
+          });
+        }
+      }
+    }
+
+    monthly_schedule[moment(date).format('YYYY-MM-DD')] = p.schedule[day_of_week];
+  }
+
+  monthly_availability = monthly_schedule;
+
+  for(var date in monthly_availability) {
+
+    if($.inArray(date, all_day_exceptions) !== -1) {
+
+      delete monthly_availability[date];
+
+    } else {
+      for(var i = 0; i < partial_exceptions.length; i++) {
+        var exc_date = moment(partial_exceptions[i].date).format('YYYY-MM-DD');
+
+        if(date == exc_date) {
+          var matches = array_intersect(monthly_availability[date], partial_exceptions[i].timeslots);
+          for(var j of matches) {
+            monthly_availability[date].splice(monthly_availability[date].indexOf(j), 1);
+          }
+        }
+      }
+    }
+  }
+  //At this point 'monthly_availability' should contain all the dates in current motnh with available timeslots
+  //This will be passed on to calendar beforeShowDay event and negated to disable non-matching/empty dates;
+
+  o.tutor.monthly_schedule = monthly_schedule;
+  o.tutor.monthly_availability = monthly_availability;
+  setTimeout(function() {
+    o.tutor.calendar.visualize();
+  }, 200);
 }
 
-o.tutor.calendar = {};
+o.tutor.calendar.checkDates = function(date) {
+  //Check for unavailable dates before rendering calendar
+  // var disableddates = ["2016-08-05", "2014-11-12", "2014-12-25", "2014-05-30"];
+  // var string = $.datepicker.formatDate('yy-mm-dd', date);
+  // return [disableddates.indexOf(string) == -1];
+  for(var key in o.tutor.monthly_availability) {
+    if (!o.tutor.monthly_availability.hasOwnProperty(key)) continue;
+
+    if($.datepicker.formatDate('yy-mm-dd', date) == key) {
+      var timeslots = o.tutor.monthly_availability[key].length.toString();
+      return [true, 'available', timeslots]; //return false disables the date
+    }
+  }
+
+  return false;
+}
+
+o.tutor.calendar.visualize = function() {
+  $('.calendar .available').each(function() {
+    var num_timeslots = parseInt($(this).attr('title'));
+    $(this).removeAttr('title');
+    // <span class="bar green" style="width:80%;"></span>
+    // <span class="bar yellow" style="width:45%;"></span>
+    // <span class="bar red" style="width:20%;"></span>
+    if(num_timeslots >= 8) {
+      $(this).find('a').append('<span class="bar green"></span>');
+    } else if(num_timeslots >= 4) {
+      $(this).find('a').append('<span class="bar yellow"></span>');
+    } else {
+      $(this).find('a').append('<span class="bar red"></span>');
+    }
+  });
+
+  setTimeout(function() {
+    $('.calendar .bar.green').css('width', '100%');
+    $('.calendar .bar.yellow').css('width', '50%');
+    $('.calendar .bar.red').css('width', '25%');
+  }, 200);
+}
+
 o.tutor.calendar.next = function($src, $tgt) {
+  $('.selected_day').html(moment(o.tutor.calendar.selectedDate).format('dddd'));
+  $('.selected_date').html(moment(o.tutor.calendar.selectedDate).format('MMMM Do, YYYY'));
+  //populate with timeslots
+  $('ul.timeslots').html('');
+  for(var timeslot of o.tutor.monthly_availability[o.tutor.calendar.selectedDate]) {
+    var timeslot_format = moment(moment(o.tutor.calendar.selectedDate).format('YYYY-MM-DD') + ' ' + timeslot + ':00').format('h:mm a');
+    $('ul.timeslots').append('<li data-time="' + timeslot + '">' + timeslot_format + '</li>');
+  }
+
+  setTimeout(function() {
+    $('ul.timeslots li').each(function(index) {
+      $(this).delay(50*index).animate({
+        height: 40,
+        opacity: 1,
+        duration: 50
+      });
+    });
+  }, 200);
+
+  $('select.timeslots').select2({
+    placeholder: "Select desired timeslots",
+    minimumResultsForSearch: 1000
+  });
+
   //transition to next booking view
   var $parent = $src.parent();
   var width = $parent.outerWidth();
@@ -303,27 +443,70 @@ o.tutor.initMap = function() {
 
 o.tutor.confirmBooking = function(data) {
   //TODO: Process the booking request and display confirmation on the page
+
+  $.ajax({
+      url: "http://thehotspot.ca:10010/session",
+      type: "POST"
+  }).done(function(data) {
+    if(data.error) {
+      o.alert(data.error, 'error', 4000);
+    } else {
+      $('.booking_wrapper').fadeOut('fast', function() {
+        $(this).html('');
+
+        //Add new html to div
+
+        $(this).fadeIn('fast');
+      });
+    }
+
+  }).fail(function(error) {
+    o.alert('Oops! Failed to book session. Please try again.', 'error', 4000);
+  });
 }
 
 o.tutor.loadReviews = function() {
   //TODO: Load tutor reviews and display them on the page
-  var id; //GET TUTOR ID FROM URL
+
+  $('.tutor_reviews .loader').show();
 
   $.ajax({
-      url: "http://thehotspot.ca:10010/tutor/" + id + "/reviews",
-      type: "GET",
-      data: {
-        tutor_id: email,
-        token: token
-      }
+      url: "http://thehotspot.ca:10010/tutor/" + p.info.id + "/reviews",
+      type: "GET"
   }).done(function(data) {
+    //$('.tutor_reviews .loader').fadeOut('fast');
     if(data.error) {
       o.alert(data.error, 'error', 4000);
     } else {
       $('.reviews_wrapper').html(data);
     }
+
+    //built layout
+    var html = '';
+    for(var item in data) {
+      html += '<div class="review_item"> \
+                <table> \
+                  <tr> \
+                    <td><img src="' + item.profile_picture + '" title="' + item.first_name + '" /></td> \
+                    <td> \
+                      <p class="review_text">' + item.text + '</p> \
+                      <input type="hidden" id="review_id" value="' + item.id + '" \
+                      <span class="datetime">Posted on ' + item.date + ' \
+                    </td> \
+                  </tr> \
+                </table> \
+              </div>';
+      //           p.review_text
+      //             | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+      //           input#review_id(type='hidden', value='2')
+      //           span.datetime Posted on: 2015/12/08
+    }
+
+    $('.reviews_wrapper').append(html);
   }).fail(function(error) {
-    o.alertError(error, 'error', 4000);
+    o.alert('Oops! Failed to load reviews. Please try again.', 'error', 4000);
+
+    $('.reviews_wrapper').append('<p class="text-center retry_reviews"><a href="#" class="btn btn-primary">Retry</a></p>');
   });
 }
 
@@ -453,4 +636,24 @@ o.alert = function(message, type, duration) {
       });
     }, duration);
   });
+}
+
+
+//HELPER FUNCTIONS
+function array_intersect(a, b) {
+  var ai = bi= 0;
+  var result = [];
+
+  while( ai < a.length && bi < b.length ){
+     if      (a[ai] < b[bi] ){ ai++; }
+     else if (a[ai] > b[bi] ){ bi++; }
+     else /* they're equal */
+     {
+       result.push(a[ai]);
+       ai++;
+       bi++;
+     }
+  }
+
+  return result;
 }

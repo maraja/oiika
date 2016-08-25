@@ -12,11 +12,11 @@ module.exports.get = function(path, middleware) {
     	})
       .then(data => {
         req.data = data;
-        next();
+        return next();
       })
       .catch(error => {
         req.data = "An internal error occurred. Please try again later.";
-        next();
+        return next();
       });
     }
   } else {
@@ -40,7 +40,7 @@ module.exports.post = function(path, data, middleware) {
         json: true
       }).then(data => {
         req.data = data;
-        next();
+        return next();
       });
     }
   } else {
@@ -65,7 +65,7 @@ module.exports.put = function(path, data, middleware) {
         json: true
       }).then(data => {
         req.data = data;
-        next();
+        return next();
       });
     }
   } else {
@@ -89,7 +89,7 @@ module.exports.delete = function(path, middleware) {
     		json: true
     	}).then(data => {
         req.data = data;
-        next();
+        return next();
       });
     }
   } else {

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
+var tutor = require('../lib/tutor');
 var api = require('../helpers/api');
 
 function auth(req, res, next) {
@@ -80,7 +81,7 @@ router.get('/logout', function(req, res){
   res.redirect('/login');
 });
 
-router.get('/tutor/:id', function (req, res, next) {
+router.get('/tutor/:id', tutor.loadProfile, function (req, res, next) {
   res.render('tutor_profile');
 });
 
