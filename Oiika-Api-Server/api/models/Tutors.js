@@ -38,8 +38,8 @@ module.exports = function() {
       date: {type: Date, required: true },
       all_day: {type: Boolean, required: true},
       // NOTE: timeslots validation not working for now!
-      // TODO: look into this bug in the future.
-      timeslots: {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered within timeslots.']}
+      // TODO: look into this bug in the future. If cannot work, build into API call function before inserting into db.
+      "timeslots": {type: [String], required: false, validate: [utils.validate.schedule_time, 'invalid time entered within timeslots.']}
     }],
     // distance tutor is willing to travel
     // Note: Calculated based on just an integer value for lat and long. Algorithm to calculate KM distance should be created later.

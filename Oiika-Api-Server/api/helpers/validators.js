@@ -1,11 +1,21 @@
 const _ = require('underscore');
 const Promise = require('bluebird');
+const regexHelper = require('./regex');
 
 const enumGender = ['male', 'female'];
 const enumUserType = ['tutor', 'tutee'];
 const enumAccountType = ['local', 'facebook', 'google'];
 
 module.exports = {
+
+	validString: function(input) {
+		if(typeof input === 'string'){
+			return input && !regexHelper.isValidString(input);
+		} else {
+			// array
+			return input && true;
+		}
+	},
 
 	length: function (i) {
 		return function(str) {
@@ -127,6 +137,10 @@ module.exports = {
 			(coordinate === -999)
 		){ return coordinate && true; }
 		else { return coordinate && false }
+	},
+
+	subject_level: function(level) {
+		return level && level > 0;
 	}
 
 };

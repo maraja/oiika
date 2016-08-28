@@ -17,7 +17,7 @@ module.exports = {
 function errorHandler(err, name, message, reject, res){
 	if(err && reject){
 		switch (err.name){
-			case "ValidationError":
+			// case "ValidationError":
 			case "CastError":
 			case "MongoError":
 				return makeError(err.name, err.message)
@@ -34,7 +34,7 @@ function errorHandler(err, name, message, reject, res){
 		}
 	} else if (err && !reject) {
 		switch (err.name){
-			case "ValidationError":
+			// case "ValidationError":
 			case "CastError":
 			case "MongoError":
 				return makeError(err.name, err.message)
@@ -87,7 +87,8 @@ function makeMongooseError(err){
 
 				promises.push(new Promise(function(resolve, reject) {
 
-					errors.push({content: err.errors[content].name, "Error": err.errors[content].message});
+					// errors.push({content: err.errors[content].name, "error": err.errors[content].message});
+					errors.push(err.errors[content].message);
 
 					return resolve();
 

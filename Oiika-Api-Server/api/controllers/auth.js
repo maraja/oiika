@@ -18,959 +18,922 @@ const Promise = require('bluebird');
 const _ = require('underscore');
 
 module.exports = {
-	authLocal: authLocal,
-	loginLocal: loginLocal,
-	authFacebook: authFacebook,
-	authGoogle: authGoogle,
-	updatePassword: updatePassword,
-	updateAccountInfo: updateAccountInfo,
-	removeAccount: removeAccount
-};
 
-// LOCAL SIGNUP FUNCTION
-// maps fields, checks if account exists by email, validates fields and then inserts.
-function authLocal(req, res){
-	var signup = req.swagger.params.signup.value;
-	var saltRounds = 10;
+	// LOCAL SIGNUP FUNCTION
+	// maps fields, checks if account exists by email, validates fields and then inserts.
+	authLocal: (req, res) => {
 
-	var fields = {
-		first_name:'first_name',
-		last_name: 'last_name', 
-		email: 'email',
-		gender: 'gender',
-		user_type: 'user_type', 
-		password: 'password'
-	};
+		let signup = req.swagger.params.signup.value;
+		let saltRounds = 10;
 
-	
-	var fields_to_insert = {};
-	fields_to_insert["account_type"] = "local";
-	signup["account_type"] = "local";
+		let fields = {
+			first_name:'first_name',
+			last_name: 'last_name', 
+			email: 'email',
+			gender: 'gender',
+			user_type: 'user_type', 
+			password: 'password'
+		};
 
-	// create a promise array to execute through
-	var map = [];
+		
+		let fields_to_insert = {};
+		fields_to_insert["account_type"] = "local";
+		signup["account_type"] = "local";
 
-	// populate promise array with new promises returning resolved after validating fields and assigning
-	// them into the fields_to_insert object.
-	_.each(fields, function(element, content){
+		// create a promise array to execute through
+		let map = [];
 
-		map.push(new Promise(function(resolve, reject) {
+		// populate promise array with new promises returning resolved after validating fields and assigning
+		// them into the fields_to_insert object.
+		_.each(fields, (element, content) => {
 
-			// map input fields to db fields.
-			// switch(content){
-			// 	case "email":
-			// 		auth[content] = auth[content].toLowerCase();
-			// 	default:
-					fields_to_insert[fields[content]] = signup[content];
-					resolve();
-					// break;
-			// }
+			map.push(new Promise((resolve, reject) => {
 
-		})
+				fields_to_insert[fields[content]] = signup[content];
+				return resolve();
 
-	)});
-
-	// promise to check to see if account exists.
-	var checkAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
-
-				if(err) {
-					// send reject as a callback
-					return error.errorHandler(err, null, null, reject, null);
-				} else if (resultDocument) {
-					return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
-					.then(function(error){
-						// loginRedirect(req, res, auth);
-						return reject(error);
-					});
-				} else {
-					return resolve();
-				}
-
-			});
-		})
-	};
-
-
-	// creates relevant user. If tutor, also creates schedule in schedule collection
-	var createUser = function(newAccount){
-		switch (newAccount.user_type){
-			case "tutor":
-
-				console.log(newAccount._id);
-				return new Promise(function(resolve, reject) {
-					tutorModel.create({
-						tutor_id: newAccount._id,
-						currentLocation: {
-							lat: (signup.location_lat ? signup.location_lat : 999),
-							lng: (signup.location_lng ? signup.location_lng : -999)
-						}
-					}, function(err, result) {
-
-						if(err) {
-							// delete previously created documents before throwing error
-							// removeFromModel(accountModel, newAccount._id);
-							return error.errorHandler(err, null, null, reject, null);
-						} else {
-							return resolve(newAccount);
-						}
-
-					});
-				});
-
-				break;
-			case "tutee":
-
-				return new Promise(function(resolve, reject) {
-					tuteeModel.create({
-						tutee_id: newAccount._id
-					}, function(err, result) {
-
-						if(err) {
-							// delete previously created documents before throwing error
-							// removeFromModel(accountModel, newAccount._id);
-							return error.errorHandler(err, null, null, reject, null);
-						} else {
-							return resolve(newAccount);
-						}
-
-					});
-				});
-
-				break;
-			default:
-				break;
-		}
-	};
-
-
-	// create a promise variable to insert into the database.
-	var insertToDb = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.create(fields_to_insert, function(err, result) {
-
-				if(err) {
-					// send reject as a callback
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else {
-					return resolve(result);
-				}
-
-			});
-		})
-	};
-
-
-	// begin promise chain looping through promise array.
-	Promise.all(map)
-	// check to see if account exists.
-	.then(checkAccount)
-	// create hashedpassword
-	.then(pass.createAndAssignPassword(fields_to_insert.password, saltRounds, function(hash, resolve){
-		fields_to_insert.password = hash;
-		return resolve();
-	}))
-	// handle password
-	// post to database sending returned document down promise chain
-	.then(insertToDb)
-	// create user in user table and get _id to assign.
-	.then(createUser)
-	// handle success accordingly
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "Successfully inserted",
-			"result": {
-				account_id: result._id,
-				account_type: result.account_type,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				email: result.email,
-				gender: result.gender,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		// if (err.name === "DUPLICATE_EMAIL") {
-		// 	return;
-		// } else { 
-			return error.sendError(err.name, err.message, res); 
-		// }
-	});
-};
-
-
-// FACEBOOK SIGNUP FUNCTION
-function authFacebook(req, res){
-	
-	var auth = req.swagger.params.auth.value;
-
-	var fields = {
-		first_name:'first_name', 
-		last_name: 'last_name', 
-		email: 'email',
-		user_type: 'user_type', 
-		facebook_id: 'facebook_id',
-		gender: 'gender',
-		profile_picture: 'profile_picture',
-		user_type: "user_type"
-	};
-
-	
-	var errors = [];
-	var fields_to_insert = {};
-	fields_to_insert["account_type"] = "facebook";
-	auth["account_type"] = "facebook";
-
-	// create a promise array to execute through
-	var map = [];
-
-	// populate promise array with new promises returning resolved after validating fields and assigning
-	// them into the fields_to_insert object.
-	_.each(fields, function(element, content){
-
-		map.push(new Promise(function(resolve, reject) {
-
-			// map input fields to db fields.
-			// switch(content){
-			// 	case "email":
-			// 		auth[content] = auth[content].toLowerCase();
-			// 	default:
-					fields_to_insert[fields[content]] = auth[content];
-					resolve();
-					// break;
-			// }
-
-		})
-
-	)});
-
-	// promise to check to see if account exists.
-	var checkAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
-
-				if(err) {
-					// send reject as a callback
-					return error.errorHandler(err, null, null, reject, null);
-				} else if (resultDocument) {
-					return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
-					.then(function(error){
-						loginRedirect(req, res, auth);
-						return reject(error);
-					});
-				} else {
-					return resolve();
-				}
-
-			});
-		})
-	};
-	
-	// creates relevant user. If tutor, also creates schedule in schedule collection
-	var createUser = function(newAccount){
-		switch (newAccount.user_type){
-			case "tutor":
-
-				return new Promise(function(resolve, reject) {
-					tutorModel.create({
-						tutor_id: newAccount._id,
-						currentLocation: {
-							lat: (signup.location_lat ? signup.location_lat : 999),
-							lng: (signup.location_lng ? signup.location_lng : -999)
-						}
-					}, function(err, result) {
-
-						if(err) {
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							return error.errorHandler(err, null, null, reject, null);
-						} else {
-							return resolve(newAccount);
-						}
-
-					});
-				});
-
-				break;
-			case "tutee":
-
-				return new Promise(function(resolve, reject) {
-					tuteeModel.create({
-						tutee_id: newAccount._id
-					}, function(err, result) {
-
-						if(err) {
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							return error.errorHandler(err, null, null, reject, null);
-						} else {
-							return resolve(newAccount);
-						}
-
-					});
-				});
-
-				break;
-			default:
-				break;
-		}
-	};
-
-	// create a promise variable to insert into the database.
-	var insertToDb = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.create(fields_to_insert, function(err, result) {
-
-				if(err) {
-					// send reject as a callback
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else {
-					return resolve(result);
-				}
-
-			});
-		})
-	};
-
-
-	// begin promise chain looping through promise array.
-	Promise.all(map)
-	// check to see if account exists.
-	.then(checkAccount)
-	// post to database sending returned document down promise chain
-	.then(insertToDb)
-	// create user in user table and get _id to assign.
-	.then(createUser)
-	// handle success accordingly
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "Successfully inserted",
-			"result": {
-				account_id: result._id,
-				account_type: result.account_type,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				email: result.email,
-				gender: result.gender,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		// sent to loginLocalFromFacebook to handle request.
-		// end this api call
-		if (err.name === "DUPLICATE_EMAIL") {
-			return;
-		// if not, continue.
-		} else { 
-			return error.sendError(err.name, err.message, res); 
-		}
-	});
-};
-
-
-// GOOGLE SIGNUP FUNCTION
-function authGoogle(req, res){
-	var auth = req.swagger.params.auth.value;
-
-	var fields = {
-		first_name:'first_name', 
-		last_name: 'last_name', 
-		email: 'email',
-		user_type: 'user_type', 
-		google_id: 'google_id',
-		gender: 'gender',
-		profile_picture: 'profile_picture',
-		user_type: "user_type"
-	};
-
-	
-	var errors = [];
-	var fields_to_insert = {};
-	fields_to_insert["account_type"] = "google";
-	auth["account_type"] = "google";
-
-	// create a promise array to execute through
-	var map = [];
-
-	// populate promise array with new promises returning resolved after validating fields and assigning
-	// them into the fields_to_insert object.
-	_.each(fields, function(element, content){
-
-		map.push(new Promise(function(resolve, reject) {
-
-			// map input fields to db fields.
-			// switch(content){
-			// 	case "email":
-			// 		auth[content] = auth[content].toLowerCase();
-			// 	default:
-					fields_to_insert[fields[content]] = auth[content];
-					resolve();
-					// break;
-			// }
-
-		})
-
-	)});
-
-	// promise to check to see if account exists.
-	var checkAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
-
-				if(err) {
-					// send reject as a callback
-					return error.errorHandler(err, null, null, reject, null);
-				} else if (resultDocument) {
-					return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
-					.then(function(error){
-						loginRedirect(req, res, auth);
-						return reject(error);
-					});
-				} else {
-					return resolve();
-				}
-
-			});
-		})
-	};
-
-
-	// creates relevant user. If tutor, also creates schedule in schedule collection
-	var createUser = function(newAccount){
-		switch (newAccount.user_type){
-			case "tutor":
-
-				return new Promise(function(resolve, reject) {
-					tutorModel.create({
-						tutor_id: newAccount._id,
-						currentLocation: {
-							lat: (signup.location_lat ? signup.location_lat : 999),
-							lng: (signup.location_lng ? signup.location_lng : -999)
-						}
-					}, function(err, result) {
-
-						if(err) {
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							return error.errorHandler(err, null, null, reject, null);
-						} else {
-							return resolve(newAccount);
-						}
-
-					});
-				});
-
-				break;
-			case "tutee":
-
-				return new Promise(function(resolve, reject) {
-					tuteeModel.create({
-						tutee_id: newAccount._id
-					}, function(err, result) {
-
-						if(err) {
-							// delete previously created documents before throwing error
-							removeFromModel(accountModel, newAccount._id);
-							return error.errorHandler(err, null, null, reject, null);
-						} else {
-							return resolve(newAccount);
-						}
-
-					});
-				});
-
-				break;
-			default:
-				break;
-		}
-	};
-
-	// create a promise variable to insert into the database.
-	var insertToDb = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.create(fields_to_insert, function(err, result) {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, null);
-				} else {
-					return resolve(result);
-				}
-
-			});
-		})
-	};
-
-
-	// begin promise chain looping through promise array.
-	Promise.all(map)
-	// check to see if account exists.
-	.then(checkAccount)
-	// post to database sending returned document down promise chain
-	.then(insertToDb)
-	// create user in user table and get _id to assign.
-	.then(createUser)
-	// handle success accordingly
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "Successfully inserted",
-			"result": {
-				account_id: result._id,
-				account_type: result.account_type,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				email: result.email,
-				gender: result.gender,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		// sent to loginLocalFromGoogle to handle request.
-		// end this api call
-		if (err.name === "DUPLICATE_EMAIL") {
-			return;
-		// if not, continue.
-		} else { 
-			return error.sendError(err.name, err.message, res); 
-		}
-	});
-};
-
-
-// LOCAL LOGIN FUNCTION
-function loginLocal(req, res){
-	var login = req.swagger.params.login.value;
-
-	var fields = {
-		email: 'email',
-		password: 'password'
-	};
-
-	// promise to check to see if account exists.
-	var checkAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: login.email.toLowerCase()}, function(err, resultDocument) {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else if (!resultDocument){
-					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
-				}
-				else {
-					return resolve(resultDocument);
-				}
-
-			});
-		})
-	}
-
-	// create a promise to check if password matches
-	var checkPassword = function(result){
-		return new Promise(function(resolve, reject) {
-			pass.compare(login.password, result.password)
-			.then(function(isValid){
-				if(isValid){
-					return resolve(result);
-				} else {
-					return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Incorrect credentials entered.", reject, null);
-				}
-			}).catch(function(err){
-				return reject(err);
 			})
-		})
-	};
+
+		)});
+
+		// promise to check to see if account exists.
+		let checkAccount = () => {
+			return new Promise((resolve, reject) => {
+				accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, (err, resultDocument) => {
+
+					if(err) {
+						// send reject as a callback
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (resultDocument) {
+						return error.errorHandler(err, "DUPLICATE_EMAIL", "Email already exists.", reject, null);
+					} else {
+						return resolve();
+					}
+
+				});
+			})
+		};
 
 
-	// begin promise chain looping through promise array.
-	checkAccount()
-	.then(checkPassword)
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "Login Successful",
-			"result": {
-				account_id: result._id,
-				email: result.email,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				account_type: result.account_type,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		return error.sendError(err.name, err.message, res);
-	});
-};
+		// creates relevant user. If tutor, also creates schedule in schedule collection
+		let createUser = newAccount => {
+			switch (newAccount.user_type){
+				case "tutor":
 
-
-// FACEBOOK LOGIN FUNCTION
-function loginFacebook(req, res){
-	var login = req.swagger.params.login.value;
-
-	var fields = {
-		first_name: 'first_name',
-		last_name: 'last_name',
-		email: 'email',
-		facebook_id: 'facebook_id',
-		gender: 'gender'
-	};
-
-	// promise to check to see if account exists.
-	var checkAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({
-				email: login.email.toLowerCase(),
-				facebook_id: login.facebook_id
-			}, function(err, resultDocument) {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else if (!resultDocument){
-					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
-				}
-				else {
-					return resolve(resultDocument);
-				}
-
-			});
-		})
-	}
-
-
-	// begin promise chain looping through promise array.
-	checkAccount()
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "Login Successful",
-			"result": {
-				account_id: result._id,
-				email: result.email,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				account_type: result.account_type,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		return error.sendError(err.name, err.message, res);
-	});
-};
-
-
-// GOOGLE LOGIN FUNCTION
-function loginGoogle(req, res){
-	var login = req.swagger.params.login.value;
-
-	var fields = {
-		first_name: 'first_name',
-		last_name: 'last_name',
-		email: 'email',
-		google_id: 'google_id',
-		gender: 'gender'
-	};
-
-	// promise to check to see if account exists.
-	var checkAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({
-				email: login.email.toLowerCase(),
-				google_id: login.google_id
-			}, function(err, resultDocument) {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else if (!resultDocument){
-					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
-				}
-				else {
-					return resolve(resultDocument);
-				}
-
-			});
-		})
-	}
-
-
-	// begin promise chain looping through promise array.
-	checkAccount()
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "Login Successful",
-			"result": {
-				account_id: result._id,
-				email: result.email,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				account_type: result.account_type,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		return error.sendError(err.name, err.message, res);
-	});
-};
-
-
-// LOCAL LOGIN FUNCTION redirected from facebook auth if email exists
-function loginLocalFromFacebook(req, res, email){
-
-	// promise to check to see if account exists.
-	var loginToFacebookAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: email.toLowerCase()}, function(err, resultDocument) {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else if (!resultDocument){
-					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
-				}
-				else {
-					return resolve(resultDocument);
-				}
-
-			});
-		})
-	}
-
-
-	// begin promise chain looping through promise array.
-	loginToFacebookAccount()
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "This account already exists - login successful via Facebook",
-			"result": {
-				account_id: result._id,
-				email: result.email,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				account_type: result.account_type,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		return error.sendError(err.name, err.message, res);
-	});
-};
-
-
-// LOCAL LOGIN FUNCTION redirected from google auth if email exists
-function loginLocalFromGoogle(req, res, email){
-
-	// promise to check to see if account exists.
-	var loginToGoogleAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: email.toLowerCase()}, function(err, resultDocument) {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else if (!resultDocument){
-					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
-				}
-				else {
-					return resolve(resultDocument);
-				}
-
-			});
-		})
-	}
-
-
-	// begin promise chain looping through promise array.
-	loginToGoogleAccount()
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": "This account already exists - login successful via Google",
-			"result": {
-				account_id: result._id,
-				email: result.email,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				account_type: result.account_type,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
-			}
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		return error.sendError(err.name, err.message, res);
-	});
-};
-
-
-function loginRedirect(req, res, fields){
-
-
-	// promise to check to see if account exists.
-	var loginToAccount = function(){
-		return new Promise(function(resolve, reject) {
-			accountModel.findOne({email: fields.email.toLowerCase()}, function(err, resultDocument) {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, null);
-				}
-				else if (!resultDocument){
-					return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
-				}
-				else {
-					return resolve(resultDocument);
-				}
-
-			});
-		})
-	}
-
-
-	// begin promise chain
-	loginToAccount()
-	// middleware for respective login functions
-	.then(function(result){
-		return new Promise(function(resolve, reject) {
-			switch (result.account_type) {
-				case 'local':
-					if(fields.password!==undefined){
-						pass.compare(fields.password, result.password)
-						.then(function(isValid){
-							if(isValid){
-								return resolve(result);
-							} else {
-								return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Local account exists, but incorrect credentials entered.", reject, null);
+					return new Promise((resolve, reject) => {
+						tutorModel.create({
+							tutor_id: newAccount._id,
+							currentLocation: {
+								lat: (signup.location_lat ? signup.location_lat : 999),
+								lng: (signup.location_lng ? signup.location_lng : -999)
 							}
-						}).catch(function(err){
-							return reject(err);
-						})
-					} else {
-						return error.errorHandler(null, "NO_PASSWORD", "Local account exists, but no password entered.", reject, null);
-					}
+						}, (err, result) => {
+
+							if(err) {
+								removeFromModel(accountModel, newAccount._id);
+								return error.errorHandler(err, null, null, reject, null);
+							} else {
+								return resolve(newAccount);
+							}
+
+						});
+					});
+
 					break;
-				case 'facebook':
-					if (fields.facebook_id === result.facebook_id){
-						return resolve(result);
-					} else {
-						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Facebook account exists, but incorrect credentials entered.", reject, null);
-					}
-					break;
-				case 'google':
-					if (fields.google_id === result.google_id){
-						return resolve(result);
-					} else {
-						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Google account exists, but incorrect credentials entered.", reject, null);
-					}
+				case "tutee":
+
+					return new Promise((resolve, reject) => {
+						tuteeModel.create({
+							tutee_id: newAccount._id
+						}, (err, result) => {
+
+							if(err) {
+								removeFromModel(accountModel, newAccount._id);
+								return error.errorHandler(err, null, null, reject, null);
+							} else {
+								return resolve(newAccount);
+							}
+
+						});
+					});
+
 					break;
 				default:
-					return resolve(result);
 					break;
 			}
+		};
+
+
+		let insertToDb = () => {
+			return new Promise((resolve, reject) => {
+				accountModel.create(fields_to_insert, (err, result) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else {
+						return resolve(result);
+					}
+
+				});
+			})
+		};
+
+
+		// begin promise chain looping through promise array.
+		Promise.all(map)
+		// check to see if account exists.
+		.then(checkAccount)
+		// create hashedpassword
+		.then(pass.createAndAssignPassword(fields_to_insert.password, saltRounds, (hash, resolve) => {
+			fields_to_insert.password = hash;
+			return resolve();
+		}))
+		// handle password
+		// post to database sending returned document down promise chain
+		.then(insertToDb)
+		// create user in user table and get _id to assign.
+		.then(createUser)
+		// handle success accordingly
+		.then(result => {
+			return res.send(JSON.stringify({
+				"message": "Successfully inserted",
+				"result": {
+					account_id: result._id,
+					account_type: result.account_type,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					email: result.email,
+					gender: result.gender,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
+				}
+			}))
 		})
-	})
-	.then(function(result){
-		return res.send(JSON.stringify({
-			"message": ("This account already exists - login successful via "+result.account_type),
-			"result": {
-				account_id: result._id,
-				email: result.email,
-				first_name: result.first_name,
-				last_name: result.last_name,
-				account_type: result.account_type,
-				user_type: result.user_type,
-				profile_picture: result.profile_picture
+		// catch all errors and handle accordingly
+		.catch(err => {
+			return error.sendError(err.name, err.message, res); 	
+		});
+	},
+
+	// FACEBOOK SIGNUP FUNCTION
+	authFacebook: (req, res) => {
+		
+		let auth = req.swagger.params.auth.value;
+
+		let fields = {
+			first_name:'first_name', 
+			last_name: 'last_name', 
+			email: 'email',
+			user_type: 'user_type', 
+			facebook_id: 'facebook_id',
+			gender: 'gender',
+			profile_picture: 'profile_picture',
+			user_type: "user_type"
+		};
+
+		
+		let errors = [];
+		let fields_to_insert = {};
+		fields_to_insert["account_type"] = "facebook";
+		auth["account_type"] = "facebook";
+
+		// create a promise array to execute through
+		let map = [];
+
+		// populate promise array with new promises returning resolved after validating fields and assigning
+		// them into the fields_to_insert object.
+		_.each(fields, function(element, content){
+
+			map.push(new Promise(function(resolve, reject) {
+
+				// map input fields to db fields.
+				// switch(content){
+				// 	case "email":
+				// 		auth[content] = auth[content].toLowerCase();
+				// 	default:
+						fields_to_insert[fields[content]] = auth[content];
+						resolve();
+						// break;
+				// }
+
+			})
+
+		)});
+
+		// promise to check to see if account exists.
+		let checkAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
+
+					if(err) {
+						// send reject as a callback
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (resultDocument) {
+						return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
+						.then(function(error){
+							loginRedirect(req, res, auth);
+							return reject(error);
+						});
+					} else {
+						return resolve();
+					}
+
+				});
+			})
+		};
+		
+		// creates relevant user. If tutor, also creates schedule in schedule collection
+		let createUser = function(newAccount){
+			switch (newAccount.user_type){
+				case "tutor":
+
+					return new Promise(function(resolve, reject) {
+						tutorModel.create({
+							tutor_id: newAccount._id,
+							currentLocation: {
+								lat: (signup.location_lat ? signup.location_lat : 999),
+								lng: (signup.location_lng ? signup.location_lng : -999)
+							}
+						}, function(err, result) {
+
+							if(err) {
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								return error.errorHandler(err, null, null, reject, null);
+							} else {
+								return resolve(newAccount);
+							}
+
+						});
+					});
+
+					break;
+				case "tutee":
+
+					return new Promise(function(resolve, reject) {
+						tuteeModel.create({
+							tutee_id: newAccount._id
+						}, function(err, result) {
+
+							if(err) {
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								return error.errorHandler(err, null, null, reject, null);
+							} else {
+								return resolve(newAccount);
+							}
+
+						});
+					});
+
+					break;
+				default:
+					break;
 			}
-			// "result": result
-		}))
-	})
-	// catch all errors and handle accordingly
-	.catch(function(err){
-		return error.sendError(err.name, err.message, res);
-	});
+		};
 
-};
+		// create a promise letiable to insert into the database.
+		let insertToDb = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.create(fields_to_insert, function(err, result) {
+
+					if(err) {
+						// send reject as a callback
+						return error.errorHandler(err, null, null, reject, null);
+					}
+					else {
+						return resolve(result);
+					}
+
+				});
+			})
+		};
 
 
-// PUT REQUESTS
-function updatePassword(req, res){
-
-};
-
-function updateAccountInfo(req, res){
-
-};
-
-
-// DELETE REQUESTS
-function removeAccount(req, res){
-
-	var accountId = req.swagger.params.accountId.value;
-
-	var getAccount = (() => {
-		return new Promise((resolve, reject) => {
-			accountModel.findOne({ _id: accountId }, (err, resultDocument) => {
-
-				if(err) {
-					return error.errorHandler(err, null, null, reject, res);
-				} else if (!resultDocument) {
-					return error.errorHandler(null, "INVALID_ID", "Entered ID does not exist.", reject, res);
-				} else {
-					return resolve(resultDocument);
+		// begin promise chain looping through promise array.
+		Promise.all(map)
+		// check to see if account exists.
+		.then(checkAccount)
+		// post to database sending returned document down promise chain
+		.then(insertToDb)
+		// create user in user table and get _id to assign.
+		.then(createUser)
+		// handle success accordingly
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": "Successfully inserted",
+				"result": {
+					account_id: result._id,
+					account_type: result.account_type,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					email: result.email,
+					gender: result.gender,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
 				}
-
-			});
+			}))
 		})
-	})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			// sent to loginLocalFromFacebook to handle request.
+			// end this api call
+			if (err.name === "DUPLICATE_EMAIL") {
+				return;
+			// if not, continue.
+			} else { 
+				return error.sendError(err.name, err.message, res); 
+			}
+		});
+	},
 
-	var deleteAccount = ((account) => {
-		return new Promise((resolve, reject) => {
-			accountModel.findOneAndRemove({ _id: accountId }, (err, resultDocument) => {
+	// GOOGLE SIGNUP FUNCTION
+	authGoogle: (req, res) => {
+		let auth = req.swagger.params.auth.value;
 
-				if(err) {
-					return error.errorHandler(err, null, null, reject, res);
-				} else if (!resultDocument) {
-					return error.errorHandler(null, "INVALID_ID", "Entered ID does not exist.", reject, res);
-				} else {
-					return resolve(account);
+		let fields = {
+			first_name:'first_name', 
+			last_name: 'last_name', 
+			email: 'email',
+			user_type: 'user_type', 
+			google_id: 'google_id',
+			gender: 'gender',
+			profile_picture: 'profile_picture',
+			user_type: "user_type"
+		};
+
+		
+		let errors = [];
+		let fields_to_insert = {};
+		fields_to_insert["account_type"] = "google";
+		auth["account_type"] = "google";
+
+		// create a promise array to execute through
+		let map = [];
+
+		// populate promise array with new promises returning resolved after validating fields and assigning
+		// them into the fields_to_insert object.
+		_.each(fields, function(element, content){
+
+			map.push(new Promise(function(resolve, reject) {
+
+				// map input fields to db fields.
+				// switch(content){
+				// 	case "email":
+				// 		auth[content] = auth[content].toLowerCase();
+				// 	default:
+						fields_to_insert[fields[content]] = auth[content];
+						resolve();
+						// break;
+				// }
+
+			})
+
+		)});
+
+		// promise to check to see if account exists.
+		let checkAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({email: fields_to_insert.email.toLowerCase()}, function(err, resultDocument) {
+
+					if(err) {
+						// send reject as a callback
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (resultDocument) {
+						return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
+						.then(function(error){
+							loginRedirect(req, res, auth);
+							return reject(error);
+						});
+					} else {
+						return resolve();
+					}
+
+				});
+			})
+		};
+
+
+		// creates relevant user. If tutor, also creates schedule in schedule collection
+		let createUser = function(newAccount){
+			switch (newAccount.user_type){
+				case "tutor":
+
+					return new Promise(function(resolve, reject) {
+						tutorModel.create({
+							tutor_id: newAccount._id,
+							currentLocation: {
+								lat: (signup.location_lat ? signup.location_lat : 999),
+								lng: (signup.location_lng ? signup.location_lng : -999)
+							}
+						}, function(err, result) {
+
+							if(err) {
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								return error.errorHandler(err, null, null, reject, null);
+							} else {
+								return resolve(newAccount);
+							}
+
+						});
+					});
+
+					break;
+				case "tutee":
+
+					return new Promise(function(resolve, reject) {
+						tuteeModel.create({
+							tutee_id: newAccount._id
+						}, function(err, result) {
+
+							if(err) {
+								// delete previously created documents before throwing error
+								removeFromModel(accountModel, newAccount._id);
+								return error.errorHandler(err, null, null, reject, null);
+							} else {
+								return resolve(newAccount);
+							}
+
+						});
+					});
+
+					break;
+				default:
+					break;
+			}
+		};
+
+		// create a promise letiable to insert into the database.
+		let insertToDb = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.create(fields_to_insert, function(err, result) {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else {
+						return resolve(result);
+					}
+
+				});
+			})
+		};
+
+
+		// begin promise chain looping through promise array.
+		Promise.all(map)
+		// check to see if account exists.
+		.then(checkAccount)
+		// post to database sending returned document down promise chain
+		.then(insertToDb)
+		// create user in user table and get _id to assign.
+		.then(createUser)
+		// handle success accordingly
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": "Successfully inserted",
+				"result": {
+					account_id: result._id,
+					account_type: result.account_type,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					email: result.email,
+					gender: result.gender,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
 				}
-
-			});
+			}))
 		})
-	})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			// sent to loginLocalFromGoogle to handle request.
+			// end this api call
+			if (err.name === "DUPLICATE_EMAIL") {
+				return;
+			// if not, continue.
+			} else { 
+				return error.sendError(err.name, err.message, res); 
+			}
+		});
+	},
 
-	getAccount()
-	.then(deleteAccount)
-	.then((deletedAccount) => {
-		return res.send(JSON.stringify({
-			"message": ("Account with email "+deletedAccount.email+' deleted.'),
-			"result": deletedAccount
-			// "result": result
-		}))
-	})
-	
-}
+	// LOCAL LOGIN FUNCTION
+	loginLocal: (req, res) => {
+		let login = req.swagger.params.login.value;
+
+		let fields = {
+			email: 'email',
+			password: 'password'
+		};
+
+		// promise to check to see if account exists.
+		let checkAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({email: login.email.toLowerCase()}, function(err, resultDocument) {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					}
+					else if (!resultDocument){
+						return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
+					}
+					else {
+						return resolve(resultDocument);
+					}
+
+				});
+			})
+		}
+
+		// create a promise to check if password matches
+		let checkPassword = function(result){
+			return new Promise(function(resolve, reject) {
+				pass.compare(login.password, result.password)
+				.then(function(isValid){
+					if(isValid){
+						return resolve(result);
+					} else {
+						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Incorrect credentials entered.", reject, null);
+					}
+				}).catch(function(err){
+					return reject(err);
+				})
+			})
+		};
+
+
+		// begin promise chain looping through promise array.
+		checkAccount()
+		.then(checkPassword)
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": "Login Successful",
+				"result": {
+					account_id: result._id,
+					email: result.email,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					account_type: result.account_type,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
+				}
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			return error.sendError(err.name, err.message, res);
+		});
+	},
+
+	// FACEBOOK LOGIN FUNCTION
+	loginFacebook: (req, res) => {
+		let login = req.swagger.params.login.value;
+
+		let fields = {
+			first_name: 'first_name',
+			last_name: 'last_name',
+			email: 'email',
+			facebook_id: 'facebook_id',
+			gender: 'gender'
+		};
+
+		// promise to check to see if account exists.
+		let checkAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({
+					email: login.email.toLowerCase(),
+					facebook_id: login.facebook_id
+				}, function(err, resultDocument) {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					}
+					else if (!resultDocument){
+						return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
+					}
+					else {
+						return resolve(resultDocument);
+					}
+
+				});
+			})
+		}
+
+
+		// begin promise chain looping through promise array.
+		checkAccount()
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": "Login Successful",
+				"result": {
+					account_id: result._id,
+					email: result.email,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					account_type: result.account_type,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
+				}
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			return error.sendError(err.name, err.message, res);
+		});
+	},
+
+	// GOOGLE LOGIN FUNCTION
+	loginGoogle: (req, res) => {
+		let login = req.swagger.params.login.value;
+
+		let fields = {
+			first_name: 'first_name',
+			last_name: 'last_name',
+			email: 'email',
+			google_id: 'google_id',
+			gender: 'gender'
+		};
+
+		// promise to check to see if account exists.
+		let checkAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({
+					email: login.email.toLowerCase(),
+					google_id: login.google_id
+				}, function(err, resultDocument) {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					}
+					else if (!resultDocument){
+						return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
+					}
+					else {
+						return resolve(resultDocument);
+					}
+
+				});
+			})
+		}
+
+
+		// begin promise chain looping through promise array.
+		checkAccount()
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": "Login Successful",
+				"result": {
+					account_id: result._id,
+					email: result.email,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					account_type: result.account_type,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
+				}
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			return error.sendError(err.name, err.message, res);
+		});
+	},
+
+	// LOCAL LOGIN FUNCTION redirected from facebook auth if email exists
+	loginLocalFromFacebook: (req, res, email) => {
+
+		// promise to check to see if account exists.
+		let loginToFacebookAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({email: email.toLowerCase()}, function(err, resultDocument) {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					}
+					else if (!resultDocument){
+						return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
+					}
+					else {
+						return resolve(resultDocument);
+					}
+
+				});
+			})
+		}
+
+
+		// begin promise chain looping through promise array.
+		loginToFacebookAccount()
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": "This account already exists - login successful via Facebook",
+				"result": {
+					account_id: result._id,
+					email: result.email,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					account_type: result.account_type,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
+				}
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			return error.sendError(err.name, err.message, res);
+		});
+	},
+
+	// LOCAL LOGIN FUNCTION redirected from google auth if email exists
+	loginLocalFromGoogle: (req, res, email) => {
+
+		// promise to check to see if account exists.
+		let loginToGoogleAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({email: email.toLowerCase()}, function(err, resultDocument) {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					}
+					else if (!resultDocument){
+						return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
+					}
+					else {
+						return resolve(resultDocument);
+					}
+
+				});
+			})
+		}
+
+
+		// begin promise chain looping through promise array.
+		loginToGoogleAccount()
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": "This account already exists - login successful via Google",
+				"result": {
+					account_id: result._id,
+					email: result.email,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					account_type: result.account_type,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
+				}
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			return error.sendError(err.name, err.message, res);
+		});
+	},
+
+
+	loginRedirect: (req, res, fields) => {
+
+
+		// promise to check to see if account exists.
+		let loginToAccount = function(){
+			return new Promise(function(resolve, reject) {
+				accountModel.findOne({email: fields.email.toLowerCase()}, function(err, resultDocument) {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					}
+					else if (!resultDocument){
+						return error.errorHandler(null, "INVALID_ENTRY", "Account does not exist.", reject, null);
+					}
+					else {
+						return resolve(resultDocument);
+					}
+
+				});
+			})
+		}
+
+
+		// begin promise chain
+		loginToAccount()
+		// middleware for respective login functions
+		.then(function(result){
+			return new Promise(function(resolve, reject) {
+				switch (result.account_type) {
+					case 'local':
+						if(fields.password!==undefined){
+							pass.compare(fields.password, result.password)
+							.then(function(isValid){
+								if(isValid){
+									return resolve(result);
+								} else {
+									return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Local account exists, but incorrect credentials entered.", reject, null);
+								}
+							}).catch(function(err){
+								return reject(err);
+							})
+						} else {
+							return error.errorHandler(null, "NO_PASSWORD", "Local account exists, but no password entered.", reject, null);
+						}
+						break;
+					case 'facebook':
+						if (fields.facebook_id === result.facebook_id){
+							return resolve(result);
+						} else {
+							return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Facebook account exists, but incorrect credentials entered.", reject, null);
+						}
+						break;
+					case 'google':
+						if (fields.google_id === result.google_id){
+							return resolve(result);
+						} else {
+							return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Google account exists, but incorrect credentials entered.", reject, null);
+						}
+						break;
+					default:
+						return resolve(result);
+						break;
+				}
+			})
+		})
+		.then(function(result){
+			return res.send(JSON.stringify({
+				"message": ("This account already exists - login successful via "+result.account_type),
+				"result": {
+					account_id: result._id,
+					email: result.email,
+					first_name: result.first_name,
+					last_name: result.last_name,
+					account_type: result.account_type,
+					user_type: result.user_type,
+					profile_picture: result.profile_picture
+				}
+				// "result": result
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(function(err){
+			return error.sendError(err.name, err.message, res);
+		});
+	},
+
+
+	// PUT REQUESTS
+	updatePassword: (req, res) => {
+	},
+
+	updateAccountInfo: (req, res) => {
+	},
+
+
+	// DELETE REQUESTS
+	removeAccount: (req, res) => {
+
+		let accountId = req.swagger.params.accountId.value;
+
+		let getAccount = (() => {
+			return new Promise((resolve, reject) => {
+				accountModel.findOne({ _id: accountId }, (err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, res);
+					} else if (!resultDocument) {
+						return error.errorHandler(null, "INVALID_ID", "Entered ID does not exist.", reject, res);
+					} else {
+						return resolve(resultDocument);
+					}
+
+				});
+			})
+		})
+
+		let deleteAccount = ((account) => {
+			return new Promise((resolve, reject) => {
+				accountModel.findOneAndRemove({ _id: accountId }, (err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, res);
+					} else if (!resultDocument) {
+						return error.errorHandler(null, "INVALID_ID", "Entered ID does not exist.", reject, res);
+					} else {
+						return resolve(account);
+					}
+
+				});
+			})
+		})
+
+		getAccount()
+		.then(deleteAccount)
+		.then((deletedAccount) => {
+			return res.send(JSON.stringify({
+				"message": ("Account with email "+deletedAccount.email+' deleted.'),
+				"result": deletedAccount
+				// "result": result
+			}))
+		})
+	}
+
+};
 
 
 // -------------------------------------

@@ -494,7 +494,7 @@ paths:
 
   # Get tutor reviews - GET
   '/tutor/{tutorId}/reviews':
-    x-swagger-router-controller: tutor
+    x-swagger-router-controller: reviews
     get:
       description: get tutor reviews
       operationId: getTutorReviewsByAccountId
@@ -518,7 +518,7 @@ paths:
 
   # Get tutor schedule - GET
   '/tutor/{tutorId}/schedule':
-    x-swagger-router-controller: tutor
+    x-swagger-router-controller: schedules
     get:
       description: get tutor schedule returned in a JSON object with days arrays
       operationId: getTutorScheduleByAccountId
@@ -540,9 +540,33 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # GET all tutor sessions by account ID
+  '/tutor/{tutorId}/sessions':
+    x-swagger-router-controller: sessions
+    get:
+      description: Get sessions belonging to tutor account id.
+      operationId: getTutorSessionsByAccountId
+      tags:
+        - Session
+      parameters:
+          - name: tutorId
+            in: path
+            description: account ID of tutor
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
   # Update tutor schedule - PUT
   '/tutor/update-schedule':
-    x-swagger-router-controller: tutor
+    x-swagger-router-controller: schedules
     put:
       description: update tutor schedule
       operationId: updateTutorSchedule
@@ -749,7 +773,7 @@ paths:
   '/tutee/{tuteeId}/sessions':
     x-swagger-router-controller: sessions
     get:
-      description: Get sessions belonging to tutee email.
+      description: Get sessions belonging to tutee account id.
       operationId: getTuteeSessionsByAccountId
       tags:
         - Session
@@ -789,9 +813,12 @@ paths:
                 tutorId:
                   type: string
                   description: account id of tutor
-                subjectId:
+                subjectName:
                   type: string
-                  description: id of tutored subject
+                  description: name of tutored subject
+                subjectLevel:
+                  type: number
+                  description: level of tutored subject
                 hourly_rate:
                   type: number
                   description: hourly rate of session
@@ -805,7 +832,8 @@ paths:
               required:
                 - tuteeId
                 - tutorId
-                - subjectId
+                - subjectName
+                - subjectLevel
                 - hourly_rate
                 - date
                 - timeslots
@@ -819,6 +847,173 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+
+
+# SUBJECTS
+
+  # POST a new subject by an admin (for now)
+  '/subject':
+    x-swagger-router-controller: subjects
+    post:
+      description: Create new subject
+      operationId: createSubject
+      tags:
+        - Subject
+      parameters:
+          - name: subject
+            in: body
+            required: true
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: name of subject
+                level: 
+                  type: number
+                  description: level of subject
+              required:
+                - name
+                - level
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # GET all subjects
+  '/subjects':
+    x-swagger-router-controller: subjects
+    get:
+      description: get all subjects
+      operationId: getAllSubjects
+      tags:
+        - Subject
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # GET all subjects by partial or full string
+  '/subjects/{subjectName}':
+    x-swagger-router-controller: subjects
+    get:
+      description: get all subjects by a partial name string
+      operationId: getSubjectsByName
+      tags:
+        - Subject
+      parameters:
+          -
+            name: subjectName
+            in: path
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # GET all subjects by level
+  '/subjects/level/{subjectLevel}':
+    x-swagger-router-controller: subjects
+    get:
+      description: get all subjects by level
+      operationId: getSubjectsByLevel
+      tags:
+        - Subject
+      parameters:
+          -
+            name: subjectLevel
+            in: path
+            required: true
+            type: number
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+
+# SKILLS
+
+  # POST a new skill from admin (for now)
+  '/skill':
+    x-swagger-router-controller: skills
+    post:
+      description: Create new skill
+      operationId: createSkill
+      tags:
+        - Skill
+      parameters:
+          - name: skill
+            in: body
+            required: true
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: name of skill to be added
+              required:
+                - name
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # POST a new subskill
+  '/subskill':
+    x-swagger-router-controller: skills
+    post:
+      description: Create new subskill
+      operationId: createSubskill
+      tags:
+        - Skill
+      parameters:
+          - name: skill
+            in: body
+            required: true
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: name of skill
+                subskill:
+                  type: string
+                  description: name of subskill to be added
+              required:
+                - name
+                - subskill
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
 
 
   /swagger:

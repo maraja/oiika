@@ -16,6 +16,8 @@ app.models = {
   scheduleModel: require('./api/models/Schedules')(),
 
   sessionModel: require('./api/models/Sessions')(),
+  subjectModel: require('./api/models/Subjects')(),
+  skillModel: require('./api/models/Skills')(),
 
   reviewModel: require('./api/models/Reviews')(),
   accountModel: require('./api/models/Accounts')()
@@ -43,8 +45,6 @@ var swaggerConfig = {
 var mongoDb = require('./mongo/helpers/mongodb');
 mongoDb.dbConnection();
 
-// console.log("MongoDB connection: ");
-// console.log(mongoDb.dbConnection());
 
 // minify response
 // http://stackoverflow.com/questions/19833174/can-express-js-output-minified-json

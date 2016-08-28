@@ -34,8 +34,8 @@
     "supertest": "^1.0.0"
   },
   "scripts": {
-    "start:dev:forever": "forever app.js",
-    "start:prod:forever": "cross-env ENVIRONMENT=prod forever app.js",
+    "start:dev:forever": "forever start app.js",
+    "start:prod:forever": "cross-env ENVIRONMENT=prod forever start app.js",
     "start:dev": "node app.js",
     "start:prod": "cross-env ENVIRONMENT=prod node app.js",
     "unit-test": "cross-env NODE_ENV=unit-test mocha --timeout 10000",

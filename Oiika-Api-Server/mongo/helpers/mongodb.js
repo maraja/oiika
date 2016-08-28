@@ -10,6 +10,9 @@ module.exports = {
 function dbConnection(){
 
 	// MONGOOSE MONGODB CONNECTION TEST
+
+	console.log('Using '+config.environment+' database...');
+
 	var db = config.db[config.environment];
 	var db_connection_string = db.dialect + "://" + 
 		db.username + ":" + 
