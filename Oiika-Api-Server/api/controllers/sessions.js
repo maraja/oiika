@@ -135,6 +135,26 @@ module.exports = {
 			});
 		};
 
+		// get all the tutor sessions for future checking
+		let getSessions = tutor => {
+			return new Promise((resolve, reject) => {
+
+				sessionModel.find({
+					tutor_id: tutor.tutor_id
+				}, (err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, res);
+					} else {
+						tutor["sessions"] = resultDocument; 
+						return resolve(tutor);
+					}
+
+				});
+
+			});
+		}
+
 		// check all schedule and schedule exceptions logic to ensure no conflicts
 		let checkScheduleConflicts = tutor => {
 
@@ -162,7 +182,7 @@ module.exports = {
 					if(_.difference(session.timeslots, tutor.schedule[day]).length === 0){
 						return resolve();
 					} else {
-						return error.errorHandler(null, "INVALID_TIMESLOTS", "Entered timeslots are not available.", reject, res);
+						return error.errorHandler(null, "INVALID_TIMESLOTS", "Entered timeslots are not a part of tutor's schedule.", reject, res);
 						// for testing
 						// return resolve();
 					}
@@ -188,7 +208,7 @@ module.exports = {
 							if(_.difference(session.timeslots, exception.timeslots).length === session.timeslots.length && !exception.all_day){
 								return resolve();
 							} else {
-								return error.errorHandler(null, "INVALID_TIMESLOTS", "Entered timeslots are not available.", reject, res);
+								return error.errorHandler(null, "INVALID_TIMESLOTS", "Entered timeslots have been booked off by tutor.", reject, res);
 								// for testing
 								// return resolve();
 							}
@@ -208,10 +228,48 @@ module.exports = {
 				
 			};
 
+			let checkSessions = () => {
+
+				let sessions = [];
+
+				// throw all exception date comparisons into a promise array to evaluate later.
+				_.each(tutor.sessions, (tempSession) => {
+					sessions.push(new Promise((resolve, reject) => {
+
+						// convert exception date to a date object for comparison
+						tempSession.date = new Date(tempSession.date);
+						// go through exception array and check to see if dates match entered date one by one
+						// if match exists, check timeslots.
+						if(moment(session.date).isSame(tempSession.date, 'day')){
+							//conflict may exist
+							if(_.difference(session.timeslots, tempSession.timeslots).length === session.timeslots.length){
+								return resolve();
+							} else {
+								return error.errorHandler(null, "INVALID_TIMESLOTS", "Entered timeslots have been booked already.", reject, res);
+								// for testing
+								// return resolve();
+							}
+						} else {
+							// no conflicts
+							return resolve();
+						}
+
+					}));
+				});
+
+				return new Promise((resolve, reject) => {
+					Promise.all(sessions)
+					.then(() => { return resolve(); })
+					.catch(err => { return reject(err); })
+				})
+				
+			};
+
 			return new Promise((resolve, reject) => {
 				getDay()
 				.then(checkSchedule)
 				.then(checkExceptions)
+				.then(checkSessions)
 				.then(() => { return resolve(); })
 				.catch(err => { return reject(err); })
 			})
@@ -286,6 +344,7 @@ module.exports = {
 		// begin promise chain looping through promise array.
 		Promise.all(map)
 		.then(checkTutor)
+		.then(getSessions)
 		.then(checkScheduleConflicts)
 		.then(checkTutee)
 		.then(checkSubject)
