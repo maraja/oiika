@@ -85,6 +85,7 @@ module.exports = {
 	},
 
 	createSession: (req, res) => {
+		
 		var session = req.swagger.params.session.value;
 
 		var fields = {
