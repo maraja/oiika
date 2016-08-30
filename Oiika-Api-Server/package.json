@@ -34,6 +34,7 @@
     "supertest": "^1.0.0"
   },
   "scripts": {
+    "start:auth:forever": "cross-env AUTH_ENABLE=true PORT=10011 forever start app.js",
     "start:dev:forever": "forever start app.js",
     "start:prod:forever": "cross-env ENVIRONMENT=prod forever start app.js",
     "start:dev": "node app.js",

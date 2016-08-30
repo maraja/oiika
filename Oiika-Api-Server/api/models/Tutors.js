@@ -45,10 +45,11 @@ module.exports = function() {
     }],
     // distance tutor is willing to travel
     // Note: Calculated based on just an integer value for lat and long. Algorithm to calculate KM distance should be created later.
-    travel_distance: { type: Number, required: false},
-    hours_worked: { type: Number, required: false},
-    rating: { type: Number, required: false},
-    skills: { type: [String], required: false},
+    travel_distance: { type: Number, required: false },
+    hours_worked: { type: Number, required: false },
+    rating: { type: Number, required: false },
+    skills: { type: [String], required: false },
+    subjects: { type: [String], required: false },
     profile_picture: { type: String, required: false}
   }, {strict:true, collection: 'tutors' });
 

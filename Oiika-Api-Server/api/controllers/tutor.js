@@ -115,35 +115,37 @@ module.exports = {
 		let location = req.swagger.params.location.value;
 
 		let updateLocation = () => {
-			tutorModel.findOneAndUpdate(
-			{
-				tutor_id: location.tutorId
-			},
-			// set the old schedule as the new schedule
-			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
-			{
-				$set: {
-					currentLocation: {
-						lat : location.location.lat,
-						lng : location.location.lng
+			return new Promise((resolve, reject) => {
+				tutorModel.findOneAndUpdate(
+				{
+					tutor_id: location.tutorId
+				},
+				// set the old schedule as the new schedule
+				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
+				{
+					$set: {
+						currentLocation: {
+							lat : location.location.lat,
+							lng : location.location.lng
+						}
 					}
-				}
-			},
-			// this will return updated document rather than old one
-			{ 
-				new : true,
-				runValidators : true
-			}, (err, resultDocument) => {
+				},
+				// this will return updated document rather than old one
+				{ 
+					new : true,
+					runValidators : true
+				}, (err, resultDocument) => {
 
-				if(err) {
-					return error.errorHandler(err, null, null, reject, res);
-				} else if (!resultDocument) {
-					return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, res);
-				} else {
-					return resolve(resultDocument.currentLocation);
-				}
+					if(err) {
+						return error.errorHandler(err, null, null, reject, res);
+					} else if (!resultDocument) {
+						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, res);
+					} else {
+						return resolve(resultDocument.currentLocation);
+					}
 
-			});
+				});
+			})
 		}
 
 		// begin promise chain
