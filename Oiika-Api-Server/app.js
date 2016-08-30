@@ -88,7 +88,7 @@ SwaggerExpress.create(swaggerConfig, function(err, swaggerExpress) {
   // install middleware
   swaggerExpress.register(app);
 
-  var port = process.env.PORT || 10010;
+  var port = config.port;
   app.listen(port);
   console.log("API Server running on port " + port);
 
