@@ -59,9 +59,9 @@ paths:
       description: signup local user
       operationId: authLocal
       tags:
-        - signup
+        - auth
       parameters:
-          - name: signup
+          - name: auth
             in: body
             required: true
             schema:

@@ -38,7 +38,7 @@ module.exports = {
 
 		
 		let fields_to_insert = {};
-		fields_to_insert["account_type"] = "local";
+		// fields_to_insert["account_type"] = "local";
 		auth["account_type"] = "local";
 
 		// create a promise array to execute through
@@ -66,7 +66,11 @@ module.exports = {
 						// send reject as a callback
 						return error.errorHandler(err, null, null, reject, null);
 					} else if (resultDocument) {
-						return error.errorHandler(err, "DUPLICATE_EMAIL", "Email already exists.", reject, null);
+						return error.makeError("DUPLICATE_EMAIL", "Email already exists.")
+						.then(error => {
+							loginRedirect(req, res, auth);
+							return reject(error);
+						});
 					} else {
 						return resolve();
 					}
@@ -173,7 +177,14 @@ module.exports = {
 		})
 		// catch all errors and handle accordingly
 		.catch(err => {
-			return error.sendError(err.name, err.message, res); 	
+			// sent to loginLocalFromFacebook to handle request.
+			// end this api call
+			if (err.name === "DUPLICATE_EMAIL") {
+				return;
+			// if not, continue.
+			} else { 
+				return error.sendError(err.name, err.message, res); 
+			}	
 		});
 	},
 
@@ -196,7 +207,7 @@ module.exports = {
 		
 		let errors = [];
 		let fields_to_insert = {};
-		fields_to_insert["account_type"] = "facebook";
+		// fields_to_insert["account_type"] = "facebook";
 		auth["account_type"] = "facebook";
 
 		// create a promise array to execute through
@@ -362,7 +373,7 @@ module.exports = {
 		let errors = [];
 		let fields_to_insert = {};
 
-		fields_to_insert["account_type"] = "google";
+		// fields_to_insert["account_type"] = "google";
 		auth["account_type"] = "google";
 
 		// create a promise array to execute through
@@ -539,16 +550,22 @@ module.exports = {
 		// create a promise to check if password matches
 		let checkPassword = function(result){
 			return new Promise(function(resolve, reject) {
-				pass.compare(login.password, result.password)
-				.then(function(isValid){
-					if(isValid){
-						return resolve(result);
-					} else {
-						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Incorrect credentials entered.", reject, null);
-					}
-				}).catch(function(err){
-					return reject(err);
-				})
+
+				if(result.password){
+					pass.compare(login.password, result.password)
+					.then(function(isValid){
+						if(isValid){
+							return resolve(result);
+						} else {
+							return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Incorrect credentials entered.", reject, null);
+						}
+					}).catch(function(err){
+						return reject(err);
+					})
+				} else {
+					return error.errorHandler(null, "NO_PASSWORD", "Account exists, but no password assigned.", reject, null);
+				}
+				
 			})
 		};
 
@@ -565,7 +582,6 @@ module.exports = {
 					first_name: result.first_name,
 					last_name: result.last_name,
 					account_type: result.account_type,
-					user_type: result.user_type,
 					profile_picture: result.profile_picture
 				}
 			}))
@@ -642,6 +658,7 @@ module.exports = {
 // -------------------------------------
 // HELPERS
 // -------------------------------------
+
 function loginRedirect(req, res, fields){
 
 	// promise to check to see if account exists.
@@ -666,12 +683,15 @@ function loginRedirect(req, res, fields){
 	let authAccount = account => {
 
 		return new Promise(function(resolve, reject) {
-			switch (account.account_type) {
+			switch (fields.account_type) {
 
 				case 'local':
-					if(fields.password!==undefined){
+
+					if(!account.password) {
+						return error.errorHandler(null, "NO_PASSWORD", "Account exists, but no password assigned.", reject, null);
+					} else {
 						pass.compare(fields.password, account.password)
-						.then(function(isValid){
+						.then(isValid => {
 							if(isValid){
 								return resolve(account);
 							} else {
@@ -680,25 +700,44 @@ function loginRedirect(req, res, fields){
 						}).catch(function(err){
 							return reject(err);
 						})
-					} else {
-						return error.errorHandler(null, "NO_PASSWORD", "Local account exists, but no password entered.", reject, null);
 					}
+
 					break;
 
 				case 'facebook':
-					if (fields.facebook_id === account.facebook_id){
+
+					if(!account.facebook_id) {
+						// insert into account
+						updateId(account._id, 'facebook_id', fields.facebook_id)
+						.then(newAccount => {
+							return resolve(newAccount);
+						}).catch(err => {
+							return error.errorHandler(err, null, null, reject, null);
+						})
+					} else if (fields.facebook_id === account.facebook_id){
 						return resolve(account);
 					} else {
-						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Facebook account exists, but incorrect credentials entered.", reject, null);
+						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Account exists, but incorrect credentials entered.", reject, null);
 					}
+
 					break;
 
 				case 'google':
-					if (fields.google_id === account.google_id){
+
+					if(!account.google_id) {
+						// insert into account
+						updateId(account._id, 'google_id', fields.google_id)
+						.then(newAccount => {
+							return resolve(newAccount);
+						}).catch(err => {
+							return error.errorHandler(err, null, null, reject, null);
+						})
+					} else if (fields.google_id === account.google_id){
 						return resolve(account);
 					} else {
-						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Google account exists, but incorrect credentials entered.", reject, null);
+						return error.errorHandler(null, "INCORRECT_CREDENTIALS", "Account exists, but incorrect credentials entered.", reject, null);
 					}
+
 					break;
 
 				default:
@@ -709,6 +748,36 @@ function loginRedirect(req, res, fields){
 
 	}
 
+	let updateId = (account_id, id_name, id) => {
+		return new Promise((resolve, reject) => {
+
+			accountModel.findOneAndUpdate(
+			{
+				_id: account_id
+			},
+			// set the old schedule as the new schedule
+			// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
+			{
+				[id_name]: id
+			},
+			// this will return updated document rather than old one
+			{ 
+				new : true,
+				runValidators : true 
+			},
+			(err, resultDocument) => {
+
+				if(err) {
+					return reject(err);
+				} else {
+					return resolve(resultDocument);
+				}
+
+			});
+
+		});
+	}
+
 
 	// begin promise chain
 	loginToAccount()
@@ -716,13 +785,14 @@ function loginRedirect(req, res, fields){
 	.then(authAccount)
 	.then(result => {
 		return res.send(JSON.stringify({
-			"message": ("This account already exists - login successful via "+result.account_type),
+			"message": ("Login Successful"),
 			"result": {
 				account_id: result._id,
+				google_id: result.google_id,
+				facebook_id: result.facebook_id,
 				email: result.email,
 				first_name: result.first_name,
 				last_name: result.last_name,
-				account_type: result.account_type,
 				user_type: result.user_type,
 				profile_picture: result.profile_picture
 			}
