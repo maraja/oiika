@@ -1,5 +1,8 @@
 
 const reviewModel = app.models.reviewModel;
+const tuteeModel = app.models.tuteeModel;
+const tutorModel = app.models.tutorModel;
+const accountModel = app.models.accountModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
@@ -87,6 +90,8 @@ module.exports = {
 	getTutorReviewsByAccountId: (req, res) => {
 
 		let tutorId = req.swagger.params.tutorId.value;
+		let tutees = [];
+		let allReviews = [];
 
 		let getReviews = () => { 
 			return new Promise((resolve, reject) => {
@@ -95,16 +100,18 @@ module.exports = {
 				{
 					tutor_id: tutorId
 				},
-				{
-					reviews: 1
-					// _id: 0
-				}, (err, resultDocument) => {
+				// {
+				// 	reviews: 1
+				// 	_id: 0
+				// }, 
+				(err, resultDocument) => {
 
 					if(err) {
 						return error.errorHandler(err, null, null, reject, null);
 					// } else if (resultDocument.length===0) {
 					// 	return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 					} else {
+						allReviews = resultDocument;
 						return resolve(resultDocument);
 					}
 
@@ -113,8 +120,46 @@ module.exports = {
 			});
 		};
 
+		let getTutorInfo = reviews => {
+
+			_.each(reviews, (element, content) => {
+				tutees.push(new Promise((resolve, reject) => {
+
+						accountModel.findOne(
+						{
+							_id: element.tutee_id
+						},
+						// {
+						// 	reviews: 1
+						// 	_id: 0
+						// }, 
+						(err, resultDocument) => {
+
+							if(err) {
+								return error.errorHandler(err, null, null, reject, null);
+							} else if (!resultDocument) {
+								return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
+							} else {
+								element["first_name"] = resultDocument.first_name;
+								element["profile_picture"] = resultDocument.profile_picture;
+								console.log(reviews);
+								console.log(element);
+								console.log(resultDocument.first_name);
+								console.log(resultDocument.profile_picture);
+								return resolve(reviews);
+							}
+
+						});
+
+					})
+				)}
+			);
+		};
+
 		getReviews()
-		.then(result => { return res.send(JSON.stringify(result)) })
+		.then(getTutorInfo)
+		.then(Promise.all(tutees))
+		.then(result => { return res.send(JSON.stringify(allReviews)) })
 		.catch(err => { return error.sendError(err.name, err.message, res); });
 	}
 

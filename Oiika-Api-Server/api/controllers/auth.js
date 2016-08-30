@@ -4,6 +4,7 @@ const tuteeModel = app.models.tuteeModel;
 
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
+const api = require('../helpers/auth-api');
 // password creater helper
 const pass = require('../helpers/password');
 const tutor = require('./tutor');

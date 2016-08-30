@@ -44,14 +44,19 @@ config["secrets"] = {
     	"/" + config.db.dev.database)
 };
 
+config["api"] = {
+    "api-key-name": 'x-oiika-api',
+    "api-web-server-key": ''
+};
+
 // Reference: http://stackoverflow.com/questions/21284766/regex-to-match-the-url-pattern-in-nodejs
 // great explanation of regex in node.js
 config["unauthenticated_paths"] = [
     // /\/tutor/i,
     ///\/login/i, // regex that matches all login paths
-    /\/scan/i, // regex that matches all scan paths
-    { url: '/user', methods: [ 'POST' ] }, // allow login
-    { url: /\/tutor\/[^\/]+\/min$/, methods: [ 'GET'] } // allow tutor min profile
+    // /\/scan/i, // regex that matches all scan paths
+    // { url: '/user', methods: [ 'POST' ] }, // allow login
+    // { url: /\/tutor\/[^\/]+\/min$/i, methods: [ 'GET' ] } // allow tutor min profile
 ];
 
 var environment = process.env.ENVIRONMENT || "dev";

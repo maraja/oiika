@@ -5,6 +5,8 @@ module.exports = function() {
 
   var ObjectId = mongoose.Schema.ObjectId;
 
+  var defaultRadius = 5000; // meters
+
   var Tutors = new mongoose.Schema({
     // first_name : { type: String, required:true, index: true, lowercase: true, trim:true, unique: true, validate: [util.validate.email, 'not valid'] },
     // REQUIRED

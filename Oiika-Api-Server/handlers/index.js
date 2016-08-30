@@ -31,13 +31,13 @@ var authHandler = jwt({
     secret: config.secrets.jwt.selfSigned.key,
     getToken: function fromHeaderOrQueryString(req) {
         console.log("token...");
-        var token = null;
-        if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-            token = req.headers.authorization.split(' ')[1];
-        }
-        else if (req.query && req.query.token) {
-            token = req.query.token;
-        }
+        var token = req.headers.authorization;
+        // if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+        //     token = req.headers.authorization.split(' ')[1];
+        // }
+        // else if (req.query && req.query.token) {
+        //     token = req.query.token;
+        // }
         return token;
     }
 })
