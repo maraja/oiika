@@ -61,4 +61,15 @@ config["unauthenticated_paths"] = [
 
 var environment = process.env.ENVIRONMENT || "dev";
 config["environment"] = environment.toLowerCase();
-config["port"] = process.env.PORT || 10010; // 10010 - default port
+
+switch(config.environment){
+    case 'dev':
+        config["port"] = process.env.PORT || 10010;
+        break;
+    case 'prod':
+        config["port"] = process.env.PORT || 10010;
+        break;
+    case 'auth':
+        config["port"] = process.env.PORT || 10011;
+        break;
+}

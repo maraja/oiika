@@ -85,6 +85,7 @@ module.exports = {
 						tutorModel.create({
 							tutor_id: newAccount._id,
 							currentLocation: {
+								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
 								lng: (auth.location_lng ? auth.location_lng : -999)
 							}
@@ -245,6 +246,7 @@ module.exports = {
 						tutorModel.create({
 							tutor_id: newAccount._id,
 							currentLocation: {
+								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
 								lng: (auth.location_lng ? auth.location_lng : -999)
 							}
@@ -411,6 +413,7 @@ module.exports = {
 						tutorModel.create({
 							tutor_id: newAccount._id,
 							currentLocation: {
+								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
 								lng: (auth.location_lng ? auth.location_lng : -999)
 							}
