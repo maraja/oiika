@@ -125,6 +125,7 @@ module.exports = {
 				{
 					$set: {
 						currentLocation: {
+							city: location.city,
 							lat : location.location.lat,
 							lng : location.location.lng
 						}

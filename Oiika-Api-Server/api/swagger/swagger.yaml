@@ -488,9 +488,12 @@ paths:
                   type: object
                   description: object of location
                   required:
+                  - city
                   - lat
                   - lng
                   properties:
+                    city:
+                      type: string
                     lat:
                       type: number
                     lng:

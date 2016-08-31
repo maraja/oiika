@@ -12,7 +12,7 @@ module.exports = function() {
     last_name : { type: String, required: true, validate: [utils.validate.length(2), 'last name must be at least 2 characters long.'] },
     email : { type: String, required: true, lowercase: true, index: true, unique: true, trim: true, validate: [utils.validate.email, 'invalid email entered.'] },
     password : { type: String, required: false },
-    account_type : { type: String, required: false, validate: [utils.validate.account, 'invalid account type.'] },
+    // account_type : { type: String, required: false, validate: [utils.validate.account, 'invalid account type.'] },
     user_type : { type: String, required: true, validate: [utils.validate.user, 'invalid user type.'] },
     gender : { type: String, required: false, validate: [utils.validate.gender, 'invalid gender.']},
     // gender : { type: String, validate: [utils.validate.gender, 'not a valid gender']},

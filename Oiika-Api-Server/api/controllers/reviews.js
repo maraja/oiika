@@ -36,15 +36,8 @@ module.exports = {
 
 			map.push(new Promise(function(resolve, reject) {
 
-				// map input fields to db fields.
-				switch(content){
-					case "date":
-						review[content] = new Date();
-					default:
-						fields_to_insert[fields[content]] = review[content];
-						return resolve();
-						break;
-				}
+				fields_to_insert[fields[content]] = review[content];
+				return resolve();
 
 			})
 
@@ -111,7 +104,7 @@ module.exports = {
 					// } else if (resultDocument.length===0) {
 					// 	return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 					} else {
-						allReviews = resultDocument;
+						// allReviews = resultDocument;
 						return resolve(resultDocument);
 					}
 
@@ -140,13 +133,27 @@ module.exports = {
 							} else if (!resultDocument) {
 								return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 							} else {
-								element["first_name"] = resultDocument.first_name;
-								element["profile_picture"] = resultDocument.profile_picture;
-								console.log(reviews);
-								console.log(element);
-								console.log(resultDocument.first_name);
-								console.log(resultDocument.profile_picture);
-								return resolve(reviews);
+
+								let assignValues = () => {
+									return new Promise((resolve, reject) => {
+										allReviews.push({
+											tutor_id: element.tutor_id,
+											tutee_id: element.tutee_id,
+											first_name: resultDocument.first_name,
+											profile_picture: resultDocument.profile_picture,
+											text: element.text,
+											rating: element.rating,
+											date: element.date
+										});
+										return resolve();
+									})
+								}
+
+								assignValues()
+								.then(() => { 
+									return resolve(reviews);
+								})
+								
 							}
 
 						});
@@ -158,9 +165,11 @@ module.exports = {
 
 		getReviews()
 		.then(getTutorInfo)
-		.then(Promise.all(tutees))
-		.then(result => { return res.send(JSON.stringify(allReviews)) })
-		.catch(err => { return error.sendError(err.name, err.message, res); });
+		.then(() => {
+			Promise.all(tutees)
+			.then(() => { return res.send(allReviews) })
+			.catch(err => { return error.sendError(err.name, err.message, res); });
+		}).catch(err => { return error.sendError(err.name, err.message, res); });
 	}
 
 };

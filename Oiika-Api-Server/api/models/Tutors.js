@@ -21,7 +21,7 @@ module.exports = function() {
     full_description: { type: String, required: false, trim: true},
     hourly_rate: { type: Number, required: false},
     currentLocation: {
-      city: { type: String, required: false, trim: false},
+      city: { type: String, required: false, lowercase: true, trim: false},
       // latitude of location
       lat: { type: Number, required: false, validate: [utils.validate.lat, 'not a valid latitude']},
       // longitude of location

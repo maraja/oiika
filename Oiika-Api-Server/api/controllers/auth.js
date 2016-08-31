@@ -38,7 +38,6 @@ module.exports = {
 
 		
 		let fields_to_insert = {};
-		// fields_to_insert["account_type"] = "local";
 		auth["account_type"] = "local";
 
 		// create a promise array to execute through
@@ -207,7 +206,6 @@ module.exports = {
 		
 		let errors = [];
 		let fields_to_insert = {};
-		// fields_to_insert["account_type"] = "facebook";
 		auth["account_type"] = "facebook";
 
 		// create a promise array to execute through
@@ -372,8 +370,6 @@ module.exports = {
 		
 		let errors = [];
 		let fields_to_insert = {};
-
-		// fields_to_insert["account_type"] = "google";
 		auth["account_type"] = "google";
 
 		// create a promise array to execute through
@@ -565,7 +561,7 @@ module.exports = {
 				} else {
 					return error.errorHandler(null, "NO_PASSWORD", "Account exists, but no password assigned.", reject, null);
 				}
-				
+
 			})
 		};
 
