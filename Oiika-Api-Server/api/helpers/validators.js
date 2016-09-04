@@ -5,6 +5,7 @@ const regexHelper = require('./regex');
 const enumGender = ['male', 'female'];
 const enumUserType = ['tutor', 'tutee'];
 const enumAccountType = ['local', 'facebook', 'google'];
+const enumSessionState = ['pending', 'accepted', 'rejected'];
 
 module.exports = {
 
@@ -47,6 +48,13 @@ module.exports = {
 		if (_.contains(enumAccountType, account)) return account && true;
 		else {
 			return account && false;
+		}
+	},
+
+	sessionState: function(state) {
+		if (_.contains(enumSessionState, state)) return state && true;
+		else {
+			return state && false;
 		}
 	},
 
@@ -94,7 +102,7 @@ module.exports = {
 		}
 	},
 
-	session_time: function(time) {
+	sessionTime: function(time) {
 		var re = /^([01]\d|2[0-3]):?([0-5]\d)$/;
 
 		// the following commented code also works and is the logical way of doing it!
@@ -119,6 +127,11 @@ module.exports = {
 			else return time && false
 			// return (isValid ? time && true : time && false);
 		})
+	},
+
+	time: function(time){
+		var re = /^([01]\d|2[0-3]):?([0-5]\d)$/;
+		return time && time.match(re) !== null;
 	},
 
 	lat: function(coordinate) {

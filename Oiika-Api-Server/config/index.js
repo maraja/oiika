@@ -46,7 +46,7 @@ config["secrets"] = {
 
 config["api"] = {
     "api-key-name": 'x-oiika-api',
-    "api-web-server-key": ''
+    "api-web-server-key": 'oiika.r902rl7ldpe4pT3168P9fe7Z0YmItx80'
 };
 
 // Reference: http://stackoverflow.com/questions/21284766/regex-to-match-the-url-pattern-in-nodejs

@@ -21,6 +21,7 @@ paths:
 
 # LOGIN
 
+  # POST local login 
   '/login':
     x-swagger-router-controller: auth
     post:
@@ -51,8 +52,10 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
+
 # SIGNUP
 
+  # POST local signup
   '/signup':
     x-swagger-router-controller: auth
     post:
@@ -97,51 +100,7 @@ paths:
 
 # AUTH
 
-  # '/auth':
-  #   x-swagger-router-controller: auth
-  #   post:
-  #     description: auth local user
-  #     operationId: authLocal
-  #     tags:
-  #       - auth
-  #     parameters:
-  #         - name: auth
-  #           in: body
-  #           required: true
-  #           schema:
-  #             properties:
-  #               first_name:
-  #                 type: string
-  #               last_name:
-  #                 type: string
-  #               email:
-  #                 type: string
-  #               gender:
-  #                 type: string
-  #               password:
-  #                 type: string
-  #               user_type:
-  #                 type: string
-  #               location_lat:
-  #                 type: number
-  #               location_lng:
-  #                 type: number
-  #             required:
-  #               - first_name
-  #               - last_name
-  #               - email
-  #               - password
-  #               - user_type
-  #     responses:
-  #       "200":
-  #         description: Success
-  #         schema:
-  #           $ref: "#/definitions/HelloWorldResponse"
-  #       default:
-  #         description: Error
-  #         schema:
-  #           $ref: "#/definitions/ErrorResponse"
-
+  # POST login signup auth for facebook
   '/auth/facebook':
     x-swagger-router-controller: auth
     post:
@@ -189,6 +148,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
+  # POST login signup auth for google
   '/auth/google':
     x-swagger-router-controller: auth
     post:
@@ -236,7 +196,8 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
-  '/remove-account/{accountId}':
+  # DELETE account - should go through web server for api key validation
+  '/account/{accountId}':
     x-swagger-router-controller: auth
     delete:
       description: remove account by accountId
@@ -257,6 +218,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+
 
 # SEARCH
 
@@ -298,6 +260,7 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
+
 
 # TUTOR
 
@@ -373,32 +336,8 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-  # GET all tutor sessions by account ID
-  '/tutor/{tutorId}/sessions':
-    x-swagger-router-controller: sessions
-    get:
-      description: Get sessions belonging to tutor account id.
-      operationId: getTutorSessionsByAccountId
-      tags:
-        - Session
-      parameters:
-          - name: tutorId
-            in: path
-            description: account ID of tutor
-            required: true
-            type: string
-      responses:
-          "200":
-            description: Success
-            schema:
-              $ref: "#/definitions/HelloWorldResponse"
-          default:
-            description: Error
-            schema:
-              $ref: "#/definitions/ErrorResponse"
-
   # Update tutor schedule - PUT
-  '/tutor/update-schedule':
+  '/tutor/schedule':
     x-swagger-router-controller: schedules
     put:
       description: update tutor schedule
@@ -468,7 +407,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # Update tutor location - PUT
-  '/tutor/update-location':
+  '/tutor/location':
     x-swagger-router-controller: tutor
     put:
       description: update tutor location
@@ -512,7 +451,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # Update tutor schedule exceptions - POST
-  '/tutor/schedule-exceptions':
+  '/tutor/schedule/exceptions':
     x-swagger-router-controller: schedules
     post:
       description: update tutor schedule exceptions
@@ -561,10 +500,11 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-# TUTEE
+
+# REVIEWS
 
   # POST a new review created by a tutee
-  '/tutee/review':
+  '/review':
     x-swagger-router-controller: reviews
     post:
       description: Get sessions belonging to tutor email.
@@ -605,18 +545,93 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+
+# SESSIONS
+
   # GET all tutee sessions by account ID
-  '/tutee/{tuteeId}/sessions':
+  '/session/{accountId}':
     x-swagger-router-controller: sessions
     get:
-      description: Get sessions belonging to tutee account id.
-      operationId: getTuteeSessionsByAccountId
+      description: Get sessions belonging to tutee or tutor account id.
+      operationId: getSessionsByAccountId
       tags:
         - Session
       parameters:
-          - name: tuteeId
+          - name: accountId
             in: path
-            description: account ID of tutee
+            description: account ID of tutee/tutor
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # GET all tutee sessions by account ID
+  '/session/{accountId}/accepted':
+    x-swagger-router-controller: sessions
+    get:
+      description: Get sessions belonging to tutee or tutor account id.
+      operationId: getAcceptedSessionsByAccountId
+      tags:
+        - Session
+      parameters:
+          - name: accountId
+            in: path
+            description: account ID of tutee/tutor
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # GET all tutee sessions by account ID
+  '/session/{accountId}/rejected':
+    x-swagger-router-controller: sessions
+    get:
+      description: Get sessions belonging to tutee or tutor account id.
+      operationId: getRejectedSessionsByAccountId
+      tags:
+        - Session
+      parameters:
+          - name: accountId
+            in: path
+            description: account ID of tutee/tutor
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # GET all tutee sessions by account ID
+  '/session/{accountId}/pending':
+    x-swagger-router-controller: sessions
+    get:
+      description: Get sessions belonging to tutee or tutor account id.
+      operationId: getPendingSessionsByAccountId
+      tags:
+        - Session
+      parameters:
+          - name: accountId
+            in: path
+            description: account ID of tutee/tutor
             required: true
             type: string
       responses:
@@ -630,7 +645,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # POST a new session created by a tutee
-  '/tutee/session':
+  '/session':
     x-swagger-router-controller: sessions
     post:
       description: create new session
@@ -684,6 +699,72 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
+  # POST accept a session 
+  '/session/accept':
+    x-swagger-router-controller: sessions
+    post:
+      description: accept a session
+      operationId: acceptSession
+      tags:
+        - Session
+      parameters:
+          - name: session
+            in: body
+            required: true
+            schema:
+              properties:
+                sessionId:
+                  type: string
+                  description: id of session
+                tutorId:
+                  type: string
+              required:
+                - sessionId
+                - tutorId
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # POST reject a session 
+  '/session/reject':
+    x-swagger-router-controller: sessions
+    post:
+      description: reject a session
+      operationId: rejectSession
+      tags:
+        - Session
+      parameters:
+          - name: session
+            in: body
+            required: true
+            schema:
+              properties:
+                sessionId:
+                  type: string
+                  description: id of session
+                tutorId:
+                  type: string
+              required:
+                - sessionId
+                - tutorId
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
 
 # SUBJECTS
 
@@ -719,10 +800,7 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
-
-  # GET all subjects
-  '/subjects':
-    x-swagger-router-controller: subjects
+    # GET all subjects
     get:
       description: get all subjects
       operationId: getAllSubjects
@@ -739,7 +817,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # GET all subjects by partial or full string
-  '/subjects/{subjectName}':
+  '/subject/{subjectName}':
     x-swagger-router-controller: subjects
     get:
       description: get all subjects by a partial name string
@@ -763,7 +841,7 @@ paths:
               $ref: "#/definitions/ErrorResponse"
 
   # GET all subjects by level
-  '/subjects/level/{subjectLevel}':
+  '/subject/level/{subjectLevel}':
     x-swagger-router-controller: subjects
     get:
       description: get all subjects by level

@@ -4,10 +4,11 @@ const tutorModel = app.models.tutorModel;
 const tuteeModel = app.models.tuteeModel;
 const subjectModel = app.models.subjectModel;
 
-// var ObjectId = require('mongodb').ObjectId;
+// let ObjectId = require('mongodb').ObjectId;
 
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
+const validator = require('../helpers/validators');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
@@ -16,19 +17,23 @@ const moment = require('moment');
 
 module.exports = {
 
-	getTuteeSessionsByAccountId: (req, res) => {
+	getSessionsByAccountId: (req, res) => {
 		let params = req.swagger.params;
-		let tuteeId = params.tuteeId.value;
+		let accountId = params.accountId.value;
 
 		let getSessions = () => {
 			return new Promise((resolve, reject) => {
 				sessionModel.find(
 				{
-					tutee_id: tuteeId
+					$or: [
+						{ tutee_id: accountId },
+						{ tutor_id: accountId }
+					]
 				},
-				{
-					_id: 0
-				}, function(err, resultDocument) {
+				// {
+				// 	_id: 0
+				// }, 
+				(err, resultDocument) => {
 
 					if(err) {
 						return error.errorHandler(err, null, null, reject, null);
@@ -50,24 +55,125 @@ module.exports = {
 		});
 	},
 
-	getTutorSessionsByAccountId: (req, res) => {
+	getAcceptedSessionsByAccountId: (req, res) => {
 		let params = req.swagger.params;
-		let tutorId = params.tutorId.value;
+		let accountId = params.accountId.value;
 
 		let getSessions = () => {
 			return new Promise((resolve, reject) => {
 				sessionModel.find(
 				{
-					tutor_id: tutorId
+					$and: [
+						{
+							$or: [
+								{ tutee_id: accountId },
+								{ tutor_id: accountId }
+							]
+						},
+						{
+							state: 'accepted'
+						}
+					]
 				},
-				{
-					_id: 0
-				}, function(err, resultDocument) {
+				// {
+				// 	_id: 0
+				// }, 
+				(err, resultDocument) => {
 
 					if(err) {
 						return error.errorHandler(err, null, null, reject, null);
 					} else if (resultDocument.length===0) {
-						return error.errorHandler(null, "NO_SESSIONS", "No sessions exist for the entered user.", reject, null);
+						return error.errorHandler(null, "NO_SESSIONS", "No sessions exist with the entered criteria", reject, null);
+					} else {
+						return resolve(resultDocument);
+					}
+
+				});
+			});
+		};
+
+		getSessions()
+		.then(sessions => {
+			return res.send(JSON.stringify(sessions))
+		}).catch(err => {
+			return error.sendError(err.name, err.message, res); 
+		});
+	},
+
+	getRejectedSessionsByAccountId: (req, res) => {
+		let params = req.swagger.params;
+		let accountId = params.accountId.value;
+
+		let getSessions = () => {
+			return new Promise((resolve, reject) => {
+				sessionModel.find(
+				{
+					$and: [
+						{
+							$or: [
+								{ tutee_id: accountId },
+								{ tutor_id: accountId }
+							]
+						},
+						{
+							state: 'rejected'
+						}
+					]
+				},
+				// {
+				// 	_id: 0
+				// }, 
+				(err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (resultDocument.length===0) {
+						return error.errorHandler(null, "NO_SESSIONS", "No sessions exist with the entered criteria", reject, null);
+					} else {
+						return resolve(resultDocument);
+					}
+
+				});
+			});
+		};
+
+		getSessions()
+		.then(sessions => {
+			return res.send(JSON.stringify(sessions))
+		}).catch(err => {
+			return error.sendError(err.name, err.message, res); 
+		});
+	},
+
+	getPendingSessionsByAccountId: (req, res) => {
+		let params = req.swagger.params;
+		let accountId = params.accountId.value;
+
+		let getSessions = () => {
+			return new Promise((resolve, reject) => {
+				sessionModel.find(
+				{
+					$and: [
+						{
+							$or: [
+								{ tutee_id: accountId },
+								{ tutor_id: accountId }
+							]
+						},
+						{
+							state: 'pending'
+						}
+					]
+				},
+				// {
+				// 	_id: 0
+				// }, 
+				(err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (resultDocument.length===0) {
+						return error.errorHandler(null, "NO_SESSIONS", "No sessions exist with the entered criteria", reject, null);
 					} else {
 						return resolve(resultDocument);
 					}
@@ -85,10 +191,10 @@ module.exports = {
 	},
 
 	createSession: (req, res) => {
-		
-		var session = req.swagger.params.session.value;
 
-		var fields = {
+		let session = req.swagger.params.session.value;
+
+		let fields = {
 			tutorId: 'tutor_id',
 			tuteeId: 'tutee_id',
 			subjectId: 'subject_id',
@@ -97,10 +203,11 @@ module.exports = {
 			timeslots: 'timeslots'
 		};
 		
-		var fields_to_insert = {};
+		let fields_to_insert = {};
+		fields_to_insert['state'] = 'pending';
 
 		// create a promise array to execute through
-		var map = [];
+		let map = [];
 
 		// populate promise array with new promises returning resolved after validating fields and assigning
 		// them into the fields_to_insert object.
@@ -114,6 +221,36 @@ module.exports = {
 			})
 
 		)});
+
+		// must be done here before it's used to compare against schedule and other timeslots for efficiency.
+		let validateTimeslots = () => {
+
+			let isValid = true;
+			let promises = [];
+
+			_.each(session.timeslots, function(element, content){
+
+				promises.push(new Promise((resolve, reject) => {
+
+					isValid = (validator.time(element) && isValid ? true : false );
+
+					return resolve();
+
+				}))
+			});
+
+			return new Promise((resolve, reject) => {
+				Promise.all(promises)
+				.then(() =>{
+					if(isValid) {
+						return resolve();
+					} else {
+						return error.errorHandler(null, "INVALID_TIMESLOTS", "Invalid values for timeslots entered.", reject, res);
+					}
+				});
+			});
+			
+		};
 
 		// check to see if tutor exsists
 		let checkTutor = () => {
@@ -325,7 +462,7 @@ module.exports = {
 		};
 
 		// create a promise variable to insert into the database.
-		var insertToDb = () => {
+		let insertToDb = () => {
 			return new Promise((resolve, reject) => {
 
 				sessionModel.create(fields_to_insert, (err, resultDocument) => {
@@ -344,6 +481,7 @@ module.exports = {
 
 		// begin promise chain looping through promise array.
 		Promise.all(map)
+		.then(validateTimeslots)
 		.then(checkTutor)
 		.then(getSessions)
 		.then(checkScheduleConflicts)
@@ -359,6 +497,104 @@ module.exports = {
 		.catch(err => {
 			return error.sendError(err.name, err.message, res); 	
 		});
+	},
+
+	acceptSession: (req, res) => {
+
+		let session = req.swagger.params.session.value;
+
+		let updateSession = () => {
+			return new Promise((resolve, reject) => {
+
+				sessionModel.findOneAndUpdate(
+				{
+					_id: session.sessionId,
+					tutor_id: session.tutorId
+				},
+				// set the old schedule as the new schedule
+				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
+				{
+					$set: {
+						state: 'accepted'
+					}
+				},
+				// this will return updated document rather than old one
+				{ 
+					new : true,
+					runValidators : true 
+				},
+				(err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (!resultDocument) {
+						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
+					} else {
+						return resolve(resultDocument);
+					}
+
+				});
+
+			});
+		};
+
+		// begin promise chain
+		updateSession()
+		.then(result => {
+			return res.send(JSON.stringify({
+				"message": "Successfully updated",
+				"result": result
+			}))
+		}).catch(err => { return error.sendError(err.name, err.message, res); });
+	},
+
+	declineSession: (req, res) => {
+
+		let session = req.swagger.params.session.value;
+
+		let updateSession = () => {
+			return new Promise((resolve, reject) => {
+
+				sessionModel.findOneAndUpdate(
+				{
+					_id: session.sessionId,
+					tutor_id: session.tutorId
+				},
+				// set the old schedule as the new schedule
+				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
+				{
+					$set: {
+						state: 'rejected'
+					}
+				},
+				// this will return updated document rather than old one
+				{ 
+					new : true,
+					runValidators : true 
+				},
+				(err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (!resultDocument) {
+						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
+					} else {
+						return resolve(resultDocument);
+					}
+
+				});
+
+			});
+		};
+
+		// begin promise chain
+		updateSession()
+		.then(result => {
+			return res.send(JSON.stringify({
+				"message": "Successfully updated",
+				"result": result
+			}))
+		}).catch(err => { return error.sendError(err.name, err.message, res); });
 	}
 
 };

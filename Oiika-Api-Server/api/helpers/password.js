@@ -4,16 +4,18 @@ var Promise = require('bluebird');
 var bcrypt = require('bcrypt-nodejs');
 const error = require('../helpers/errors');
 
+const saltRounds = 10;
+
 
 // assignPassword is a callback that takes the hashed password along with
 // a promise resolve to call at the end of the assigning.
-function createAndAssignPassword(password, saltRounds, assignPassword){
+function createAndAssignPassword(password, assignPassword){
 
 	return new Promise(function(resolve, reject){
 
 		var createSalt = function(){
-			return new Promise(function(accept, decline){
-				bcrypt.genSalt(saltRounds, function(err, result){
+			return new Promise((accept, decline) => {
+				bcrypt.genSalt(saltRounds, (err, result) => {
 					if(err) {
 						return decline(err);
 					} else {
@@ -23,9 +25,9 @@ function createAndAssignPassword(password, saltRounds, assignPassword){
 			});
 		};
 
-		var hashPassword = function(salt){
-			return new Promise(function(accept, decline){
-				bcrypt.hash(password, salt, null, function(err, result){
+		var hashPassword = salt => {
+			return new Promise((accept, decline) => {
+				bcrypt.hash(password, salt, null, (err, result) => {
 					if(err) {
 						return decline(err);
 					} else {
@@ -38,9 +40,9 @@ function createAndAssignPassword(password, saltRounds, assignPassword){
 		// promise chain
 		return createSalt()
 		.then(hashPassword)
-		.then(function(hash){
+		.then(hash => {
 			return assignPassword(hash, resolve);
-		}).catch(function(err){
+		}).catch(err => {
 			return reject(err);
 		});
 

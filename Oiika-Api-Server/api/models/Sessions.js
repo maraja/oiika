@@ -11,11 +11,12 @@ module.exports = function() {
 	tutor_id : { type: ObjectId, index: true, required: true },
     // account id of tutee
     tutee_id : { type: ObjectId, index: true, required: true },
-	// id of the subject in this tutoring session - NOTE: set to false for now for testing
-	subject_id : { type: ObjectId, index: true, required: false},
+	// id of the subject in this tutoring session 
+	subject_id : { type: ObjectId, index: true, required: true},
 	hourly_rate: { type: Number, required: true },
 	date: {type: Date, required: true },
-	timeslots: {type: [String], required: true, validate: [utils.validate.session_time, 'invalid time entered.']}
+	timeslots: {type: [String], required: true, validate: [utils.validate.sessionTime, 'invalid time entered.']},
+	state: { type: String, required: true, validate: [utils.validate.sessionState, 'invalid state entered.']}
   }, {strict:true, collection: 'sessions' });
 
   // Export

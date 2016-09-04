@@ -4,7 +4,7 @@ const tuteeModel = app.models.tuteeModel;
 
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
-const api = require('../helpers/auth-api');
+const authApi = require('../helpers/auth-api');
 // password creater helper
 const pass = require('../helpers/password');
 const tutor = require('./tutor');
@@ -25,7 +25,6 @@ module.exports = {
 	authLocal: (req, res) => {
 
 		let auth = req.swagger.params.auth.value;
-		let saltRounds = 10;
 
 		let fields = {
 			first_name:'first_name',
@@ -146,10 +145,12 @@ module.exports = {
 
 		// begin promise chain looping through promise array.
 		Promise.all(map)
+		// api key check
+		.then(authApi.isKeyValid(req))
 		// check to see if account exists.
 		.then(checkAccount)
 		// create hashedpassword
-		.then(pass.createAndAssignPassword(fields_to_insert.password, saltRounds, (hash, resolve) => {
+		.then(pass.createAndAssignPassword(fields_to_insert.password, (hash, resolve) => {
 			fields_to_insert.password = hash;
 			return resolve();
 		}))
@@ -317,6 +318,8 @@ module.exports = {
 
 		// begin promise chain looping through promise array.
 		Promise.all(map)
+		// api key check
+		.then(authApi.isKeyValid(req))
 		// check to see if account exists.
 		.then(checkAccount)
 		// post to database sending returned document down promise chain
@@ -480,6 +483,8 @@ module.exports = {
 
 		// begin promise chain looping through promise array.
 		Promise.all(map)
+		// api key check
+		.then(authApi.isKeyValid(req))
 		// check to see if account exists.
 		.then(checkAccount)
 		// post to database sending returned document down promise chain
@@ -568,6 +573,8 @@ module.exports = {
 
 		// begin promise chain looping through promise array.
 		checkAccount()
+		// api key check
+		.then(authApi.isKeyValid(req))
 		.then(checkPassword)
 		.then(function(result){
 			return res.send(JSON.stringify({
