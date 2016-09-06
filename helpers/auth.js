@@ -8,6 +8,7 @@ var passportGoogle = require('passport-google-oauth');
 var jwt = require('jsonwebtoken');
 var api = require('./api');
 var ipinfo = require('./ipinfo');
+var util = require('util');
 
 // serialize and deserialize
 passport.serializeUser(function(user, done) {
@@ -52,6 +53,8 @@ passport.use('login', new passportLocal.Strategy({
     .catch(err => {
       if(typeof err.error.code !== 'undefined' && err.error.code == 'SCHEMA_VALIDATION_FAILED') {
         var error_message = "Authentication Failed - Invalid Data";
+      } else if(err.error.name == 'NO_PASSWORD') {
+        var error_message = "Authentication Failed - Try logging in with Facebook or Google";
       } else {
         var error_message = "Authentication Failed - An internal error occurred";
       }
@@ -90,9 +93,10 @@ passport.use('signup', new passportLocal.Strategy({
       }
 
       if(values[0] != '') {
-        var lat_lng = values[0].split(',');
+        var lat_lng = values[0][0].split(',');
         data.location_lat = parseFloat(lat_lng[0]);
         data.location_lng = parseFloat(lat_lng[1]);
+        data.location_city = values[0][1];
       }
 
       api.post('signup', data).then(result => { console.log("result: " + result.result);
@@ -104,7 +108,7 @@ passport.use('signup', new passportLocal.Strategy({
         return done(null, result.result);
       })
       .catch(err => {
-        console.log("error: " + err.error);
+        console.log("error: " + util.inspect(err));
         if(typeof err.error.code !== 'undefined' && err.error.code == 'SCHEMA_VALIDATION_FAILED') {
           var error_message = "Authentication Failed - Invalid Data";
         } else {
@@ -151,10 +155,13 @@ passport.use(new passportFacebook.Strategy({
       }
 
       if(values[0] != '') {
-        var lat_lng = values[0].split(',');
+        var lat_lng = values[0][0].split(',');
         data.location_lat = parseFloat(lat_lng[0]);
         data.location_lng = parseFloat(lat_lng[1]);
+        data.location_city = values[0][1];
       }
+
+      console.log(values[0]);
 
       api.post('auth/facebook', data).then(result => {
         var token = tokenize(result.result.account_id);
@@ -213,12 +220,14 @@ passport.use(new passportGoogle.OAuth2Strategy({
       }
 
       if(values[0] != '') {
-        var lat_lng = values[0].split(',');
+        var lat_lng = values[0][0].split(',');
         data.location_lat = parseFloat(lat_lng[0]);
         data.location_lng = parseFloat(lat_lng[1]);
+        data.location_city = values[0][1];
       }
 
       api.post('auth/google', data).then(result => {
+        console.log(result);
         var token = tokenize(result.result.account_id);
         req.auth_provider = 'google';
         req.auth_status = 'success';
@@ -228,6 +237,7 @@ passport.use(new passportGoogle.OAuth2Strategy({
         return done(null, result.result);
       })
       .catch(err => {
+        console.log(err);
         if(typeof err.error.code !== 'undefined' && err.error.code == 'SCHEMA_VALIDATION_FAILED') {
           var error_message = "Authentication Failed - Invalid Data";
         } else {

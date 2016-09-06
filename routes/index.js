@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
-var tutor = require('../lib/tutor');
 var api = require('../helpers/api');
+var tutor = require('../lib/tutor');
 
 function auth(req, res, next) {
 	if(typeof req.user !== "undefined") {
@@ -12,6 +12,13 @@ function auth(req, res, next) {
 		return next();
 	}
 	res.redirect('/login');
+}
+
+function validate() {
+	//IF API DATA has error field, redirect to error page
+
+	//Otherwise
+	return next();
 }
 
 function saveSignupType(req, res, next) {
@@ -28,8 +35,18 @@ router.get('/', api.get('index', true), function (req, res, next) {
 	res.render('index', {title: 'Home'});
 });
 
-router.post('/login', passport.authenticate('local'), function (req, res, next) {
-	res.redirect('/');
+router.post('/login', function (req, res, next) {
+	passport.authenticate('login', function(err, user) {
+		if(user !== false) {
+			req.logIn(user, function(err) {
+	      if (err) { return next(err); }
+
+				res.send({"success": true, "message": "Welcome back, " + user.first_name});
+	    });
+		}
+
+		res.status(401).send({"error": true, "message": req.auth_message});
+	})(req, res, next);
 });
 
 router.post('/signup', function (req, res, next) {
@@ -81,15 +98,22 @@ router.get('/logout', function(req, res){
   res.redirect('/login');
 });
 
-router.get('/tutor/:id', tutor.loadProfile, function (req, res, next) {
-  res.render('tutor_profile');
+router.get('/tutor/:id', function (req, res, next) {
+	api.get('tutor/' + req.params.id).then(result => {
+		console.log(result);
+		tutor.loadProfile(req, res, next);
+		res.render('tutor_profile', {title: req.data.first_name + ' ' + req.data.last_name});
+	}).catch(err => {
+		console.log('caught error ' + err);
+		return next(err);
+	});
 });
 
 router.get('/settings', auth, function (req, res, next) {
-	if(req.user.user_type == 'tutor') {
+	if(req.user.user_type == 'tutee') {
   	res.render('tutor_settings');
 	} else if(req.user.user_type == 'tutee') {
-		res.render('tutor_profile');
+		res.render('tutee_settings');
 	}
 });
 

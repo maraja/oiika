@@ -35,7 +35,7 @@
                   a.btn.btn-primary.btn-block.submit Log In
             .bottom.text-center
               | New here?&nbsp;&nbsp;
-              a(href='#')
+              a(href='#', data-toggle="modal", data-target="#signup_modal", data-dismiss="modal")
                 b Sign Up
 
 //- Signup
@@ -81,5 +81,5 @@
                   a.btn.btn-warning.btn-block.submit Sign Up
             .bottom.text-center
               | Already a member?&nbsp;&nbsp;
-              a(href='#')
+              a(href='#', data-toggle="modal", data-target="#login_modal", data-dismiss="modal")
                 b Log In

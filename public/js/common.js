@@ -89,6 +89,8 @@ o.init = function() {
     }).fail(function() {
       //alert( "error" );
     });
+
+    return false;
   });
 
   $('#signup_modal form .submit').click(function() {
@@ -194,7 +196,17 @@ o.user.init = function() {
 
 o.tutor = {};
 o.tutor.init = function() {
-    //initialize tutor profiles
+    //initialize tutor profile
+
+    //format data from page load
+    var rating_floor = Math.round(p.rating*2)/2;
+    var hourly_rate = '$' + ((p.hourly_rate % 1 == 0) ? parseInt(p.hourly_rate) : p.hourly_rate.toFixed(2));
+    var available = (p.available[0] == 'not_available') ? 'Not Available' : 'Available ' + p.available.map(i => { return '<span class="available_type">' + i.split('_').map(j => { return j.charAt(0).toUpperCase() + j.slice(1) }).join('-') + '</span>'; }).join('');
+
+    $('.rating_wrapper input[value="' + rating_floor + '"]').attr('checked', 'checked');
+    $('.profile_overview .hourly_rate').html(hourly_rate + '/hr');
+    $('.availability_type').html(available);
+
     var reviews_top = $('.tutor_reviews').offset().top;
     var reviews_loaded = false;
 
@@ -234,12 +246,14 @@ o.tutor.init = function() {
         $('.calendar').addClass('contrast_fix');
         $('.selected_day').css('color', '#222');
         $('.selected_date').css('color', '#222');
+        $('.selected_times').css('color', '#222');
       } else if($('.calendar').hasClass('contrast_fix') && $(window).scrollTop() < 190) {
         $('.ui-datepicker-title').css('color', '#AAA');
         $('.ui-datepicker-calendar thead tr th span').css('color', '#AAA');
         $('.calendar').removeClass('contrast_fix');
         $('.selected_day').css('color', '#f8f8f8');
         $('.selected_date').css('color', '#f8f8f8');
+        $('.selected_times').css('color', '#f8f8f8');
       }
 
       //reviews view logic
@@ -250,9 +264,10 @@ o.tutor.init = function() {
     });
 
     $('#reviews_scroll').smoothScroll({offset: -90});
+    $('body').on('click', '.retry_reviews', o.tutor.loadReviews);
 
     //initialize map
-    google.maps.event.addDomListener(window, 'load', o.tutor.initMap);
+    google.maps.event.addDomListener(window, 'load', o.tutor.initMap(p.currentLocation, p.radius));
 }
 
 o.tutor.calendar = {};
@@ -278,7 +293,7 @@ o.tutor.calendar.parseSchedule = function(year, month, instance) {
     var date = moment().month(month).date(i);
     var day_of_week = moment(date).day();
 
-    for(var exception of p.exceptions) {
+    for(var exception of p.schedule_exceptions) {
       if(moment(date).isSame(exception.date, 'day')) {
         //date matches a day in exceptions
         if(exception.all_day == true) {
@@ -294,6 +309,13 @@ o.tutor.calendar.parseSchedule = function(year, month, instance) {
 
     monthly_schedule[moment(date).format('YYYY-MM-DD')] = p.schedule[day_of_week];
   }
+
+  //count hours per week
+  var count = 0;
+  for(var day in p.schedule) {
+    count += p.schedule[day].length / 2;
+  }
+  $('.availability_count').html(count + ' hrs/week');
 
   monthly_availability = monthly_schedule;
 
@@ -367,8 +389,11 @@ o.tutor.calendar.visualize = function() {
 }
 
 o.tutor.calendar.next = function($src, $tgt) {
-  $('.selected_day').html(moment(o.tutor.calendar.selectedDate).format('dddd'));
+  $('.selected_day').html(moment(o.tutor.calendar.selectedDate).format('dddd') + ',');
   $('.selected_date').html(moment(o.tutor.calendar.selectedDate).format('MMMM Do, YYYY'));
+
+  $('.booking_costs .hourly_rate').html('$' + ((p.hourly_rate % 1 == 0) ? parseInt(p.hourly_rate) : p.hourly_rate.toFixed(2)));
+
   //populate with timeslots
   $('ul.timeslots').html('');
   for(var timeslot of o.tutor.monthly_availability[o.tutor.calendar.selectedDate]) {
@@ -379,17 +404,12 @@ o.tutor.calendar.next = function($src, $tgt) {
   setTimeout(function() {
     $('ul.timeslots li').each(function(index) {
       $(this).delay(50*index).animate({
-        height: 40,
+        height: 36,
         opacity: 1,
         duration: 50
       });
     });
-  }, 200);
-
-  $('select.timeslots').select2({
-    placeholder: "Select desired timeslots",
-    minimumResultsForSearch: 1000
-  });
+  }, 100);
 
   //transition to next booking view
   var $parent = $src.parent();
@@ -409,6 +429,11 @@ o.tutor.calendar.next = function($src, $tgt) {
 }
 
 o.tutor.calendar.prev = function($src, $tgt) {
+  $('.selected_times').html('Select your desired session times');
+  $('ul.timeslots li.selected').removeClass('selected');
+  $('.booking_costs .hours').html('0 hours');
+  $('.booking_costs .total').html('$0');
+
   //transition back to calendar view
   var $parent = $src.parent();
   var width = $parent.outerWidth();
@@ -422,16 +447,65 @@ o.tutor.calendar.prev = function($src, $tgt) {
   });
 }
 
-o.tutor.initMap = function() {
+$('body').on('click', 'ul.timeslots li', function() {
+  $(this).toggleClass('selected');
+
+  var timeslots = [];
+  var start_time = '';
+  $('ul.timeslots li').each(function() {
+    //timeslots.push($(this).attr('data-time'));
+    if($(this).hasClass('selected')) {
+      if(start_time == '') {
+        start_time = $(this).attr('data-time');
+      }
+    } else {
+      if(start_time != '') {
+        timeslots.push(moment(start_time, 'HH:mm').format('h:mma') + ' - ' + moment($(this).attr('data-time'), 'HH:mm').format('h:mma'));
+        start_time = '';
+      }
+    }
+  });
+
+  if(start_time != '') {
+    var end_time = moment($('ul.timeslots li:last').attr('data-time'), 'HH:mm').add(30, 'minutes').format('h:mma');
+    timeslots.push(moment(start_time, 'HH:mm').format('h:mma') + ' - ' + end_time);
+  }
+
+  var num_selected = $('ul.timeslots li.selected').length;
+
+  if(num_selected > 0) {
+    $('.selected_times').html(timeslots.join(', '));
+    $('.request_session').removeClass('disabled');
+
+    var hours = num_selected / 2;
+    var total = p.hourly_rate * hours;
+    $('.booking_costs .hours').html((hours == 1) ? hours + ' hour' : hours + ' hours');
+    $('.booking_costs .total').html('$' + ((total % 1 == 0) ? parseInt(total) : total.toFixed(2)));
+  } else {
+    $('.selected_times').html('Select your desired session times');
+    $('.request_session').addClass('disabled');
+    $('.booking_costs .hours').html('0 hours');
+    $('.booking_costs .total').html('$0');
+  }
+
+  return false;
+});
+
+$('body').on('click', '.request_session', function() {
+  o.tutor.requestSession();
+});
+
+o.tutor.initMap = function(center, radius) {
   //initialize the tutor profile map
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 43.643305, lng: -79.378686},
-    zoom: 10
+    center: center,
+    zoom: 10,
+    scrollwheel: false
   });
 
   draw_circle = new google.maps.Circle({
-      center: {lat: 43.643305, lng: -79.378686},
-      radius: 30000,
+      center: center,
+      radius: radius,
       strokeColor: "#2ba9cc",
       strokeOpacity: 0.7,
       strokeWeight: 1,
@@ -441,13 +515,15 @@ o.tutor.initMap = function() {
   });
 }
 
-o.tutor.confirmBooking = function(data) {
-  //TODO: Process the booking request and display confirmation on the page
+o.tutor.requestSession = function(data) {
+  //TODO: Process the request session and display confirmation on the page
+  $('.booking_wrapper .overlay').fadeIn('fast');
 
   $.ajax({
       url: "http://thehotspot.ca:10010/session",
       type: "POST"
   }).done(function(data) {
+    $('.booking_wrapper .overlay').fadeOut('fast');
     if(data.error) {
       o.alert(data.error, 'error', 4000);
     } else {
@@ -461,53 +537,101 @@ o.tutor.confirmBooking = function(data) {
     }
 
   }).fail(function(error) {
+    $('.booking_wrapper .overlay').fadeOut('fast');
     o.alert('Oops! Failed to book session. Please try again.', 'error', 4000);
   });
 }
 
+o.tutor.reviewsQueue = [];
 o.tutor.loadReviews = function() {
   //TODO: Load tutor reviews and display them on the page
 
   $('.tutor_reviews .loader').show();
 
-  $.ajax({
-      url: "http://thehotspot.ca:10010/tutor/" + p.info.id + "/reviews",
-      type: "GET"
-  }).done(function(data) {
-    //$('.tutor_reviews .loader').fadeOut('fast');
-    if(data.error) {
-      o.alert(data.error, 'error', 4000);
-    } else {
-      $('.reviews_wrapper').html(data);
-    }
+  for(var i = 0; i < o.tutor.reviewsQueue.length; i++) {
+			o.tutor.reviewsQueue[i].abort();
+	}
 
-    //built layout
-    var html = '';
-    for(var item in data) {
-      html += '<div class="review_item"> \
-                <table> \
-                  <tr> \
-                    <td><img src="' + item.profile_picture + '" title="' + item.first_name + '" /></td> \
-                    <td> \
-                      <p class="review_text">' + item.text + '</p> \
-                      <input type="hidden" id="review_id" value="' + item.id + '" \
-                      <span class="datetime">Posted on ' + item.date + ' \
-                    </td> \
-                  </tr> \
-                </table> \
-              </div>';
-      //           p.review_text
-      //             | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
-      //           input#review_id(type='hidden', value='2')
-      //           span.datetime Posted on: 2015/12/08
-    }
+	o.tutor.reviewsQueue = [];
+  console.log(p.id);
+  o.tutor.reviewsQueue.push(
+    $.ajax({
+        url: "http://thehotspot.ca:10010/tutor/" + p.id + "/reviews",
+        type: "GET"
+    }).done(function(data) {
+      $('.tutor_reviews .loader').hide();
+      if(data.error) {
+        o.alert(data.error, 'error', 4000);
+        $('.tutor_reviews .loader').hide();
+        $('.reviews_wrapper').html('<h4 class="text-center">Failed to load reviews</h4><p class="text-center"><a href="#" class="btn btn-primary retry_reviews">Retry</a></p>');
+      } else {
+        $('.reviews_wrapper').html(data);
+      }
 
-    $('.reviews_wrapper').append(html);
-  }).fail(function(error) {
-    o.alert('Oops! Failed to load reviews. Please try again.', 'error', 4000);
+      //built layout
+      var html = '';
+      var count = 0;
+      for(var item of data) {
+        if(typeof item.profile_picture === 'undefined') {
+          item.profile_picture = '/images/anonymous.png';
+        }
 
-    $('.reviews_wrapper').append('<p class="text-center retry_reviews"><a href="#" class="btn btn-primary">Retry</a></p>');
-  });
+        html += '<div class="review_item" data-rating="' + item.rating + '"> \
+                  <table> \
+                    <tr> \
+                      <td><img src="' + item.profile_picture + '" title="' + item.first_name + '" /></td> \
+                      <td> \
+                        <span class="rating_wrapper"> \
+                          <fieldset class="rating disabled"> \
+                            <input id="star5" type="radio" name="rating_' + count + '" value="5" disabled="disabled"/> \
+                            <label for="star5" class="full"></label> \
+                            <input id="star4half" type="radio" name="rating_' + count + '" value="4.5" disabled="disabled"/> \
+                            <label for="star4half" class="half"></label> \
+                            <input id="star4" type="radio" name="rating_' + count + '" value="4" disabled="disabled"/> \
+                            <label for="star4" class="full"></label> \
+                            <input id="star3half" type="radio" name="rating_' + count + '" value="3.5" disabled="disabled"/> \
+                            <label for="star3half" class="half"></label> \
+                            <input id="star3" type="radio" name="rating_' + count + '" value="3" disabled="disabled"/> \
+                            <label for="star3" class="full"></label> \
+                            <input id="star2half" type="radio" name="rating_' + count + '" value="2.5" disabled="disabled"/> \
+                            <label for="star2half" class="half"></label> \
+                            <input id="star2" type="radio" name="rating_' + count + '" value="2" disabled="disabled"/> \
+                            <label for="star2" class="full"></label> \
+                            <input id="star1half" type="radio" name="rating_' + count + '" value="1.5" disabled="disabled"/> \
+                            <label for="star1half" class="half"></label> \
+                            <input id="star1" type="radio" name="rating_' + count + '" value="1" disabled="disabled"/> \
+                            <label for="star1" class="full"></label> \
+                            <input id="starhalf" type="radio" name="rating_' + count + '" value="half" disabled="disabled"/> \
+                            <label for="starhalf" class="half"></label> \
+                          </fieldset> \
+                        </span> \
+                        <p class="review_text">' + item.text + '</p> \
+                        <input type="hidden" id="review_id" value="' + item.id + '" \
+                        <span class="datetime">' + moment(item.date).fromNow() + ' \
+                      </td> \
+                    </tr> \
+                  </table> \
+                </div>';
+        count++;
+      }
+
+      $('.reviews_wrapper').append(html);
+
+      $('.reviews_wrapper .review_item').each(function(index) {
+        var item = $(this);
+        var rating = $(item).attr('data-rating');
+        console.log($(item).find('.review_text').text());
+        $(item).find('.rating_wrapper input[value="' + rating + '"]').attr('checked', 'checked');
+        $(item).delay(150*index).slideDown(200)
+      });
+    }).fail(function(error) {
+      o.alert('Oops! Failed to load reviews. Please try again.', 'error', 4000);
+      $('.tutor_reviews .loader').hide();
+      $('.reviews_wrapper').html('<p class="text-center">Failed to load reviews</p><p class="text-center"><a href="#" class="btn btn-primary retry_reviews">Retry</a></p>');
+    })
+  );
+
+  return false;
 }
 
 o.tutor_settings = {};
@@ -624,15 +748,18 @@ o.messages.init = function() {
 
 //display error to user
 o.alert = function(message, type, duration) {
+  $('.header_alert').remove();
+
   $('body').append('<div class="header_alert ' + type + '">' + message + '</div>');
-  $('.header_alert').fadeIn('fast').animate({
+  var last = $('.header_alert:last');
+  $(last).fadeIn('fast').animate({
     top: '60'
   }, 400, function() {
     setTimeout(function() {
-      $('.header_alert').animate({
+      $(last).animate({
         top: '-100'
       }, 500, function() {
-        $(this).hide();
+        $(last).remove();
       });
     }, duration);
   });

@@ -7,7 +7,11 @@ block content
     .row
       .col-xs-12.col-sm-4.col-md-3.vertical_nav
         ul.nav.nav-tabs.tabs-left(role='tablist')
-          li.active
+          li
+            a(href='#cover', role='tab', data-toggle='tab', aria-expanded='false')
+              i.fa.fa-photo
+              |   Cover
+          li
             a(href='#profile_info', role='tab', data-toggle='tab', aria-expanded='false')
               i.fa.fa-user
               |   My Profile

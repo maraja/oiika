@@ -53,48 +53,19 @@ app.use('/', routes);
 
 // ERROR HANDLERS
 // Handle 404
-  app.use(function(req, res) {
-    res.status(404);
-    res.render('error/404', {title: '404'});
-  });
-
-  // Handle 500
-  app.use(function(error, req, res, next) {
-    res.status(500);
-    if (config.environment === 'development') {
-      res.render('error/500', {title: '500', error: error});
-    } else {
-      res.render('error/500');
-    }
-  });
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-	var err = new Error('Not Found');
-	err.status = 404;
-	next(err);
+app.use(function(req, res) {
+  res.status(404);
+  res.render('error/404', {title: '404'});
 });
 
-// development error handler
-// will print stacktrace
-if (config.environment === 'development') {
-	app.use(function(err, req, res, next) {
-		res.status(err.status || 500);
-		res.render('error', {
-			message: err.message,
-			error: err
-		});
-	});
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-	res.status(err.status || 500);
-	res.render('error', {
-		message: err.message,
-		error: {}
-	});
+// Handle 500
+app.use(function(error, req, res, next) {
+  res.status(500);
+  if (config.environment === 'development') {
+    res.render('error/500', {title: '500', error: error});
+  } else {
+    res.render('error/500');
+  }
 });
 
 module.exports = app;

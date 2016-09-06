@@ -20,7 +20,7 @@ module.exports.location = function(ip) {
       json: true
     }).then(data => {
       if(typeof data.loc !== 'undefined') {
-        resolve(data.loc);
+        resolve([data.loc, data.city]);
       } else {
         resolve('');
       }
