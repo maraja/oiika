@@ -1,9 +1,5 @@
 const tutorModel = app.models.tutorModel;
-const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
-
-const schedules = require('./schedules');
-const reviews = require('./reviews');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
@@ -23,12 +19,12 @@ function getTutorsByLocation(req, res){
 	// look for all tutors within a given area of current location
 	// NOTE: current location consists of a Northeast lat, long and a Southwest lat, long
 	tutorModel.find({ 
-		// $and : [
-		// 	{ $where : (sw_lat+' < (this.currentLocation.lat)') },
-		// 	{ $where : (sw_lng+' < (this.currentLocation.lng)') },
-		// 	{ $where : (ne_lat+' > (this.currentLocation.lat)') },
-		// 	{ $where : (ne_lng+' > (this.currentLocation.lng)') }
-		// ]
+		$and : [
+			{ $where : (sw_lat+' < (this.currentLocation.lat)') },
+			{ $where : (sw_lng+' < (this.currentLocation.lng)') },
+			{ $where : (ne_lat+' > (this.currentLocation.lat)') },
+			{ $where : (ne_lng+' > (this.currentLocation.lng)') }
+		]
 	}, function(err, resultDocument) {
 
 		if(err) {

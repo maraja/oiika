@@ -1,12 +1,10 @@
 
 // const scheduleModel = app.models.scheduleModel;
 const tutorModel = app.models.tutorModel;
-const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
 
 const Promise = require('bluebird');
-// const mongoose = require('mongoose');
 const _ = require('underscore');
 
 module.exports = {
@@ -46,7 +44,7 @@ module.exports = {
 	},
 
 	// update schedule by account id
-	updateSchedule: (req, res) => {
+	updateTutorSchedule: (req, res) => {
 
 		let schedule = req.swagger.params.schedule.value;
 
@@ -178,10 +176,6 @@ module.exports = {
 		};
 
 
-		// // begin promise chain looping through promise array.
-		// Promise.all(map)
-		// // post to database sending returned document down promise chain
-		// .then(insertToDb)
 		insertToDb()
 		// handle success accordingly
 		.then(function(result){

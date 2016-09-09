@@ -21,7 +21,7 @@ app.models = {
 
   reviewModel: require('./api/models/Reviews')(),
   accountModel: require('./api/models/Accounts')()
-}
+};
 
 
 switch (process.env.NODE_ENV){
@@ -31,7 +31,7 @@ switch (process.env.NODE_ENV){
     logger.debug("Overriding 'Express' logger");
     app.use(require('morgan')('combined', {stream: logger.stream}));
     break;
-}
+};
 
 
 
