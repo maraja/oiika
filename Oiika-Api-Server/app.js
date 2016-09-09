@@ -4,6 +4,7 @@ var handlers = require('./handlers');
 var config = require('./config');
 
 var logger = require('./handlers/logger');
+var cors = require('cors');
 
 // declare app as a global variable (no var in front to hoist it to global scope)
 // so that models and any other configuration can be used worldwide.
@@ -46,6 +47,8 @@ var mongoDb = require('./mongo/helpers/mongodb');
 mongoDb.dbConnection();
 
 
+
+
 // minify response
 // http://stackoverflow.com/questions/19833174/can-express-js-output-minified-json
 app.set('json spaces', 0);
@@ -77,6 +80,8 @@ app.use(function(err, req, res, next) {
 
 app.set('json spaces', 4);
 
+
+
 SwaggerExpress.create(swaggerConfig, function(err, swaggerExpress) {
   if (err) { throw err; }
 
@@ -84,6 +89,9 @@ SwaggerExpress.create(swaggerConfig, function(err, swaggerExpress) {
     res.setHeader('Content-Type', 'application/json');
     return next();
   });
+
+  // accept cross origin requests.
+  app.use(cors());
   
   // install middleware
   swaggerExpress.register(app);
