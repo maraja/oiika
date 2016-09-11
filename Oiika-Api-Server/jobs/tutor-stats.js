@@ -1,22 +1,20 @@
 const accountModel = app.models.accountModel;
 const tutorModel = app.models.tutorModel;
 const sessionModel = app.models.sessionModel;
-const valid = require('../helpers/validations');
-const error = require('../helpers/errors');
+const reviewModel = app.models.reviewModel;
+const error = require('../api/helpers/errors');
 
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
 const _ = require('underscore');
 const CronJob = require('cron').CronJob;
 
-calculateHoursWorked();
-
 module.exports = {
 
 	calculateHoursWorked: () => {
 
-		let tutors = [];
-		let sessions = [];
+		// let tutors = [];
+		// let sessions = [];
 		let tutorHours = [];
 		let promises = [];
 
@@ -31,7 +29,7 @@ module.exports = {
 					} else if (resultDocument.length===0) {
 						return error.errorHandler(null, "ERROR", "calculate hours worked get tutors job experienced an unexpected error.", reject, res);
 					} else {
-						tutors = resultDocument;
+						// tutors = resultDocument;
 						return resolve(resultDocument);
 					}
 
@@ -40,40 +38,75 @@ module.exports = {
 			});
 		};
 
-		let getSessions = () => {
+		let getSessionsAndReviews = tutors => {
+
 			return new Promise((resolve, reject) => {
 
-				sessionModel.find({}, (err, resultDocument) => {
+				let sessions = [];
+				let reviews = [];
 
-					if(err) {
-						return error.errorHandler(err, null, null, reject, res);
-					} else if (resultDocument.length===0) {
-						return error.errorHandler(null, "ERROR", "calculate hours worked get sessions job experienced an unexpected error.", reject, res);
-					} else {
-						return resolve(resultDocument);
-					}
+				let getSessions = () => {
+					return new Promise((resolve, reject) => {
 
-				});
+						sessionModel.find({}, (err, resultDocument) => {
 
+							if(err) {
+								return error.errorHandler(err, null, null, reject, res);
+							} else if (resultDocument.length===0) {
+								return error.errorHandler(null, "ERROR", "calculate hours worked get sessions job experienced an unexpected error.", reject, res);
+							} else {
+								sessions = resultDocument;
+								return resolve(resultDocument);
+							}
+
+						});
+
+					})
+
+				};
+
+				let getReviews = () => {
+					return new Promise((resolve, reject) => {
+
+						reviewModel.find({}, (err, resultDocument) => {
+
+							if(err) {
+								return error.errorHandler(err, null, null, reject, res);
+							} else if (resultDocument.length===0) {
+								return error.errorHandler(null, "ERROR", "calculate hours worked get reviews job experienced an unexpected error.", reject, res);
+							} else {
+								reviews = resultDocument;
+								return resolve(resultDocument);
+							}
+
+						});
+
+					})
+
+				};
+
+				getSessions()
+				.then(getReviews)
+				.then(() => {
+					return resolve([tutors, sessions, reviews]);
+				}).catch(err => { return error.sendError(err.name, err.message, res) && reject(); });
 			});
-			// _.each(tutors, (element, content) => {
-			// 	promises.push(new Promise((resolve, reject) => {
-
-			// 	}))
-			// })
 		}
 
-		let groupSessions = result => {
+		let groupSessionsAndReviews = (tutors, sessions, reviews) => {
 			return new Promise((resolve, reject) => {
-				sessions = _.groupBy(result, 'tutor_id');
+				sessions = _.groupBy(sessions, 'tutor_id');
+				reviews = _.groupBy(reviews, 'tutor_id');
+				console.log(reviews);
+				console.log(sessions);
 				return resolve();
 			})
 		}
 
 
 		getTutors()
-		.then(getSessions)
-		.then(groupSessions)
+		.then(getSessionsAndReviews)
+		.spread(groupSessionsAndReviews)
 		// handle success accordingly
 		// .then(result => {
 		// 	return res.send(JSON.stringify({

@@ -6,6 +6,7 @@ const enumGender = ['male', 'female'];
 const enumUserType = ['tutor', 'tutee'];
 const enumAccountType = ['local', 'facebook', 'google'];
 const enumSessionState = ['pending', 'accepted', 'rejected'];
+const enumAvailable = ['in_person', 'online'];
 
 module.exports = {
 
@@ -55,6 +56,13 @@ module.exports = {
 		if (_.contains(enumSessionState, state)) return state && true;
 		else {
 			return state && false;
+		}
+	},
+
+	available: function(available) {
+		if (_.contains(enumAvailable, available)) return available && true;
+		else {
+			return available && false;
 		}
 	},
 

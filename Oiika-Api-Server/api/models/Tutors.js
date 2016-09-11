@@ -22,7 +22,7 @@ module.exports = function() {
     hourly_rate: { type: Number, required: false},
     hours_taught: { type: Number, required: false },
     cover_photo: { type: String, required: false },
-    available: { type: String, required: false }, 
+    available: { type: [String], required: false, validate: [utils.validate.available, 'invalid available value entered.']}, 
     currentLocation: {
       city: { type: String, required: false, lowercase: true, trim: false},
       // latitude of location
