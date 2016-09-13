@@ -47,6 +47,7 @@ var mongoDb = require('./mongo/helpers/mongodb');
 mongoDb.dbConnection();
 
 
+// testing job
 require('./jobs/tutor-stats.js').calculateHoursWorked();
 
 

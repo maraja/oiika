@@ -5,6 +5,7 @@ const reviewModel = app.models.reviewModel;
 const error = require('../api/helpers/errors');
 
 const Promise = require('bluebird');
+const moment = require('moment');
 // const mongoose = require('mongoose');
 const _ = require('underscore');
 const CronJob = require('cron').CronJob;
@@ -97,16 +98,60 @@ module.exports = {
 			return new Promise((resolve, reject) => {
 				sessions = _.groupBy(sessions, 'tutor_id');
 				reviews = _.groupBy(reviews, 'tutor_id');
-				console.log(reviews);
-				console.log(sessions);
-				return resolve();
+				return resolve([tutors, sessions, reviews]);
 			})
+		}
+
+		let acceptSessions = (tutors, sessions, reviews) => {
+
+			let acceptedSessions = {};
+
+			return new Promise((resolve, reject) => {
+				_.each(sessions, (element, content) => {
+					// console.log(element);
+					// console.log(content);
+					_.each(element, (session, index) => {
+						if(moment().diff(session.date, 'hours') > 0){
+							// if this number returns greater than 0, it means the session date has passed.
+							if(!acceptedSessions[[content]]) acceptedSessions[[content]] = [];
+							acceptedSessions[[content]].push(session);
+						}
+					})
+				})
+				return resolve([tutors, acceptedSessions, reviews]);
+			})
+		}
+
+		let calculateStudentsTaught = (tutors, sessions, reviews) => {
+
+			let students = {};
+
+			return new Promise((resolve, reject) => {
+				// console.log(sessions);
+				_.each(sessions, (element, content) => {
+					students = _.groupBy(element, 'tutee_id');
+					// console.log(students);
+					// console.log(Object.keys(students).length);
+					sessions[content].push({
+						students_taught: Object.keys(students).length
+					});
+					console.log(sessions[content]);
+				})
+				return resolve([tutors, sessions, reviews]);
+			})
+
+		}
+
+		let display = (tutors, sessions, reviews) => {
+			console.log(sessions);
 		}
 
 
 		getTutors()
 		.then(getSessionsAndReviews)
 		.spread(groupSessionsAndReviews)
+		.spread(acceptSessions)
+		.spread(calculateStudentsTaught)
 		// handle success accordingly
 		// .then(result => {
 		// 	return res.send(JSON.stringify({
