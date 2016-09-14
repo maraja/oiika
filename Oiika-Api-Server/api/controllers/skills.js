@@ -46,6 +46,47 @@ module.exports = {
 		});
 	},
 
+	getSkillsByName: (req, res) => {
+		// ref: http://stackoverflow.com/questions/17885855/use-dynamic-variable-string-as-regex-pattern-in-javascript
+
+		// function escapeRegExp(stringToGoIntoTheRegex) {
+		//     return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+		// }
+
+		// var stringToGoIntoTheRegex = escapeRegExp("abc"); // this is the only change from above
+		// var regex = new RegExp("#" + stringToGoIntoTheRegex + "#", "g");
+		// // at this point, the line above is the same as: var regex = /#abc#/g;
+
+		// var input = "Hello this is #abc# some #abc# stuff.";
+		// var output = input.replace(regex, "!!");
+		// alert(output); // Hello this is !! some !! stuff.
+		let name = req.swagger.params.skillName.value;
+
+		// escape entered string
+		let regexName = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+		regexName = new RegExp(".*" + regexName + ".*", "gi");
+
+		if (name.length > 2){
+			skillModel.find({
+				$or: [
+					{ name: regexName },
+					{ subskills: { $in: [regexName] } }
+				]
+			}, function(err, resultDocument) {
+
+				if(err) {
+					return error.errorHandler(err, null, null, null, res);
+				} else if (resultDocument.length===0) {
+					return error.errorHandler(null, "NO_SKILLS", "No skills could be found.", null, res);
+				} else {
+					return res.send(resultDocument);
+				}
+			});
+		} else {
+			return error.errorHandler(null, "INVALID_SEARCH", "Skill search string must be more than 2 letters long.", null, res);
+		}
+	},
+
 	createSkill: (req, res) => {
 		let skill = req.swagger.params.skill.value;
 

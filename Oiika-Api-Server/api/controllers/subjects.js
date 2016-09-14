@@ -48,7 +48,7 @@ module.exports = {
 				if(err) {
 					return error.errorHandler(err, null, null, null, res);
 				} else if (resultDocument.length===0) {
-					return error.errorHandler(null, "NO_SUBJECTS", "No skills could be found.", null, res);
+					return error.errorHandler(null, "NO_SUBJECTS", "No subjects could be found.", null, res);
 				} else {
 					return res.send(resultDocument);
 				}

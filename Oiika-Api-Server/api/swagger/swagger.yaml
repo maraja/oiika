@@ -863,7 +863,7 @@ paths:
     x-swagger-router-controller: subjects
     get:
       description: get all subjects by level
-      operationId: getSubjectsByLevel
+      operationId: getSubjectsBylevel
       tags:
         - Subject
       parameters:
@@ -937,6 +937,30 @@ paths:
               required:
                 - name
                 - subskill
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # GET all skills by partial or full string
+  '/skill/{skillName}':
+    x-swagger-router-controller: skills
+    get:
+      description: get all skills by a partial name string
+      operationId: getSkillsByName
+      tags:
+        - Skill
+      parameters:
+          -
+            name: skillName
+            in: path
+            required: true
+            type: string
       responses:
           "200":
             description: Success
