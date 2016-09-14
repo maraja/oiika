@@ -20,7 +20,6 @@ module.exports = function() {
     short_description: { type: String, required: false, trim: true},
     full_description: { type: String, required: false, trim: true},
     hourly_rate: { type: Number, required: false},
-    hours_taught: { type: Number, required: false },
     cover_photo: { type: String, required: false },
     available: { type: [String], required: false, validate: [utils.validate.available, 'invalid available value entered.']}, 
     currentLocation: {
@@ -48,8 +47,12 @@ module.exports = function() {
     }],
     // distance tutor is willing to travel
     // Note: Calculated based on just an integer value for lat and long. Algorithm to calculate KM distance should be created later.
-    travel_distance: { type: Number, required: false },
-    hours_worked: { type: Number, required: false },
+    radius: { type: Number, required: false },
+
+    hours_worked: { type: Number, required: false, validate: [utils.validate.tutorStats, 'invalid hours_worked']},
+    students_taught: { type: Number, required: false, validate: [utils.validate.tutorStats, 'invalid students_taught']},
+    num_of_reviews: { type: Number, required: false, validate: [utils.validate.tutorStats, 'invalid num_of_reviews']},
+
     rating: { type: Number, required: false },
     skills: { type: [String], required: false },
     subjects: { type: [String], required: false },

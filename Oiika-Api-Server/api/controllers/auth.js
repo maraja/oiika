@@ -86,6 +86,9 @@ module.exports = {
 					return new Promise((resolve, reject) => {
 						tutorModel.create({
 							tutor_id: newAccount._id,
+							students_taught: 0,
+							hours_worked: 0,
+							num_of_reviews: 0,
 							currentLocation: {
 								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
@@ -255,6 +258,9 @@ module.exports = {
 					return new Promise((resolve, reject) => {
 						tutorModel.create({
 							tutor_id: newAccount._id,
+							students_taught: 0,
+							hours_worked: 0,
+							num_of_reviews: 0,
 							currentLocation: {
 								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
@@ -422,6 +428,9 @@ module.exports = {
 					return new Promise((resolve, reject) => {
 						tutorModel.create({
 							tutor_id: newAccount._id,
+							students_taught: 0,
+							hours_worked: 0,
+							num_of_reviews: 0,
 							currentLocation: {
 								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),

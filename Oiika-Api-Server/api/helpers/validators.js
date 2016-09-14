@@ -31,6 +31,11 @@ module.exports = {
 		return email && email.match(re) !== null;
 	},
 
+	// used to validate hours_worked, students_taught and num_of_reviews
+	tutorStats: function (stat) {
+		return stat && stat >= 0;
+	},
+
 	gender: function(gender) {
 	 if (_.contains(enumGender, gender)) return gender && true;
 	 else {
