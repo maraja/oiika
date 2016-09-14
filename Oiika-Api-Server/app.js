@@ -48,7 +48,7 @@ mongoDb.dbConnection();
 
 
 // testing job
-require('./jobs/tutor-stats.js').calculateTutorStats();
+// require('./jobs/tutor-stats.js').calculateTutorStats();
 
 
 // minify response

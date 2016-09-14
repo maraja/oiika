@@ -12,6 +12,27 @@ const CronJob = require('cron').CronJob;
 
 module.exports = {
 
+	// endpoint created for now
+	updateTutorStats: (req, res) => {
+
+		calculateTutorStats()
+		// handle success accordingly
+		.then(() => {
+			return res.send(JSON.stringify({
+				"message": "Successfully updated",
+				"result": "All Tutor stats updated perfectly at " + (new Date())
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(err => { 
+			return res.send(JSON.stringify({
+				"message": "Error",
+				"result": "Error updating tutors - check console for more info."
+			}))
+		});
+
+	},
+
 	calculateTutorStats: () => {
 
 		// takes array to assign tutors to
@@ -247,20 +268,24 @@ module.exports = {
 			console.log(tutors);
 		}
 
+		return new Promise((resolve, reject) => {
 
-		getTutors()
-		.then(getSessionsAndReviews)
-		.spread(groupSessionsAndReviews)
-		.spread(acceptSessions)
-		.spread(calculateStudentsTaughtAndHoursWorked)
-		.spread(calculateNumberOfReviews)
-		.spread(postToDb)
-		// handle success accordingly
-		.then(() => {
-			console.log("All Tutor stats updated perfectly at " + (new Date()));
+			getTutors()
+			.then(getSessionsAndReviews)
+			.spread(groupSessionsAndReviews)
+			.spread(acceptSessions)
+			.spread(calculateStudentsTaughtAndHoursWorked)
+			.spread(calculateNumberOfReviews)
+			.spread(postToDb)
+			// handle success accordingly
+			.then(() => {
+				console.log("All Tutor stats updated perfectly at " + (new Date()));
+				return resolve();
+			})
+			// catch all errors and handle accordingly
+			.catch(err => { console.log("Tutor Stats error"); error.printError(err); return reject(); });
+
 		})
-		// catch all errors and handle accordingly
-		.catch(err => { console.log("Tutor Stats error"); console.warn(err); });
 	}
 
 }

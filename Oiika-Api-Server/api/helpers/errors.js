@@ -7,7 +7,8 @@ module.exports = {
 	errorHandler: errorHandler,
 	sendError: sendError,
 	makeError: makeError,
-	makeMongooseError: makeMongooseError
+	makeMongooseError: makeMongooseError,
+	printError: printError
 }
 
 // call this without a reject if you aren't running errors within promises

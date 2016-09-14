@@ -500,6 +500,24 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # GET Update all of tutor statistics in database
+  '/tutor/update-stats':
+    x-swagger-router-controller: tutor
+    get:
+      description: update tutor stats
+      operationId: updateTutorStats
+      tags:
+        - Tutor
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
 
 # REVIEWS
 

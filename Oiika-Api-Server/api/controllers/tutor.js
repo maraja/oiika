@@ -5,6 +5,8 @@ const sessionModel = app.models.sessionModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
+const tutorStats = require('../../jobs/tutor-stats.js')
+
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
 const _ = require('underscore');
@@ -166,6 +168,27 @@ module.exports = {
 				"result": result
 			}));
 		}).catch(err => { return error.sendError(err.name, err.message, res); });
+	},
+
+	// endpoint created for now
+	updateTutorStats: (req, res) => {
+
+		tutorStats.calculateTutorStats()
+		// handle success accordingly
+		.then(() => {
+			return res.send(JSON.stringify({
+				"message": "Successfully updated",
+				"result": "All Tutor stats updated perfectly at " + (new Date())
+			}))
+		})
+		// catch all errors and handle accordingly
+		.catch(err => { 
+			return res.send(JSON.stringify({
+				"message": "Error",
+				"result": "Error updating tutors - check console for more info."
+			}))
+		});
+
 	}
 
 };
