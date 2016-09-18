@@ -33,7 +33,9 @@ module.exports = {
 
 	// used to validate hours_worked, students_taught and num_of_reviews
 	tutorStats: function (stat) {
-		return stat && stat >= 0;
+		// console.log(stat)
+		if(stat >= 0) return true;
+		else return false;
 	},
 
 	gender: function(gender) {
@@ -65,10 +67,17 @@ module.exports = {
 	},
 
 	available: function(available) {
-		if (_.contains(enumAvailable, available)) return available && true;
-		else {
-			return available && false;
-		}
+
+		let isValid = false;
+
+		_.each(available, (element, index) => {
+			if (_.contains(enumAvailable, element)) {
+				isValid = true;
+			}
+		})
+		
+		if (isValid) return available && true;
+		else return available && false
 	},
 
 	duration: function(duration) {

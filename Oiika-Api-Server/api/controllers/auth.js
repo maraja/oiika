@@ -2,6 +2,7 @@ const accountModel = app.models.accountModel;
 const tutorModel = app.models.tutorModel;
 const tuteeModel = app.models.tuteeModel;
 
+const config = require('../../config');
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 const authApi = require('../helpers/auth-api');
@@ -86,10 +87,13 @@ module.exports = {
 					return new Promise((resolve, reject) => {
 						tutorModel.create({
 							tutor_id: newAccount._id,
+							// default values
 							students_taught: 0,
 							hours_worked: 0,
 							num_of_reviews: 0,
+							available: ["in_person"],
 							currentLocation: {
+								travel_distance: (auth.travel_distance ? auth.travel_distance : null),
 								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
 								lng: (auth.location_lng ? auth.location_lng : -999)
@@ -130,7 +134,6 @@ module.exports = {
 			}
 		};
 
-
 		let insertToDb = () => {
 			return new Promise((resolve, reject) => {
 				accountModel.create(fields_to_insert, (err, result) => {
@@ -149,7 +152,18 @@ module.exports = {
 		// begin promise chain looping through promise array.
 		Promise.all(map)
 		// api key check
-		.then(authApi.isKeyValid(req))
+		.then(() => {
+			// need to wrap this api key call in a promise - only way for it to work externally.
+			return new Promise((resolve, reject) => {
+
+				authApi.isKeyValid(req)
+				.then(() => {
+					return resolve();
+				}).catch(err => {
+					return reject(err);
+				})
+			})
+		})
 		// check to see if account exists.
 		.then(checkAccount)
 		// create hashedpassword
@@ -258,10 +272,13 @@ module.exports = {
 					return new Promise((resolve, reject) => {
 						tutorModel.create({
 							tutor_id: newAccount._id,
+							// default values
 							students_taught: 0,
 							hours_worked: 0,
 							num_of_reviews: 0,
+							available: ["in_person"],
 							currentLocation: {
+								travel_distance: (auth.travel_distance ? auth.travel_distance : null),
 								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
 								lng: (auth.location_lng ? auth.location_lng : -999)
@@ -325,7 +342,18 @@ module.exports = {
 		// begin promise chain looping through promise array.
 		Promise.all(map)
 		// api key check
-		.then(authApi.isKeyValid(req))
+		.then(() => {
+			// need to wrap this api key call in a promise - only way for it to work externally.
+			return new Promise((resolve, reject) => {
+
+				authApi.isKeyValid(req)
+				.then(() => {
+					return resolve();
+				}).catch(err => {
+					return reject(err);
+				})
+			})
+		})
 		// check to see if account exists.
 		.then(checkAccount)
 		// post to database sending returned document down promise chain
@@ -428,10 +456,13 @@ module.exports = {
 					return new Promise((resolve, reject) => {
 						tutorModel.create({
 							tutor_id: newAccount._id,
+							// default values
 							students_taught: 0,
 							hours_worked: 0,
 							num_of_reviews: 0,
+							available: ["in_person"],
 							currentLocation: {
+								travel_distance: (auth.travel_distance ? auth.travel_distance : null),
 								city: (auth.city ? auth.city : null),
 								lat: (auth.location_lat ? auth.location_lat : 999),
 								lng: (auth.location_lng ? auth.location_lng : -999)
@@ -493,7 +524,18 @@ module.exports = {
 		// begin promise chain looping through promise array.
 		Promise.all(map)
 		// api key check
-		.then(authApi.isKeyValid(req))
+		.then(() => {
+			// need to wrap this api key call in a promise - only way for it to work externally.
+			return new Promise((resolve, reject) => {
+
+				authApi.isKeyValid(req)
+				.then(() => {
+					return resolve();
+				}).catch(err => {
+					return reject(err);
+				})
+			})
+		})
 		// check to see if account exists.
 		.then(checkAccount)
 		// post to database sending returned document down promise chain

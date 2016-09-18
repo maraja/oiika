@@ -2,6 +2,8 @@
 const accountModel = app.models.accountModel;
 const tutorModel = app.models.tutorModel;
 const sessionModel = app.models.sessionModel;
+const subjectModel = app.models.subjectModel;
+const skillModel = app.models.skillModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
@@ -79,11 +81,51 @@ module.exports = {
 			});
 		};
 
+		let findTutorSubjects = account => {
+			return new Promise((resolve, reject) => {
+
+				subjectModel.find({
+					_id: { $in: account.tutor.subjects }
+				}, (err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, res);
+					} else {
+						account["subjects"] = resultDocument; 
+						return resolve(account);
+					}
+
+				});
+
+			});
+		};
+
+		let findTutorSkills = account => {
+			return new Promise((resolve, reject) => {
+
+				skillModel.find({
+					_id: { $in: account.tutor.skills }
+				}, (err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, res);
+					} else {
+						account["skills"] = resultDocument; 
+						return resolve(account);
+					}
+
+				});
+
+			});
+		};
+
 		// begin promise chain
 		// start by finding the tutor
 		findAccount()
 		.then(findTutor)
 		.then(findTutorSessions)
+		.then(findTutorSubjects)
+		.then(findTutorSkills)
 		// handle success accordingly
 		.then(result => {
 			return res.send(JSON.stringify({
@@ -96,15 +138,14 @@ module.exports = {
 					cover_photo: result.tutor.cover_photo,
 					// rating: result.tutor.rating,
 					hourly_rate: result.tutor.hourly_rate,
-					skills: result.tutor.skills,
 					schedule: result.tutor.schedule,
 					schedule_exceptions: result.tutor.schedule_exceptions,
 					currentLocation: result.tutor.currentLocation,
 					// dummy values for now:
-					hours_worked: 17,
-					num_of_students: 6,
-					num_of_reviews: 9,
-					rating: 3.79,
+					hours_worked: result.tutor.hours_worked,
+					students_taught: result.tutor.students_taught,
+					num_of_reviews: result.tutor.num_of_reviews,
+					rating: result.tutor.rating,
 					// sessions: {
 					// 	tutor_id: result.sessions.tutor_id,
 					// 	tutee_id: result.sessions.tutee_id,
@@ -113,7 +154,9 @@ module.exports = {
 					// 	date: result.sessions.date,
 					// 	timeslots: result.sessions.timeslots,
 					// }
-					sessions: result.sessions
+					skills: result.skills,
+					sessions: result.sessions,
+					subjects: result.subjects
 				}
 			}))
 		})

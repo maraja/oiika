@@ -53,6 +53,7 @@ function errorHandler(err, name, message, reject, res){
 	} else if (name && message && reject){
 		return makeError(name, message)
 		.then(function(error){
+			console.log("HELLO");
 			return reject(error);
 		});
 	} else if (name && message && !reject){
