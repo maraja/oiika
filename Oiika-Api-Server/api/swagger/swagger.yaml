@@ -662,6 +662,30 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # GET all tutee sessions by account ID
+  '/session/{accountId}/completed':
+    x-swagger-router-controller: sessions
+    get:
+      description: Get sessions belonging to tutee or tutor account id.
+      operationId: getCompletedSessionsByAccountId
+      tags:
+        - Session
+      parameters:
+          - name: accountId
+            in: path
+            description: account ID of tutee/tutor
+            required: true
+            type: string
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
   # POST a new session created by a tutee
   '/session':
     x-swagger-router-controller: sessions
@@ -756,6 +780,39 @@ paths:
     post:
       description: reject a session
       operationId: rejectSession
+      tags:
+        - Session
+      parameters:
+          - name: session
+            in: body
+            required: true
+            schema:
+              properties:
+                sessionId:
+                  type: string
+                  description: id of session
+                tutorId:
+                  type: string
+              required:
+                - sessionId
+                - tutorId
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # POST complete a session 
+  '/session/complete':
+    x-swagger-router-controller: sessions
+    post:
+      description: complete a session
+      operationId: completeSession
       tags:
         - Session
       parameters:

@@ -185,7 +185,7 @@ module.exports = {
 		.catch(err => { 
 			return res.send(JSON.stringify({
 				"message": "Error",
-				"result": "Error updating tutors - check console for more info."
+				"result": err
 			}))
 		});
 

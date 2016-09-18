@@ -7,41 +7,8 @@ module.exports = {
 };
 
 
-// GET /tutor/:tutorId
-inputs["get_tutor"] = {
-    fail_0: '',
-    fail_1: 1,
-    fail_2: 'hello',
-    fail_3: '57b65f7e14728a2c8eb57885',
-    fail_4: '57b65f7e14728a2c8eb5788',
-    fail_5: null,
-    pass_0: valid_tutor_id
-}
-
-// GET /tutor/:tutorId/reviews
-inputs["get_tutor_reviews"] = {
-    fail_0: '',
-    fail_1: 1,
-    fail_2: 'hello',
-    fail_3: '57abcddf9f8168d81fb6d66',
-    fail_4: null,
-    pass_0: '57abcddf9f8168d81fb6d66d',
-    pass_1: '57abcddf9f8168d81fb6d66c'
-}
-
-// GET /tutor/:tutorId/schedule
-inputs["get_tutor_schedule"] = {
-    fail_0: '',
-    fail_1: 1,
-    fail_2: 'hello',
-    fail_3: '57b65f7e14728a2c8eb57885',
-    fail_4: '57b65f7e14728a2c8eb5788',
-    fail_5: null,
-    pass_0: valid_tutor_id
-}
-
-// PUT /tutor/update-schedule
-inputs["put_tutor_schedule"] = {
+// POST /signup
+inputs["post_signup_local"] = {
     fail_0: { body: {} },
     fail_1: { body: {
         tutorId: 1,

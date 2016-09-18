@@ -12,27 +12,6 @@ const CronJob = require('cron').CronJob;
 
 module.exports = {
 
-	// endpoint created for now
-	updateTutorStats: (req, res) => {
-
-		calculateTutorStats()
-		// handle success accordingly
-		.then(() => {
-			return res.send(JSON.stringify({
-				"message": "Successfully updated",
-				"result": "All Tutor stats updated perfectly at " + (new Date())
-			}))
-		})
-		// catch all errors and handle accordingly
-		.catch(err => { 
-			return res.send(JSON.stringify({
-				"message": "Error",
-				"result": "Error updating tutors - check console for more info."
-			}))
-		});
-
-	},
-
 	calculateTutorStats: () => {
 
 		// takes array to assign tutors to
@@ -177,15 +156,26 @@ module.exports = {
 		let calculateNumberOfReviews = (tutors, sessions, reviews) => {
 
 			let numOfReviews = 0;
+			let rating = 0;
 
 			return new Promise((resolve, reject) => {
-				// loop through each tutor's list of sessions.
+				// loop through each tutor's list of reviews.
 				_.each(reviews, (element, content) => {
+					// get number of reviews
 					numOfReviews = element.length;
+					// aggregate ratings
+					_.each(element, (review, index) => {
+						rating += review.rating;
+					})
+					// calculate average rating
+					rating = rating/numOfReviews;
 					// push all this to a new object at the end of the array.
 					reviews[content].push({
-						num_of_reviews: numOfReviews
+						num_of_reviews: numOfReviews,
+						rating: rating
 					});
+					
+					rating = 0;
 					numOfReviews = 0;
 					// display the last field in each array (tutor)
 					console.log(reviews[content][reviews[content].length-1]);
@@ -215,6 +205,7 @@ module.exports = {
 				if (reviews[element.tutor_id]){
 					// get last object in array
 					insertObj["num_of_reviews"] = reviews[element.tutor_id][reviews[element.tutor_id].length-1].num_of_reviews;
+					insertObj["rating"] = reviews[element.tutor_id][reviews[element.tutor_id].length-1].rating;
 				}
 
 				if (sessions[element.tutor_id] || reviews[element.tutor_id]){

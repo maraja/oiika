@@ -190,6 +190,51 @@ module.exports = {
 		});
 	},
 
+	getCompletedSessionsByAccountId: (req, res) => {
+		let params = req.swagger.params;
+		let accountId = params.accountId.value;
+
+		let getSessions = () => {
+			return new Promise((resolve, reject) => {
+				sessionModel.find(
+				{
+					$and: [
+						{
+							$or: [
+								{ tutee_id: accountId },
+								{ tutor_id: accountId }
+							]
+						},
+						{
+							state: 'completed'
+						}
+					]
+				},
+				// {
+				// 	_id: 0
+				// }, 
+				(err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (resultDocument.length===0) {
+						return error.errorHandler(null, "NO_SESSIONS", "No sessions exist with the entered criteria", reject, null);
+					} else {
+						return resolve(resultDocument);
+					}
+
+				});
+			});
+		};
+
+		getSessions()
+		.then(sessions => {
+			return res.send(JSON.stringify(sessions))
+		}).catch(err => {
+			return error.sendError(err.name, err.message, res); 
+		});
+	},
+
 	createSession: (req, res) => {
 
 		let session = req.swagger.params.session.value;
@@ -565,6 +610,55 @@ module.exports = {
 				{
 					$set: {
 						state: 'rejected'
+					}
+				},
+				// this will return updated document rather than old one
+				{ 
+					new : true,
+					runValidators : true 
+				},
+				(err, resultDocument) => {
+
+					if(err) {
+						return error.errorHandler(err, null, null, reject, null);
+					} else if (!resultDocument) {
+						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
+					} else {
+						return resolve(resultDocument);
+					}
+
+				});
+
+			});
+		};
+
+		// begin promise chain
+		updateSession()
+		.then(result => {
+			return res.send(JSON.stringify({
+				"message": "Successfully updated",
+				"result": result
+			}))
+		}).catch(err => { return error.sendError(err.name, err.message, res); });
+	},
+
+	completeSession: (req, res) => {
+
+		let session = req.swagger.params.session.value;
+
+		let updateSession = () => {
+			return new Promise((resolve, reject) => {
+
+				sessionModel.findOneAndUpdate(
+				{
+					_id: session.sessionId,
+					tutor_id: session.tutorId
+				},
+				// set the old schedule as the new schedule
+				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
+				{
+					$set: {
+						state: 'completed'
 					}
 				},
 				// this will return updated document rather than old one
