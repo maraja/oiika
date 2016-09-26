@@ -164,6 +164,66 @@ module.exports = {
 		.catch(err => { return error.sendError(err.name, err.message, res); });
 	},
 
+	getTutorsByName: (req, res) => {
+		let name = req.swagger.params.tutorName.value;
+
+		// escape entered string
+		let regexName = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+		regexName = new RegExp(regexName, "gi");
+
+		if (name.length >= 2) {
+			let findTutorAccounts = () => {
+				return new Promise((resolve, reject) => {
+
+					accountModel.find({
+						$and: [
+							{
+								$or: [
+									{ first_name: regexName },
+									{ last_name: regexName }
+								]
+							},
+							{
+								user_type: 'tutor'
+							}
+						]
+					}, function(err, resultDocument) {
+
+						if(err) {
+							return error.errorHandler(err, null, null, null, res);
+						} else if (resultDocument.length===0) {
+							return error.errorHandler(null, "NO_TUTORS", "No tutors could be found.", null, res);
+						} else {
+							var tutors = [];
+
+							_.each(resultDocument, function(account) {
+								tutors.push({ id: account._id, first_name: account.first_name,  last_name: account.last_name });
+							});
+
+							return resolve(tutors);
+						}
+					});
+
+				});
+			}
+
+			// begin promise chain
+			// start by finding the tutors
+			findTutorAccounts()
+			// handle success accordingly
+			.then(result => {
+				return res.send(JSON.stringify({
+					"message": "Successfully received",
+					"result": result
+				}))
+			})
+			// catch all errors and handle accordingly
+			.catch(err => { return error.sendError(err.name, err.message, res); });
+		} else {
+			return error.errorHandler(null, "INVALID_SEARCH", "Subject search string must be at least 2 letters long.", null, res);
+		}
+	},
+
 	// PUT REQUESTS
 	updateTutorLocation: (req, res) => {
 		let location = req.swagger.params.location.value;

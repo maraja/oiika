@@ -518,6 +518,29 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # GET all tutors with partial first/last name match
+  '/tutor':
+    x-swagger-router-controller: tutor
+    get:
+      description: get tutors by name
+      operationId: getTutorsByName
+      tags:
+        - Tutor
+      parameters:
+          - name: tutorName
+            in: query
+            description: Partial first/last name of tutor.
+            required: true
+            type: string     
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
 
 # REVIEWS
 
