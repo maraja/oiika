@@ -110,7 +110,8 @@ router.get('/tutor/:id', function (req, res, next) {
 	});
 });
 
-router.get('/settings', auth, function (req, res, next) {
+//router.get('/settings', auth, function (req, res, next) {
+router.get('/settings', function (req, res, next) {
 	if(req.user.user_type == 'tutee') {
   	res.render('tutor_settings');
 	} else if(req.user.user_type == 'tutee') {
