@@ -77,14 +77,16 @@ o.init = function() {
         	email: email,
         	password: password
         }
-    }).done(function(data) {
+    }).done(function(data) {console.log(data);
       if(data.error) {
         //throw error
+        $('.modal.in .modal-content').prepend('<div class="modal-message error">' + data.message + '</div>').show();
       } else {
         localStorage.token = data.token;
+        $('.modal.in .modal-content').prepend('<div class="modal-message success">' + data.message + '</div>').show();
       }
 
-    	location.reload();
+    	//location.reload();
 
     }).fail(function() {
       //alert( "error" );
@@ -267,7 +269,7 @@ o.tutor.init = function() {
     $('body').on('click', '.retry_reviews', o.tutor.loadReviews);
 
     //initialize map
-    google.maps.event.addDomListener(window, 'load', o.tutor.initMap(p.currentLocation, p.radius));
+    google.maps.event.addDomListener(window, 'load', o.tutor.initMap({"lat": p.currentLocation.lat, "lng": p.currentLocation.lng}, p.currentLocation.travel_distance));
 }
 
 o.tutor.calendar = {};
@@ -390,7 +392,7 @@ o.tutor.calendar.visualize = function() {
 
 o.tutor.calendar.next = function($src, $tgt) {
   $('.selected_day').html(moment(o.tutor.calendar.selectedDate).format('dddd') + ',');
-  $('.selected_date').html(moment(o.tutor.calendar.selectedDate).format('MMMM Do, YYYY'));
+  $('.selected_date').html(moment(o.tutor.calendar.selectedDate).format('MMM Do, YYYY'));
 
   $('.booking_costs .hourly_rate').html('$' + ((p.hourly_rate % 1 == 0) ? parseInt(p.hourly_rate) : p.hourly_rate.toFixed(2)));
 
@@ -493,6 +495,7 @@ $('body').on('click', 'ul.timeslots li', function() {
 
 $('body').on('click', '.request_session', function() {
   o.tutor.requestSession();
+  return false;
 });
 
 o.tutor.initMap = function(center, radius) {
@@ -520,8 +523,13 @@ o.tutor.requestSession = function(data) {
   $('.booking_wrapper .overlay').fadeIn('fast');
 
   $.ajax({
-      url: "http://thehotspot.ca:10010/session",
-      type: "POST"
+      url: "http://thehotspot.ca:10010/tutee/session",
+      type: "POST",
+      dataType: "JSON",
+      contentType: "application/json",
+      data: {
+        test: 'hello'
+      }
   }).done(function(data) {
     $('.booking_wrapper .overlay').fadeOut('fast');
     if(data.error) {
@@ -553,7 +561,7 @@ o.tutor.loadReviews = function() {
 	}
 
 	o.tutor.reviewsQueue = [];
-  console.log(p.id);
+
   o.tutor.reviewsQueue.push(
     $.ajax({
         url: "http://thehotspot.ca:10010/tutor/" + p.id + "/reviews",
@@ -620,7 +628,7 @@ o.tutor.loadReviews = function() {
       $('.reviews_wrapper .review_item').each(function(index) {
         var item = $(this);
         var rating = $(item).attr('data-rating');
-        console.log($(item).find('.review_text').text());
+
         $(item).find('.rating_wrapper input[value="' + rating + '"]').attr('checked', 'checked');
         $(item).delay(150*index).slideDown(200)
       });

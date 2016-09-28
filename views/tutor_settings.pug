@@ -29,6 +29,11 @@ block content
               i.fa.fa-lock
               |   Password
       .col-xs-12.col-sm-8.col-md-9.tab-content
+        #cover.tab-pane.fade(role='tabpanel')
+          h3 Cover
+          hr
+          input#rid(type='hidden', value='P57DXN')
+          button#submit_form.btn.btn-primary.pull-right Save Changes
         #profile_info.tab-pane.fade.in.active(role='tabpanel')
           h3 My Profile
           form#profile(action='#', method='POST')

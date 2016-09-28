@@ -41,11 +41,11 @@ router.post('/login', function (req, res, next) {
 			req.logIn(user, function(err) {
 	      if (err) { return next(err); }
 
-				res.send({"success": true, "message": "Welcome back, " + user.first_name});
+				res.send({"success": true, "message": req.auth_message, "token": req.auth_token});
 	    });
+		} else {
+			res.status(401).send({"error": true, "message": req.auth_message});
 		}
-
-		res.status(401).send({"error": true, "message": req.auth_message});
 	})(req, res, next);
 });
 
@@ -95,13 +95,14 @@ router.get('/auth_callback', function (req, res, next) {
 
 router.get('/logout', function(req, res){
   req.logout();
-  res.redirect('/login');
+  res.redirect('/');
 });
 
 router.get('/tutor/:id', function (req, res, next) {
 	api.get('tutor/' + req.params.id).then(result => {
-		console.log(result);
+		//console.log(result);
 		tutor.loadProfile(req, res, next);
+		//req.data = result.result;
 		res.render('tutor_profile', {title: req.data.first_name + ' ' + req.data.last_name});
 	}).catch(err => {
 		console.log('caught error ' + err);

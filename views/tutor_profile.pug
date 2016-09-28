@@ -3,6 +3,7 @@ block content
   //- DATA
   script.
     var p = !{JSON.stringify(req.data).replace(/<\//g, '<\\/')}
+    console.log(p)
   //- COVER
   section#tutor_cover
 
@@ -16,7 +17,10 @@ block content
               table.table
                 tr
                   td.profile_picture
-                    img(src=req.data.profile_picture, alt=req.data.first_name + ' ' + req.data.last_name)
+                    if(typeof req.data.profile_picture !== 'undefined')
+                      img(src=req.data.profile_picture, alt=req.data.first_name + ' ' + req.data.last_name)
+                    else
+                      img(src='/images/anonymous.png', alt=req.data.first_name + ' ' + req.data.last_name)
                   td
                     .row
                       .col-xs-12
@@ -25,7 +29,7 @@ block content
                         h2.name #{req.data.first_name + ' ' + req.data.last_name}
                         span.city.left
                           i.icon.icon_pin_alt
-                          |  #{req.data.city}
+                          |  #{req.data.currentLocation.city}
                         span.middot.left ·
                         span.rating_wrapper.left
                           fieldset.rating.disabled
@@ -50,7 +54,7 @@ block content
                             input#starhalf(type='radio', name='rating', value='half', disabled)
                             label.half(for='starhalf')
                         span.left.reviews (
-                          a#reviews_scroll(href='#reviews_anchor') #{req.data.num_reviews} reviews
+                          a#reviews_scroll(href='#reviews_anchor') #{req.data.num_of_reviews} reviews
                           | )
                     .row.m-t-30
                       .col-xs-12
@@ -68,7 +72,7 @@ block content
                             td Work History
                             td
                               span #{req.data.hours_worked} hours worked
-                              span #{req.data.num_students} students
+                              span #{req.data.students_taught} students
           .row
             .col-xs-12.profile_details
               hr.m-t-5
@@ -95,6 +99,7 @@ block content
                       a(href='#').subject #{i}
                     .clearfix
               br
+          //- if(req.data.available.indexOf('in_person') > -1)
           .row.tutor_map
             #map
           .row

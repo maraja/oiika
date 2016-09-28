@@ -167,10 +167,10 @@ body {
   color: #333;
 }
 .navbar-brand {
-  padding: 11px 15px 15px 15px;
+  padding: 8px 15px 15px 15px;
 }
 .logo {
-  height: 38px;
+  height: 45px;
 }
 .navbar {
   margin-bottom: 0;
@@ -1338,3 +1338,9 @@ table.schedule-table th {
 .rating:not(.disabled) > input:checked ~ label:hover,
 .rating:not(.disabled) > label:hover ~ input:checked ~ label, /* lighten current selection */
 .rating:not(.disabled) > input:checked ~ label:hover ~ label { color: #FFED85;  }
+
+
+/*.profile_picture img {*/
+/*img {
+	display: none !important;
+}*/

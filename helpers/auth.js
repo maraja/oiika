@@ -47,11 +47,11 @@ passport.use('login', new passportLocal.Strategy({
       req.auth_message = 'Welcome back, ' + result.result.first_name;
       req.auth_token = token;
       req.session.token = token;
-
+      console.log(result);
       return done(null, result.result);
     })
     .catch(err => {
-      if(typeof err.error.code !== 'undefined' && err.error.code == 'SCHEMA_VALIDATION_FAILED') {
+      if(typeof err.error.name !== 'undefined' && err.error.name == 'INCORRECT_CREDENTIALS') {
         var error_message = "Authentication Failed - Invalid Data";
       } else if(err.error.name == 'NO_PASSWORD') {
         var error_message = "Authentication Failed - Try logging in with Facebook or Google";
