@@ -545,12 +545,12 @@ paths:
 
 # TUTEE
 
-  # Update tutee's favourite tutors - POST
-  '/tutee/favourites':
+  # add to tutee's favourite tutors - POST
+  '/tutee/favourites/add':
     x-swagger-router-controller: tutee
     post:
-      description: update tutee's favourites
-      operationId: updateTuteesFavourites
+      description: add to tutee's favourites
+      operationId: addToFavourites
       tags:
         - Tutee
       parameters:
@@ -578,6 +578,71 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+  # remove from tutee's favourite tutors - POST
+  '/tutee/favourites/remove':
+    x-swagger-router-controller: tutee
+    post:
+      description: remove from tutee's favourites
+      operationId: removeFromFavourites
+      tags:
+        - Tutee
+      parameters:
+          - name: tutee
+            in: body
+            required: true
+            schema:
+              properties:
+                tuteeId:
+                  type: string
+                  description: account id of tutee
+                tutorIds: 
+                  type: array
+                  description: account ids of tutors
+              required:
+                - tuteeId
+                - tutorIds
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
+  # set tutee's favourite tutors - POST
+  '/tutee/favourites/set':
+    x-swagger-router-controller: tutee
+    post:
+      description: set tutee's favourites
+      operationId: setFavourites
+      tags:
+        - Tutee
+      parameters:
+          - name: tutee
+            in: body
+            required: true
+            schema:
+              properties:
+                tuteeId:
+                  type: string
+                  description: account id of tutee
+                tutorIds: 
+                  type: array
+                  description: account ids of tutors
+              required:
+                - tuteeId
+                - tutorIds
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
 # REVIEWS
 
   # POST a new review created by a tutee
