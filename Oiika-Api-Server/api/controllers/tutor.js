@@ -194,13 +194,61 @@ module.exports = {
 						} else if (resultDocument.length===0) {
 							return error.errorHandler(null, "NO_TUTORS", "No tutors could be found.", null, res);
 						} else {
-							var tutors = [];
+							var result = [];
+
+							result.tutors = [];
 
 							_.each(resultDocument, function(account) {
-								tutors.push({ id: account._id, first_name: account.first_name,  last_name: account.last_name });
+								result.tutors.push({ 
+									id: account._id,
+									first_name: account.first_name,
+									last_name: account.last_name,
+									profile_picture: account.profile_picture,
+								});
 							});
 
-							return resolve(tutors);
+							return resolve(result);
+						}
+					});
+
+				});
+			}
+
+			let findTutors = result => {
+				return new Promise((resolve, reject) => {
+					var tutorIds = [];
+					var verified = [];
+
+					verified.tutors = [];
+
+					_.each(result.tutors, function(account) {
+						tutorIds.push({tutor_id: account.id});
+					});
+
+					tutorModel.find({
+						$or: tutorIds
+					}, function(err, resultDocument) {
+						if (!err && resultDocument && resultDocument.length!==0) {
+
+							_.each(result.tutors, function(account) {
+
+								_.each(resultDocument, function(tutor) {
+									if (account.id.toString()===tutor.tutor_id.toString()) {
+										verified.tutors.push({
+											id: account.id,
+											first_name: account.first_name,
+											last_name: account.last_name,
+											profile_picture: account.profile_picture,
+											currentLocation: tutor.currentLocation,
+											subjects: tutor.subjects,
+											skills: tutor.skills
+										});
+									}
+								});
+
+							});
+
+							return resolve(verified);
 						}
 					});
 
@@ -210,11 +258,12 @@ module.exports = {
 			// begin promise chain
 			// start by finding the tutors
 			findTutorAccounts()
+			.then(findTutors)
 			// handle success accordingly
 			.then(result => {
 				return res.send(JSON.stringify({
 					"message": "Successfully received",
-					"result": result
+					"tutors": result.tutors
 				}))
 			})
 			// catch all errors and handle accordingly
