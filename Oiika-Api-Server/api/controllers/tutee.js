@@ -224,4 +224,80 @@ module.exports = {
     // catch all errors and handle accordingly
     .catch(err => { return error.sendError(err.name, err.message, res); });
   }
+
+  toggleFavourite: (req, res) => {
+    var tuteeId = req.swagger.params.tutee.value.tuteeId;
+    var tutorId = req.swagger.params.tutee.value.tutorId;
+
+    let findAccount = () => {
+      return new Promise((resolve, reject) => {
+
+        accountModel.findOne({
+          _id: tuteeId,
+          user_type: 'tutee'
+        }, (err, resultDocument) => {
+
+          if(err) {
+            return error.errorHandler(err, null, null, reject, res);
+          } else if (!resultDocument) {
+            return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, res);
+          } else {
+            return resolve(resultDocument);
+          }
+
+        });
+
+      });
+    }
+
+    let findTutee = account => {
+      return new Promise((resolve, reject) => {
+
+        tuteeModel.findOne({
+          tutee_id: tuteeId
+        }, (err, resultDocument) => {
+
+          if(err) {
+            return error.errorHandler(err, null, null, reject, res);
+          } else if (!resultDocument) {
+            return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, res);
+          } else {
+            var verifiedTutors = [];
+
+            if (resultDocument.favourites) {
+              _.each(resultDocument.favourites, function(favTutorId) {
+                if (favTutorId.toString() !== tutorId.toString()) {
+                  verifiedTutors.push(tutorId);
+                }
+              });
+            } else {
+              verifiedTutors.push(tutorId);
+            }
+
+            resultDocument.favourites = verifiedTutors;
+
+            resultDocument.save();
+            
+            return resolve();
+          }
+
+        });
+
+      });
+      
+    };
+
+    // begin promise chain
+    // start by finding the tutor
+    findAccount()
+    .then(findTutee)
+    // handle success accordingly
+    .then(result => {
+      return res.send(JSON.stringify({
+        "message": "Successfully set",
+      }))
+    })
+    // catch all errors and handle accordingly
+    .catch(err => { return error.sendError(err.name, err.message, res); });
+  }
 };

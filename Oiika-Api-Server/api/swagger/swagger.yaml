@@ -643,6 +643,40 @@ paths:
             description: Error
             schema:
               $ref: "#/definitions/ErrorResponse"
+
+  # toggle one of the tutee's favourite tutors - POST
+  '/tutee/favourites/toggle':
+    x-swagger-router-controller: tutee
+    post:
+      description: toggle a tutee's favourite
+      operationId: toggleFavourite
+      tags:
+        - Tutee
+      parameters:
+          - name: tutee
+            in: body
+            required: true
+            schema:
+              properties:
+                tuteeId:
+                  type: string
+                  description: account id of tutee
+                tutorId: 
+                  type: string
+                  description: account id of tutor
+              required:
+                - tuteeId
+                - tutorId
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+
 # REVIEWS
 
   # POST a new review created by a tutee
