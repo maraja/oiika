@@ -8,6 +8,7 @@ module.exports = function() {
   var Tutees = new mongoose.Schema({
     // first_name : { type: String, required:true, index: true, lowercase: true, trim:true, unique: true, validate: [util.validate.email, 'not valid'] },
     tutee_id : { type: ObjectId, index: true, required: false },
+    favourites: { type: [ObjectId], required: false },
     // first_name : { type: String, required: true, validate: [utils.validate.length(2), 'first name must be at least 2 characters long.'] },
     // last_name : { type: String, required: true, validate: [utils.validate.length(2), 'last name must be at least 2 characters long.'] },
     // email : { type: String, required: true, lowercase: true, index: true, unique: true, trim: true, validate: [utils.validate.email, 'invalid email entered.'] },
