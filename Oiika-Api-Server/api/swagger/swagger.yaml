@@ -611,39 +611,6 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-  # set tutee's favourite tutors - POST
-  '/tutee/favourites/set':
-    x-swagger-router-controller: tutee
-    post:
-      description: set tutee's favourites
-      operationId: setFavourites
-      tags:
-        - Tutee
-      parameters:
-          - name: tutee
-            in: body
-            required: true
-            schema:
-              properties:
-                tuteeId:
-                  type: string
-                  description: account id of tutee
-                tutorIds: 
-                  type: array
-                  description: account ids of tutors
-              required:
-                - tuteeId
-                - tutorIds
-      responses:
-          "200":
-            description: Success
-            schema:
-              $ref: "#/definitions/HelloWorldResponse"
-          default:
-            description: Error
-            schema:
-              $ref: "#/definitions/ErrorResponse"
-
   # toggle one of the tutee's favourite tutors - POST
   '/tutee/favourites/toggle':
     x-swagger-router-controller: tutee
