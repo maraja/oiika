@@ -691,7 +691,7 @@ paths:
 # TOPSEARCH
 
   # GET tutors, subjects, and skills
-  '/topsearch':
+  '/topsearch/{query}':
     x-swagger-router-controller: topsearch
     get:
       description: get tutors, subjects, and skills by name
@@ -699,9 +699,9 @@ paths:
       tags:
         - Tutor
       parameters:
-          - name: name
-            in: query
-            description: Partial first/last name of tutor/skill/subject.
+          - name: query
+            in: path
+            description: Partial name of tutor/skill/subject.
             required: true
             type: string     
       responses:

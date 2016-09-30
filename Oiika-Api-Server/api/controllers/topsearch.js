@@ -16,13 +16,13 @@ module.exports = {
 
   // GET REQUESTS
   getAllByName: (req, res) => {
-    let name = req.swagger.params.name.value;
+    let query = req.swagger.params.query.value;
 
     // escape entered string
-    let regexName = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+    let regexName = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
     regexName = new RegExp(regexName, "gi");
 
-    if (name.length >= 2) {
+    if (query.length >= 2) {
       let findTutorAccounts = () => {
         return new Promise((resolve, reject) => {
           var result = [];
