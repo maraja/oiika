@@ -688,6 +688,31 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
+# TOPSEARCH
+
+  # GET tutors, subjects, and skills
+  '/topsearch':
+    x-swagger-router-controller: topsearch
+    get:
+      description: get tutors, subjects, and skills by name
+      operationId: getAllByName
+      tags:
+        - Tutor
+      parameters:
+          - name: name
+            in: query
+            description: Partial first/last name of tutor/skill/subject.
+            required: true
+            type: string     
+      responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/HelloWorldResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
 
 # SESSIONS
 
