@@ -90,8 +90,6 @@ module.exports = {
                       last_name: account.last_name,
                       profile_picture: account.profile_picture,
                       currentLocation: tutor.currentLocation,
-                      subjects: tutor.subjects,
-                      skills: tutor.skills
                     });
                   }
                 });
