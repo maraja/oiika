@@ -8,10 +8,8 @@ const Promise = require('bluebird');
 const moment = require('moment');
 // const mongoose = require('mongoose');
 const _ = require('underscore');
-const CronJob = require('cron').CronJob;
 
 module.exports = {
-
 	calculateTutorStats: () => {
 
 		// takes array to assign tutors to
@@ -145,7 +143,7 @@ module.exports = {
 					// reset hoursWorked variable for next tutor to iterate through
 					hoursWorked = 0;
 					// display the last field in each array (tutor)
-					console.log(sessions[content][sessions[content].length-1]);
+					//console.log(sessions[content][sessions[content].length-1]);
 				})
 				// console.log(sessions);
 				return resolve([tutors, sessions, reviews]);
@@ -178,7 +176,7 @@ module.exports = {
 					rating = 0;
 					numOfReviews = 0;
 					// display the last field in each array (tutor)
-					console.log(reviews[content][reviews[content].length-1]);
+					//console.log(reviews[content][reviews[content].length-1]);
 				})
 				return resolve([tutors, sessions, reviews]);
 			})
@@ -189,7 +187,7 @@ module.exports = {
 
 			var promises = [];
 
-			console.log(sessions);
+			//console.log(sessions);
 
 			_.each(tutors, (element, content) => {
 
@@ -233,7 +231,7 @@ module.exports = {
 							} else if (!resultDocument) {
 								return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 							} else {
-								console.log(resultDocument);
+								//console.log(resultDocument);
 								return resolve(resultDocument);
 							}
 
@@ -256,7 +254,7 @@ module.exports = {
 		}
 
 		let display = (tutors, sessions, reviews) => {
-			console.log(tutors);
+			//console.log(tutors);
 		}
 
 		return new Promise((resolve, reject) => {

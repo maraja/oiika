@@ -49,7 +49,8 @@ mongoDb.dbConnection();
 
 // testing job
 // require('./jobs/tutor-stats.js').calculateTutorStats();
-
+var jobs = require('./jobs');
+jobs.startAllJobs();
 
 // minify response
 // http://stackoverflow.com/questions/19833174/can-express-js-output-minified-json
