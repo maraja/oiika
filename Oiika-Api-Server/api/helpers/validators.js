@@ -5,7 +5,7 @@ const regexHelper = require('./regex');
 const enumGender = ['male', 'female'];
 const enumUserType = ['tutor', 'tutee'];
 const enumAccountType = ['local', 'facebook', 'google'];
-const enumSessionState = ['pending', 'accepted', 'rejected', 'completed'];
+const enumSessionState = ['pending', 'accepted', 'rejected', 'completed', 'cancelled'];
 const enumAvailable = ['in_person', 'online'];
 
 module.exports = {
