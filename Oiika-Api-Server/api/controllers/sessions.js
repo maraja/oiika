@@ -15,6 +15,8 @@ const Promise = require('bluebird');
 const _ = require('underscore');
 const moment = require('moment');
 
+const cancelTime = 24; // time in hours
+
 module.exports = {
 
 	getSessionsByAccountId: (req, res) => {
@@ -743,31 +745,46 @@ module.exports = {
 		let updateSession = () => {
 			return new Promise((resolve, reject) => {
 
-				sessionModel.findOneAndUpdate(
+				sessionModel.findOne(
 				{
 					_id: session.sessionId,
 					tutor_id: session.tutorId
-				},
-				// set the old schedule as the new schedule
-				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
-				{
-					$set: {
-						state: 'cancelled'
-					}
-				},
-				// this will return updated document rather than old one
-				{ 
-					new : true,
-					runValidators : true 
-				},
-				(err, resultDocument) => {
+				}, (err, resultDocument) => {
 
 					if(err) {
 						return error.errorHandler(err, null, null, reject, null);
 					} else if (!resultDocument) {
 						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 					} else {
-						return resolve(resultDocument);
+						if (resultDocument.timeslots && resultDocument.timeslots.length!==0) {
+							var sessionDate = new moment(resultDocument.date);
+							
+							_.each(resultDocument.timeslots, function(timeslot) {
+								sessionDate.hour(timeslot.split(':')[0]);
+								sessionDate.minute(timeslot.split(':')[1]);
+
+								if (timeslot.split(':').length>2) {
+									sessionDate.second(timeslot.split(':')[2]);
+								} else {
+									sessionDate.second(0);
+								}
+
+								var cancelDate = new moment().add(cancelTime, 'hours');
+
+								if (cancelDate.isBefore(sessionDate)) {
+									resultDocument.state = 'cancelled';
+									resultDocument.save();
+
+									return resolve(resultDocument);
+								} else {
+									return error.errorHandler(null, "NOT_CANCELLABLE", "Session cannot be cancelled as it is too close to the session's date/time", reject, null);
+								}
+
+							});
+
+						} else {
+							return error.errorHandler(null, "NO_TIMESLOTS", "Session doesn't have any timeslots", reject, null);
+						}
 					}
 
 				});
