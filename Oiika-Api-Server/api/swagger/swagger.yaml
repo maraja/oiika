@@ -611,11 +611,11 @@ paths:
             schema:
               $ref: "#/definitions/ErrorResponse"
 
-  # toggle one of the tutee's favourite tutors - POST
+  # toggle one of the tutee's favourite tutors and return favourite state - POST
   '/tutee/favourites/toggle':
     x-swagger-router-controller: tutee
     post:
-      description: toggle a tutee's favourite
+      description: toggle a tutee's favourite and return state
       operationId: toggleFavourite
       tags:
         - Tutee

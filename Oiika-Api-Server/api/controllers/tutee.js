@@ -188,6 +188,9 @@ module.exports = {
 
     let findTutee = account => {
       return new Promise((resolve, reject) => {
+        var result = [];
+
+        result.state = true;
 
         tuteeModel.findOne({
           tutee_id: tuteeId
@@ -204,6 +207,8 @@ module.exports = {
               _.each(resultDocument.favourites, function(favTutorId) {
                 if (favTutorId.toString() !== tutorId.toString()) {
                   verifiedTutors.push(tutorId);
+                } else {
+                  result.state = false;
                 }
               });
             } else {
@@ -214,7 +219,7 @@ module.exports = {
 
             resultDocument.save();
             
-            return resolve();
+            return resolve(result);
           }
 
         });
@@ -231,6 +236,7 @@ module.exports = {
     .then(result => {
       return res.send(JSON.stringify({
         "message": "Successfully toggled",
+        "state:": result.state
       }))
     })
     // catch all errors and handle accordingly
