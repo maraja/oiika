@@ -15,7 +15,10 @@ const Promise = require('bluebird');
 const _ = require('underscore');
 const moment = require('moment');
 
-const cancelTime = 24; // time in hours
+const acceptTime = 1; 		// time in hours before the first timeslot a tutee can accept
+const rejectTime = 1; 		// time in hours before the first timeslot a tutee can reject
+const completeTime = 0.5; // time in hours after the last timeslot a tutee can complete
+const cancelTime = 24; 		// time in hours before the first timeslot a tutee can cancel
 
 module.exports = {
 
@@ -598,31 +601,70 @@ module.exports = {
 		let updateSession = () => {
 			return new Promise((resolve, reject) => {
 
-				sessionModel.findOneAndUpdate(
+				sessionModel.findOne(
 				{
 					_id: session.sessionId,
 					tutor_id: session.tutorId
-				},
-				// set the old schedule as the new schedule
-				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
-				{
-					$set: {
-						state: 'accepted'
-					}
-				},
-				// this will return updated document rather than old one
-				{ 
-					new : true,
-					runValidators : true 
-				},
-				(err, resultDocument) => {
+				}, (err, resultDocument) => {
 
 					if(err) {
 						return error.errorHandler(err, null, null, reject, null);
 					} else if (!resultDocument) {
 						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 					} else {
-						return resolve(resultDocument);
+
+						if (resultDocument.timeslots && resultDocument.timeslots.length!==0) {
+
+							if (resultDocument.state==='pending') {
+
+								var sessionDate = new moment(resultDocument.date);
+								var acceptDate = new moment().add(acceptTime, 'hours');
+
+								var sessionTime = "23:59:59";
+
+								_.each(resultDocument.timeslots, function(timeslot) {
+									if (timeslot.split(':')[0] <= sessionTime.split(':')[0] 
+									 && timeslot.split(':')[1] <= sessionTime.split(':')[1]) {
+
+									 	if (timeslot.split(':').length > 2) {
+
+											if (sessionTime.split(':').length > 2 && timeslot.split(':')[2] <= sessionTime.split(':')[2]) {
+												sessionTime = timeslot;
+											}
+
+										} else {
+											sessionTime = timeslot;
+										}
+
+									} 
+								});
+
+								sessionDate.hour(sessionTime.split(':')[0]);
+								sessionDate.minute(sessionTime.split(':')[1]);
+
+								if (sessionTime.split(':').length > 2) {
+									sessionDate.second(sessionTime.split(':')[2]);
+								} else {
+									sessionDate.second(0);
+								}
+
+								if (acceptDate.isBefore(sessionDate)) {
+									resultDocument.state = 'accepted';
+									resultDocument.save();
+
+									return resolve(resultDocument);
+								} else {
+									return error.errorHandler(null, "NOT_ACCEPTABLE", "Session cannot be accepted as it is too close to the session's start date/time", reject, null);
+								}
+
+							} else {
+								return error.errorHandler(null, "NOT_ACCEPTABLE", "Session cannot be accepted as it is not currently pending", reject, null);
+							}
+
+						} else {
+							return error.errorHandler(null, "NO_TIMESLOTS", "Session doesn't have any timeslots", reject, null);
+						}	
+
 					}
 
 				});
@@ -640,38 +682,83 @@ module.exports = {
 		}).catch(err => { return error.sendError(err.name, err.message, res); });
 	},
 
-	declineSession: (req, res) => {
+	rejectSession: (req, res) => {
 
 		let session = req.swagger.params.session.value;
 
 		let updateSession = () => {
 			return new Promise((resolve, reject) => {
 
-				sessionModel.findOneAndUpdate(
+				sessionModel.findOne(
 				{
 					_id: session.sessionId,
 					tutor_id: session.tutorId
-				},
-				// set the old schedule as the new schedule
-				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
-				{
-					$set: {
-						state: 'rejected'
-					}
-				},
-				// this will return updated document rather than old one
-				{ 
-					new : true,
-					runValidators : true 
-				},
-				(err, resultDocument) => {
+				}, (err, resultDocument) => {
 
 					if(err) {
 						return error.errorHandler(err, null, null, reject, null);
 					} else if (!resultDocument) {
 						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 					} else {
-						return resolve(resultDocument);
+
+						if (resultDocument.timeslots && resultDocument.timeslots.length!==0) {
+
+							if (resultDocument.state!=='accepted') {
+
+								if (resultDocument.state==='pending') {
+
+									var sessionDate = new moment(resultDocument.date);
+									var rejectDate = new moment().add(rejectTime, 'hours');
+
+									var sessionTime = "23:59:59";
+
+									_.each(resultDocument.timeslots, function(timeslot) {
+										if (timeslot.split(':')[0] <= sessionTime.split(':')[0] 
+										 && timeslot.split(':')[1] <= sessionTime.split(':')[1]) {
+
+										 	if (timeslot.split(':').length > 2) {
+
+												if (sessionTime.split(':').length > 2 && timeslot.split(':')[2] <= sessionTime.split(':')[2]) {
+													sessionTime = timeslot;
+												}
+
+											} else {
+												sessionTime = timeslot;
+											}
+
+										} 
+									});
+
+									sessionDate.hour(sessionTime.split(':')[0]);
+									sessionDate.minute(sessionTime.split(':')[1]);
+
+									if (sessionTime.split(':').length > 2) {
+										sessionDate.second(sessionTime.split(':')[2]);
+									} else {
+										sessionDate.second(0);
+									}
+
+									if (rejectDate.isBefore(sessionDate)) {
+										resultDocument.state = 'rejected';
+										resultDocument.save();
+
+										return resolve(resultDocument);
+									} else {
+										return error.errorHandler(null, "NOT_REJECTABLE", "Session cannot be rejected as it is too close to the session's start date/time", reject, null);
+									}
+
+								} else {
+									return error.errorHandler(null, "NOT_REJECTABLE", "Session cannot be accepted as it is not currently pending", reject, null);
+								}
+
+							} else {
+								return error.errorHandler(null, "NOT_REJECTABLE", "Session cannot be rejected as it has already been accepted.", reject, null);
+							}
+
+						} else {
+							return error.errorHandler(null, "NO_TIMESLOTS", "Session doesn't have any timeslots", reject, null);
+						}									
+
 					}
 
 				});
@@ -696,31 +783,70 @@ module.exports = {
 		let updateSession = () => {
 			return new Promise((resolve, reject) => {
 
-				sessionModel.findOneAndUpdate(
+				sessionModel.findOne(
 				{
 					_id: session.sessionId,
 					tutor_id: session.tutorId
-				},
-				// set the old schedule as the new schedule
-				// beware - validation only done by swagger using the swagger.yaml definitions for this endpoint.
-				{
-					$set: {
-						state: 'completed'
-					}
-				},
-				// this will return updated document rather than old one
-				{ 
-					new : true,
-					runValidators : true 
-				},
-				(err, resultDocument) => {
+				}, (err, resultDocument) => {
 
 					if(err) {
 						return error.errorHandler(err, null, null, reject, null);
 					} else if (!resultDocument) {
 						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 					} else {
-						return resolve(resultDocument);
+
+						if (resultDocument.timeslots && resultDocument.timeslots.length!==0) {
+							
+							if (resultDocument.state==='accepted') {
+
+								var sessionDate = new moment(resultDocument.date);
+								var completeDate = new moment().subtract(completeTime, 'hours');
+
+								var sessionTime = "00:00:00";
+
+								_.each(resultDocument.timeslots, function(timeslot) {
+									if (timeslot.split(':')[0] >= sessionTime.split(':')[0] 
+									 && timeslot.split(':')[1] >= sessionTime.split(':')[1]) {
+										console.log("GOTTEM");
+									 	if (timeslot.split(':').length > 2) {
+
+											if (sessionTime.split(':').length < 3 || timeslot.split(':')[2] >= sessionTime.split(':')[2]) {
+												sessionTime = timeslot;
+											}
+
+										} else {
+											sessionTime = timeslot;
+										}
+
+									} 
+								});								
+
+								sessionDate.hour(sessionTime.split(':')[0]);
+								sessionDate.minute(sessionTime.split(':')[1]);
+
+								if (sessionTime.split(':').length > 2) {
+									sessionDate.second(sessionTime.split(':')[2]);
+								} else {
+									sessionDate.second(0);
+								}
+
+								if (completeDate.isAfter(sessionDate)) {
+									resultDocument.state = 'completed';
+									resultDocument.save();
+
+									return resolve(resultDocument);
+								} else {
+									return error.errorHandler(null, "NOT_COMPLETABLE", "Session cannot be completed as it is too close to the session's end date/time", reject, null);
+								}
+								
+							} else {
+								return error.errorHandler(null, "NOT_COMPLETABLE", "Session cannot be completed if it was not accepted", reject, null);
+							}
+
+						} else {
+							return error.errorHandler(null, "NO_TIMESLOTS", "Session doesn't have any timeslots", reject, null);
+						}		
+			
 					}
 
 				});
@@ -757,19 +883,39 @@ module.exports = {
 						return error.errorHandler(null, "INVALID_ID", "ID does not exist.", reject, null);
 					} else {
 						if (resultDocument.timeslots && resultDocument.timeslots.length!==0) {
-							var sessionDate = new moment(resultDocument.date);
-							
-							_.each(resultDocument.timeslots, function(timeslot) {
-								sessionDate.hour(timeslot.split(':')[0]);
-								sessionDate.minute(timeslot.split(':')[1]);
 
-								if (timeslot.split(':').length>2) {
-									sessionDate.second(timeslot.split(':')[2]);
+							if (resultDocument.state==='accepted') {
+
+								var sessionDate = new moment(resultDocument.date);
+								var cancelDate = new moment().add(cancelTime, 'hours');
+
+								var sessionTime = "23:59:59";
+
+								_.each(resultDocument.timeslots, function(timeslot) {
+									if (timeslot.split(':')[0] <= sessionTime.split(':')[0] 
+									 && timeslot.split(':')[1] <= sessionTime.split(':')[1]) {
+
+									 	if (timeslot.split(':').length > 2) {
+
+											if (sessionTime.split(':').length > 2 && timeslot.split(':')[2] <= sessionTime.split(':')[2]) {
+												sessionTime = timeslot;
+											}
+
+										} else {
+											sessionTime = timeslot;
+										}
+
+									} 
+								});
+
+								sessionDate.hour(sessionTime.split(':')[0]);
+								sessionDate.minute(sessionTime.split(':')[1]);
+
+								if (sessionTime.split(':').length > 2) {
+									sessionDate.second(sessionTime.split(':')[2]);
 								} else {
 									sessionDate.second(0);
 								}
-
-								var cancelDate = new moment().add(cancelTime, 'hours');
 
 								if (cancelDate.isBefore(sessionDate)) {
 									resultDocument.state = 'cancelled';
@@ -777,10 +923,12 @@ module.exports = {
 
 									return resolve(resultDocument);
 								} else {
-									return error.errorHandler(null, "NOT_CANCELLABLE", "Session cannot be cancelled as it is too close to the session's date/time", reject, null);
+									return error.errorHandler(null, "NOT_CANCELLABLE", "Session cannot be cancelled as it is too close to the session's start date/time", reject, null);
 								}
 
-							});
+							} else {
+								return error.errorHandler(null, "NOT_CANCELLABLE", "Session cannot be completed if it was not accepted", reject, null);
+							}
 
 						} else {
 							return error.errorHandler(null, "NO_TIMESLOTS", "Session doesn't have any timeslots", reject, null);
