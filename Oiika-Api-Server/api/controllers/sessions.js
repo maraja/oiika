@@ -807,7 +807,7 @@ module.exports = {
 								_.each(resultDocument.timeslots, function(timeslot) {
 									if (timeslot.split(':')[0] >= sessionTime.split(':')[0] 
 									 && timeslot.split(':')[1] >= sessionTime.split(':')[1]) {
-										console.log("GOTTEM");
+
 									 	if (timeslot.split(':').length > 2) {
 
 											if (sessionTime.split(':').length < 3 || timeslot.split(':')[2] >= sessionTime.split(':')[2]) {
