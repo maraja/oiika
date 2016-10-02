@@ -22,9 +22,12 @@ module.exports = {
 		var fields = {
 			tutorId: 'tutor_id',
 			tuteeId: 'tutee_id',
-			text: 'text',
 			rating: 'rating',
 		};
+
+		if (review.text) {
+			fields.text = 'text';
+		}
 		
 		var fields_to_insert = {};
 
@@ -99,7 +102,8 @@ module.exports = {
 
 				reviewModel.find(
 				{
-					tutor_id: tutorId
+					tutor_id: tutorId,
+					text: { $ne: null }
 				},
 				// {
 				// 	reviews: 1

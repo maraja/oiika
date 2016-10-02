@@ -11,7 +11,7 @@ module.exports = function() {
     tutor_id : { type: ObjectId, index: true, required: true },
     // account id of tutee reviews are associated to
     tutee_id : { type: ObjectId, index: true, required: true },
-    text : { type: String, required: true },
+    text : { type: String, required: false },
     rating : { type: Number, required: true },
     date : { type: Date, required: true }
   }, {strict:true, collection: 'reviews' });

@@ -673,7 +673,6 @@ paths:
               required:
                 - tutorId
                 - tuteeId
-                - text
                 - rating
       responses:
           "200":
