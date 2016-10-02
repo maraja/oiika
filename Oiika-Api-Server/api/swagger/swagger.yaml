@@ -670,14 +670,11 @@ paths:
                   type: string
                 rating:
                   type: number
-                date:
-                  type: string
               required:
                 - tutorId
                 - tuteeId
                 - text
                 - rating
-                - date
       responses:
           "200":
             description: Success

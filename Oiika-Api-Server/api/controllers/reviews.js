@@ -6,6 +6,8 @@ const accountModel = app.models.accountModel;
 const valid = require('../helpers/validations');
 const error = require('../helpers/errors');
 
+const moment = require('moment');
+
 const Promise = require('bluebird');
 // const mongoose = require('mongoose');
 const _ = require('underscore');
@@ -22,7 +24,6 @@ module.exports = {
 			tuteeId: 'tutee_id',
 			text: 'text',
 			rating: 'rating',
-			date: 'date'
 		};
 		
 		var fields_to_insert = {};
@@ -42,6 +43,13 @@ module.exports = {
 			})
 
 		)});
+
+		map.push(new Promise(function(resolve, reject) {
+
+				fields_to_insert['date'] = new moment();
+				return resolve();
+
+		}));
 
 		// create a promise variable to insert into the database.
 		var insertToDb = function(){
